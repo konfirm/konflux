@@ -1,5 +1,5 @@
 /*
- *       __    Konflux (version 0.2.7, rev 367) - a javascript helper library
+ *       __    Konflux (version 0.2.8, rev 389) - a javascript helper library
  *      /\_\
  *   /\/ / /   Copyright 2012-2013, Konfirm (Rogier Spieker)
  *   \  / /    Releases under the MIT license
@@ -8,7 +8,7 @@
 ;(function(window, undefined){
 	'use strict';
 
-	var version = '0.2.7',
+	var version = '0.2.8',
 		document = window.document,
 
 		//  Private functions
@@ -156,6 +156,25 @@
 		hasProperty = function(haystack, needle)
 		{
 			return !!(needle in haystack);
+		},
+		/**
+		 *  Provide feedback about depricated features
+		 *  @name    depricate
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string message
+		 *  @return  void
+		 */
+		depricate = function(message)
+		{
+			var method = ['info', 'warn', 'log'],
+				i;
+			for (i = 0 ; i < method.length; ++i)
+				if (typeof console[method[i]] === 'function')
+				{
+					console[method[i]].apply(null, [elapsed() + ' DEPRICATED: ' + message]);
+					break;
+				}
 		},
 
 		//  Private properties
@@ -730,7 +749,7 @@
 		ajax.get    = requestType('GET');
 		/**
 		 *  Perform a POST request
-		 *  @name    get
+		 *  @name    post
 		 *  @type    method
 		 *  @access  public
 		 *  @param   object config
@@ -739,7 +758,7 @@
 		ajax.post   = requestType('POST');
 		/**
 		 *  Perform a PUT request
-		 *  @name    get
+		 *  @name    put
 		 *  @type    method
 		 *  @access  public
 		 *  @param   object config
@@ -748,7 +767,7 @@
 		ajax.put    = requestType('PUT');
 		/**
 		 *  Perform a DELETE request
-		 *  @name    get
+		 *  @name    del
 		 *  @type    method
 		 *  @access  public
 		 *  @param   object config
@@ -3002,7 +3021,6 @@
 	 *  Canvas object, allowing for chainable access to canvas methods
 	 *  @module  canvas
 	 *  @note    available as konflux.canvas / kx.canvas
-	 *  @TODO    documentation
 	 */
 	function kxCanvas()
 	{
@@ -3116,6 +3134,15 @@
 					};
 				}
 
+				/**
+				 *  Add a gradient fill to the canvas, adding colorstops to the the provided gradient
+				 *  @name    gradientFill
+				 *  @type    function
+				 *  @access  internal
+				 *  @param   object gradient
+				 *  @param   object color ({<position>:<color>})
+				 *  @return  object kxCanvasContext
+				 */
 				function gradientFill(gradient, color)
 				{
 					var p;
@@ -3128,6 +3155,15 @@
 					return context;
 				}
 
+				/**
+				 *  Resize the current canvas into a new one
+				 *  @name    resize
+				 *  @type    method
+				 *  @access  public
+				 *  @param   mixed width (one of: number, string percentage)
+				 *  @param   mixed height (one of: number, string percentage)
+				 *  @return  object kxCanvas
+				 */
 				context.resize = function(width, height)
 				{
 					var percentage = /([0-9]+)%/,
@@ -3157,6 +3193,15 @@
 					return false;
 				};
 
+				/**
+				 *  Get/set the canvas' full dataURL
+				 *  @name    data
+				 *  @type    method
+				 *  @access  public
+				 *  @param   string data (one of: the full data url to apply, or the mime type to obtain)
+				 *  @param   number quality (only used when obtaining the dataURL)
+				 *  @return  mixed  result (string dataURL when obtaining, object kxCanvasContext when providing)
+				 */
 				context.data = function(data, quality)
 				{
 					var image;
@@ -3171,6 +3216,14 @@
 					return canvas.toDataURL(data, quality || .8);
 				};
 
+				/**
+				 *  Append the canvas object associtated with the current kxCanvasContext to given DOM target
+				 *  @name    append
+				 *  @type    method
+				 *  @access  public
+				 *  @param   mixed target (one of: DOMElement or string id)
+				 *  @return  mixed result (kxCanvasContext on success, bool false otherwise)
+				 */
 				context.append = function(target)
 				{
 					if (typeof target === 'string')
@@ -3182,6 +3235,17 @@
 					return false;
 				};
 
+				/**
+				 *  Shorthand method to provide shadows to the canvas
+				 *  @name    shadow
+				 *  @type    method
+				 *  @access  public
+				 *  @param   number offsetX (skipped if not a number)
+				 *  @param   number offsetY (skipped if not a number)
+				 *  @param   number blur (skipped if not a number)
+				 *  @param   mixed color (applied as provided, if provided)
+				 *  @return  object kxCanvasContext
+				 */
 				context.shadow = function(x, y, blur, color)
 				{
 					if (typeof x === 'number')
@@ -3196,6 +3260,24 @@
 					return context;
 				};
 
+				/**
+				 *  Get/set the canvas' full dataURL
+				 *  @name    drawImage
+				 *  @type    method
+				 *  @access  public
+				 *  @param   image (Specifies the image, canvas, or video element to use)
+				 *  @param   sourceX (Optional. The x coordinate where to start clipping)
+				 *  @param   sourceY (Optional. The y coordinate where to start clipping)
+				 *  @param   sourceWidth (Optional. The width of the clipped image)
+				 *  @param   sourceHeight (Optional. The height of the clipped image)
+				 *  @param   targetX (The x coordinate where to place the image on the canvas)
+				 *  @param   targetY (The y coordinate where to place the image on the canvas)
+				 *  @param   targetWidth (Optional. The width of the image to use (stretch or reduce the image))
+				 *  @param   targetHeight (Optional. The height of the image to use (stretch or reduce the image))
+				 *  @return  object kxCanvasContext
+				 *  @note    This method is fully compatible with the native drawImage method:
+				 *           https://developer.mozilla.org/en/docs/Web/API/CanvasRenderingContext2D#drawImage()
+				 */
 				context.drawImage = function()
 				{
 					var arg = Array.prototype.slice.call(arguments);
@@ -3207,6 +3289,14 @@
 					return context.ctx2d.drawImage.apply(context.ctx2d, arg);
 				};
 
+				/**
+				 *  Fill the current (closed) shape
+				 *  @name    colorFill
+				 *  @type    method
+				 *  @access  public
+				 *  @param   mixed color (applied as provided, if provided, using the default fillStyle otherwise)
+				 *  @return  object kxCanvasContext
+				 */
 				context.colorFill = function(color)
 				{
 					if (color)
@@ -3215,6 +3305,16 @@
 					return context;
 				};
 
+				/**
+				 *  Set the stroke style
+				 *  @name    strokeStyle
+				 *  @type    method
+				 *  @access  public
+				 *  @param   mixed color
+				 *  @param   number width (line thickness)
+				 *  @param   string lineCap (one of: 'butt','round','square')
+				 *  @return  object kxCanvasContext
+				 */
 				context.strokeStyle = function(color, width, cap)
 				{
 					if (color)
@@ -3227,25 +3327,65 @@
 					return context;
 				};
 
+				/**
+				 *  Apply a radial gradient fill
+				 *  @name    radialGradientFill
+				 *  @type    method
+				 *  @access  public
+				 *  @param   kxPoint centerA (instead of a kxPoint, an object {x:<num>, y:<num>} will suffice)
+				 *  @param   number radiusA
+				 *  @param   kxPoint centerB (instead of a kxPoint, an object {x:<num>, y:<num>} will suffice)
+				 *  @param   number radiusB
+				 *  @param   mixed color
+				 *  @return  object kxCanvasContext
+				 */
 				context.radialGradientFill = function(a, ar, b, br, color)
 				{
 					return gradientFill(context.ctx2d.createRadialGradient(a.x, a.y, ar, b.x, b.y, br), color);
 				};
 
+				/**
+				 *  Apply a linear gradient fill
+				 *  @name    linearGradientFill
+				 *  @type    method
+				 *  @access  public
+				 *  @param   kxPoint from (instead of a kxPoint, an object {x:<num>, y:<num>} will suffice)
+				 *  @param   kxPoint to (instead of a kxPoint, an object {x:<num>, y:<num>} will suffice)
+				 *  @param   mixed color
+				 *  @return  object kxCanvasContext
+				 */
 				context.linearGradientFill = function(a, b, color)
 				{
 					return gradientFill(context.ctx2d.createLinearGradient(a.x, a.y, b.x, b.y), color);
 				};
 
-				context.circle = function(x, y, radius)
+				/**
+				 *  Draw a circle
+				 *  @name    circle
+				 *  @type    method
+				 *  @access  public
+				 *  @param   kxPoint center (instead of a kxPoint, an object {x:<num>, y:<num>} will suffice)
+				 *  @param   number  radius
+				 *  @return  object kxCanvasContext
+				 */
+				context.circle = function(p, radius)
 				{
 					context.beginPath();
-					context.arc(x, y, radius, 0, Math.PI * 2, 1);
+					context.arc(p.x, p.y, radius, 0, Math.PI * 2, 1);
 					context.closePath();
 
 					return context;
 				};
 
+				/**
+				 *  Draw a multitude of line segments in a fully enclosed path which get stroked
+				 *  @name    line
+				 *  @type    method
+				 *  @access  public
+				 *  @param   mixed point (one of: kxPoint or Array of points)
+				 *  @param   mixed pointN ...
+				 *  @return  object kxCanvasContext
+				 */
 				context.line = function()
 				{
 					var arg = Array.prototype.slice.call(arguments),
@@ -3270,6 +3410,16 @@
 		}
 
 
+		/**
+		 *  Create a new canvas
+		 *  @name    create
+		 *  @type    method
+		 *  @access  public
+		 *  @param   number width
+		 *  @param   number height
+		 *  @param   object default settings
+		 *  @return  object kxCanvasContext
+		 */
 		canvas.create = function(width, height, defaults)
 		{
 			var object = document.createElement('canvas');
@@ -3278,10 +3428,31 @@
 
 			return canvas.init(object, defaults);
 		};
+
+		/**
+		 *  Initialize a canvas so it can be drawn using konflux
+		 *  @name    init
+		 *  @type    method
+		 *  @access  public
+		 *  @param   DOMElement canvas
+		 *  @param   object default settings
+		 *  @return  object kxCanvasContext
+		 */
 		canvas.init = function(object, defaults)
 		{
 			return new kxCanvasContext(object, defaults);
 		};
+
+		/**
+		 *  Create a new DOMElement canvas and append it to given target
+		 *  @name    append
+		 *  @type    method
+		 *  @access  public
+		 *  @param   DOMElement target
+		 *  @param   mixed source (one of: kxCanvasContext or number width)
+		 *  @param   number height (ignored if the second arguments is not a number)
+		 *  @return  object kxCanvasContext (bool false if the mixed source did not lead to an kxCanvasContext instance)
+		 */
 		canvas.append = function(target, mixed)
 		{
 			if (typeof mixed === 'number')
@@ -3298,10 +3469,11 @@
 	 *  Logo object, creates the konflux logo on canvas
 	 *  @module  logo
 	 *  @note    available as konflux.logo / kx.logo
-	 *  @TODO    documentation
+	 *  @note    This object doesn't prove to be useful for the masses, hence it will be removed in a next version
 	 */
 	function kxLogo()
 	{
+		depricate('kxLogo will be removed from the default Konflux package in the near future');
 		var logo = this,
 			P = function(x, y){
 				return new konflux.point(x, y);
@@ -3317,34 +3489,70 @@
 					//  the opaque darker overlay
 					{globalAlpha:[.2],line:[P(0, 50), P(4, 70), P(82, 132), P(192, 44), P(198, 24), P(82, 112), P(0, 50)],fillStyle:['rgb(0, 0, 0)'],fill:[]}
 				]
-			},
-			render = function(dsgn){
-				var c, p, i;
-				dsgn = dsgn || 'konfirm';
-
-				if (typeof design[dsgn] !== 'undefined')
-				{
-					c = konflux.canvas.create(200, 150);
-					for (i = 0; i < design[dsgn].length; ++i)
-						for (p in design[dsgn][i])
-							c[p].apply(null, design[dsgn][i][p]);
-					return c;
-				}
-				return false;
 			};
 
-		logo.append = function(o, d)
+		/**
+		 *  Render given design into an newly created canvas element
+		 *  @name    append
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string design (optional, default 'konfirm', the only available design)
+		 *  @return  kxCanvasContext
+		 */
+		function render(dsgn)
 		{
-			return render(d).append(o);
-		};
-		logo.data = function(d)
+			var c, p, i;
+			dsgn = dsgn || 'konfirm';
+
+			if (typeof design[dsgn] !== 'undefined')
+			{
+				c = konflux.canvas.create(200, 150);
+				for (i = 0; i < design[dsgn].length; ++i)
+					for (p in design[dsgn][i])
+						c[p].apply(null, design[dsgn][i][p]);
+				return c;
+			}
+			return false;
+		}
+
+		/**
+		 *  Render given design into an newly created canvas element
+		 *  @name    append
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string design
+		 *  @return  kxCanvasContext
+		 */
+		logo.append = function(target, design)
 		{
-			return render(d).data();
+			return render(desgin).append(target);
 		};
-		logo.image = function(d)
+
+		/**
+		 *  Render given design as dataURL
+		 *  @name    data
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string design
+		 *  @return  string dataURL
+		 */
+		logo.data = function(design)
+		{
+			return render(desgin).data();
+		};
+
+		/**
+		 *  Render given design into an newly created image DOMElement
+		 *  @name    image
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string design
+		 *  @return  DOMElement image
+		 */
+		logo.image = function(design)
 		{
 			var img = document.createElement('img');
-			img.src = logo.data(d);
+			img.src = logo.data(design);
 			return img;
 		};
 	}
