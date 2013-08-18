@@ -1,5 +1,5 @@
 /*
- *       __    Konflux (version 0.2.6, rev 348) - a javascript helper library
+ *       __    Konflux (version 0.2.7, rev 367) - a javascript helper library
  *      /\_\
  *   /\/ / /   Copyright 2012-2013, Konfirm (Rogier Spieker)
  *   \  / /    Releases under the MIT license
@@ -8,7 +8,8 @@
 ;(function(window, undefined){
 	'use strict';
 
-	var document = window.document,
+	var version = '0.2.7',
+		document = window.document,
 
 		//  Private functions
 
@@ -330,6 +331,34 @@
 		}
 
 		/**
+		 *  Obtain a specific feature from the browser, be it the native property or the vendor prefixed property
+		 *  @name    hasFeature
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string   feature
+		 *  @return  mixed    feature (false if it doesn't exist)
+		 */
+		function getFeature(feature)
+		{
+			var vendor = vendorPrefix(),
+				uc     = konflux.string.ucFirst(feature),
+				search = [
+					feature,
+					vendor + uc,
+					vendor.toLowerCase() + uc
+				];
+
+			while (search.length)
+			{
+				feature = search.shift();
+				if (hasProperty(window, feature))
+					return window[feature];
+			}
+
+			return false;
+		}
+
+		/**
 		 *  Obtain the vendor prefix for the current browser
 		 *  @name   vendorPrefix
 		 *  @type   function
@@ -392,6 +421,19 @@
 			return prefix;
 		};
 		/**
+		 *  Obtain a specific feature from the browser
+		 *  @name    hasFeature
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string   feature
+		 *  @return  mixed    feature (false if it doesn't exist)
+		 *  @note    this method attempts to search for the native feature and falls back onto vendor prefixed features
+		 */
+		browser.feature = function(feature)
+		{
+			return getFeature(feature);
+		};
+		/**
 		 *  Test whether or not the browser at hand is aware of given feature(s) exist in either the window or document scope
 		 *  @name    supports
 		 *  @type    method
@@ -412,6 +454,7 @@
 
 			return r;
 		};
+
 		/**
 		 *  Enable the HTML5 fullscreen mode for given element
 		 *  @name    fullscreen
@@ -453,7 +496,36 @@
 	function kxAjax()
 	{
 		var ajax = this,
-			stat = {};
+			stat = {},
+			header = {
+				'X-Konflux': 'konflux/' + version
+			};
+
+		function kxFormData(form)
+		{
+			var formdata = this,
+				data = {};
+
+			formdata.append = function(key, value)
+			{
+				if (typeof value !== 'object')
+					data[key] = value;
+			};
+			formdata.serialize = function()
+			{
+				var r = [],
+					p;
+
+				for (p in data)
+					r.push(p + '=' + encodeURIComponent(data[p]));
+
+				return r.join('&');
+			}
+		};
+		kxFormData.prototype.toString = function()
+		{
+			return this.serialize();
+		};
 
 		/**
 		 *  Obtain a new XHR object
@@ -482,7 +554,9 @@
 				type  = 'type' in config ? config.type.toUpperCase() : 'GET',
 				data  = 'data' in config ? prepareData(config.data) : '',
 				async = 'async' in config ? config.async : true,
-				xhr   = getXMLHTTPRequest();
+				headers = 'header' in config ? combine(config.header, header) : false,
+				xhr   = getXMLHTTPRequest(),
+				p;
 
 			if (type !== 'POST')
 			{
@@ -515,10 +589,22 @@
 				if (state)
 					konflux.observer.notify('konflux.ajax.' + type.toLowerCase() + '.' + state, xhr, config);
 			};
+
+			if ('progress' in config && typeof config.progress === 'function')
+				konflux.event.listen(xhr.upload, 'progress', config.progress);
+			if ('error' in config && typeof config.error === 'function')
+				konflux.event.listen(xhr, 'error', config.error);
+			if ('abort' in config && typeof config.abort === 'function')
+				konflux.event.listen(xhr, 'abort', config.abort);
+
 			xhr.open(type, url, async);
+			if (headers)
+				for (p in headers)
+					xhr.setRequestHeader(p, headers[p]);
 			xhr.send(data);
 			return xhr;
 		}
+
 		/**
 		 *  Process an XHR response
 		 *  @name    process
@@ -555,23 +641,28 @@
 		 *  @access  internal
 		 *  @param   mixed  data
 		 *  @param   string name
-		 *  @return  string queryString
+		 *  @param   FormData (or kxFormData) object
+		 *  @return  FormData (or kxFormData) object
 		 */
-		function prepareData(data, name)
+		function prepareData(data, name, formData)
 		{
-			var r = [],
+			var r = formData || new (typeof FormData !== 'undefined' ? FormData : kxFormData)(),
 				p;
 
-			if (data instanceof Array)
+			if (typeof File !== 'undefined' && data instanceof File)
+				r.append(name, data, data.name);
+			else if (typeof Blob !== 'undefined' && data instanceof Blob)
+				r.append(name, data, 'blob');
+			else if (data instanceof Array || (typeof FileList !== 'undefined' && data instanceof FileList))
 				for (p = 0; p < data.length; ++p)
-					r = r.concat(prepareData(data[p], (name || '') + '[' + p + ']'));
+					prepareData(data[p], (name || '') + '[' + p + ']', r);
 			else if (typeof data === 'object')
 				for (p in data)
-					r = r.concat(prepareData(data[p], name ? name + '[' + encodeURIComponent(p) + ']' : encodeURIComponent(p)));
+					prepareData(data[p], name ? name + '[' + encodeURIComponent(p) + ']' : encodeURIComponent(p), r);
 			else
-				r.push(name + '=' + encodeURIComponent(data));
+				r.append(name, data);
 
-			return r.join('&');
+			return r;
 		}
 		/**
 		 *  Obtain a handler function for given request, this handler is triggered by the konflux observer (konflux.ajax.<type>)
@@ -776,6 +867,29 @@
 		function cssProperty(property)
 		{
 			return property.replace(/([A-Z])/g, '-$1').toLowerCase();
+		}
+
+		/**
+		 *  Determine whether or not the property is supported and try a vendor prefix, otherwise return false
+		 *  @name    hasProperty
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string property
+		 *  @return  mixed  (one of: string (script)property, or false)
+		 */
+		function hasProperty(property)
+		{
+			var prefix;
+
+			property = scriptProperty(property);
+			if (property in document.body.style)
+				return property;
+
+			property = konflux.browser.prefix() + konflux.string.ucFirst(property);
+			if (property in document.body.style)
+				return property;
+
+			return false;
 		}
 
 		/**
@@ -984,6 +1098,73 @@
 			return value;
 		}
 
+		/**
+		 *  Add one or more css classes to given element
+		 *  @name    addClass
+		 *  @type    method
+		 *  @access  public
+		 *  @param   DOMNode element
+		 *  @param   string classes (separated by any combination of whitespace and/or comma
+		 *  @return  string classes
+		 */
+		style.addClass = function(element, classes)
+		{
+			var current = konflux.string.trim(element.className).split(/\s+/);
+
+			return element.className = current.concat(konflux.array.diff(classes.split(/[,\s]+/), current)).join(' ');
+		};
+
+		/**
+		 *  Remove one or more css classes from given element
+		 *  @name    removeClass
+		 *  @type    method
+		 *  @access  public
+		 *  @param   DOMNode element
+		 *  @param   string classes (separated by any combination of whitespace and/or comma
+		 *  @return  string classes
+		 */
+		style.removeClass = function(element, classes)
+		{
+			var delta = konflux.string.trim(element.className).split(/\s+/),
+				classList = konflux.string.trim(classes).split(/[,\s]+/),
+				i, p;
+
+			for (i = 0; i < classList.length; ++i)
+			{
+				p = konflux.array.contains(delta, classList[i]);
+				if (p !== false)
+					delta.splice(p, 1);
+			}
+
+			return element.className = delta.join(' ');
+		};
+
+		/**
+		 *  Remove one or more css classes from given element
+		 *  @name    removeClass
+		 *  @type    method
+		 *  @access  public
+		 *  @param   DOMNode element
+		 *  @param   string classes (separated by any combination of whitespace and/or comma
+		 *  @return  string classes
+		 */
+		style.toggleClass = function(element, classes)
+		{
+			var current = konflux.string.trim(element.className).split(/\s+/),
+				classList = konflux.string.trim(classes).split(/[,\s]+/),
+				i, p;
+
+			for (i = 0; i < classList.length; ++i)
+			{
+				p = konflux.array.contains(current, classList[i]);
+				if (p !== false)
+					current.splice(p, 1);
+				else
+					current.push(classList[i]);
+			}
+
+			return element.className = current.join(' ');
+		};
 
 		/**
 		 *  Apply style rules to target DOMElement
@@ -1014,13 +1195,13 @@
 		{
 			var node = target.nodeName.toLowerCase(),
 				id = target.hasAttribute('id') ? '#' + target.getAttribute('id') : null,
-				classes = target.hasAttribute('class') ? '.' + target.getAttribute('class').split(' ').join('.') : null,
+				classes = target.hasAttribute('class') ? '.' + konflux.string.trim(target.getAttribute('class')).split(/\s+/).join('.') : null,
 				select = '';
 
 			if (arguments.length === 1 || id || classes)
 				select = node + (id || classes || '');
 
-			return kx.string.trim((!id && target.parentNode && target !== document.body ? style.selector(target.parentNode, true) + ' ' : '') + select);
+			return konflux.string.trim((!id && target.parentNode && target !== document.body ? style.selector(target.parentNode, true) + ' ' : '') + select);
 		};
 
 		/**
@@ -1125,7 +1306,7 @@
 		style.add = function(selector, rules, sheet)
 		{
 			var rule = '',
-				find, p;
+				find, p, pr;
 
 			//  in case the selector is not a string but a DOMNode, we go out and create a selector from it
 			if (typeof selector === 'object' && 'nodeType' in selector)
@@ -1163,7 +1344,11 @@
 			find = style.find(selector, sheet);
 			for (p in rules)
 				if (!(p in find) || normalizeValue(find[p]) !== normalizeValue(rules[p]))
-					rule += (rule !== '' ? ';' : '') + cssProperty(p) + ':' + rules[p];
+				{
+					pr = hasProperty(p);
+					if (pr)
+						rule += (rule !== '' ? ';' : '') + cssProperty(pr) + ':' + rules[p];
+				}
 
 			//  finally, add the rules to the stylesheet
 			if (sheet.addRule)
@@ -1206,6 +1391,21 @@
 			}
 
 			return match;
+		};
+
+		/**
+		 *
+		 */
+		style.get = function(element, property)
+		{
+			var value;
+
+			if (element.currentStyle)
+				value = element.currentStyle(scriptProperty(property));
+			else if (window.getComputedStyle)
+				value = document.defaultView.getComputedStyle(element, null).getPropertyValue(cssProperty(property));
+
+			return value;
 		};
 	}
 
@@ -1296,14 +1496,17 @@
 			 */
 			hash = function(s)
 			{
-				var p = 8,
+				var p = 16,
 					pad = ('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ' + s).substr(-(Math.ceil((s.length || 1) / p) * p)),
-					r = 0;
+					r = 0,
+					c;
+
 				while (pad.length)
 				{
 					r  += hashCode(pad.substr(0, p));
 					pad = pad.substr(p);
 				}
+
 				return Math.abs(r).toString(36);
 			},
 			/**
@@ -1466,6 +1669,8 @@
 		 *  @return  string uuid
 		 */
 		string.uuid = uuid;
+		string.ord = ord;
+		string.chr = chr;
 	}
 
 
@@ -1478,19 +1683,19 @@
 	{
 		var array = this,
 			/**
-			 *  Create a hash from a string
+			 *  Determine whether given value (needle) is in the array (haystack)
 			 *  @name    contains
 			 *  @type    function
 			 *  @access  internal
 			 *  @param   array haystack
-			 *  @param   mixed value
-			 *  @return  boolean contains
+			 *  @param   mixed needle
+			 *  @return  int   position
 			 */
 			contains = function(a, v)
 			{
 				for (var i = 0; i < a.length; ++i)
 					if (a[i] === v)
-						return true;
+						return i;
 				return false;
 			},
 			/**
@@ -1507,7 +1712,7 @@
 				var ret = [],
 					i;
 				for (i = 0; i < a.length; ++i)
-					if (!contains(b, a[i]))
+					if (contains(b, a[i]) === false)
 						ret.push(a[i]);
 				return ret;
 			},
@@ -1667,6 +1872,7 @@
 									appendTo(element, createStructure(struct[p]));
 									break;
 
+								case 'class':
 								case 'className':
 									element.setAttribute('class', struct[p]);
 									break;
@@ -2262,6 +2468,18 @@
 		point.y = y || 0;
 
 		/**
+		 *  Create a new point based on the current
+		 *  @name    clone
+		 *  @type    method
+		 *  @access  public
+		 *  @return  kxPoint  point
+		 */
+		point.clone = function()
+		{
+			return new kxPoint(point.x, point.y);
+		};
+
+		/**
 		 *  Move the point object by given x and y
 		 *  @name    move
 		 *  @type    method
@@ -2274,6 +2492,8 @@
 		{
 			point.x += x;
 			point.y += y;
+
+			return point;
 		};
 
 		/**
@@ -2304,6 +2524,8 @@
 		{
 			point.x *= factor;
 			point.y *= factor;
+
+			return point;
 		};
 
 		/**
@@ -2329,7 +2551,7 @@
 		 */
 		point.add = function(p)
 		{
-			return new kxPoint(pint.x + p.x, point.y + p.y);
+			return new kxPoint(point.x + p.x, point.y + p.y);
 		};
 
 		/**
@@ -2355,7 +2577,7 @@
 		 */
 		point.angle = function(p)
 		{
-			return Math.atan2(point.x - p.x, point.y - p.y);
+			return Math.atan2(p.x - point.x, p.y - point.y);
 		};
 	}
 
@@ -2479,7 +2701,8 @@
 	{
 		var ls = this,
 			maxSize = 2048,
-			storage = typeof window.localStorage !== 'undefined' ? window.localStorage : false;
+			storage = typeof window.localStorage !== 'undefined' ? window.localStorage : false,
+			fragmentPattern = /^\[fragment:([0-9]+),([0-9]+),([a-z0-9_]+)\]$/;
 
 		/**
 		 *  Combine stored fragments together into the original data string
@@ -2493,7 +2716,7 @@
 		{
 			var match, part, fragment, length, variable, i;
 
-			if (data && (match = data.match(/^\[fragment:([0-9]+),([0-9]+),([a-z_]+)\]$/)))
+			if (data && (match = data.match(fragmentPattern)))
 			{
 				fragment = parseInt(match[1]);
 				length   = parseInt(match[2]);
@@ -2528,13 +2751,13 @@
 		{
 			var variable = '__' + name,
 				fragment = Math.ceil(data.length / maxSize),
-				success  = storage.setItem(name, '[fragment:' + fragment + ',' + data.length + ',' + variable + ']'),
-				i;
+				i, start = time();
 
 			for (i = 0; i < fragment; ++i)
-				success = success && storage.setItem(variable + i, data.substring(i * maxSize, Math.min(i * maxSize + maxSize, data.length)));
+				storage.setItem(variable + i, data.substring(i * maxSize, Math.min((i + 1) * maxSize, data.length)));
 
-			return success;
+			//  write the index
+			storage.setItem(name, '[fragment:' + fragment + ',' + data.length + ',' + variable + ']');
 		}
 
 		/**
@@ -2552,7 +2775,7 @@
 				i;
 
 			for (i = 0; i < fragment; ++i)
-				drop(variable + i);
+				remove(variable + i);
 		}
 
 		/**
@@ -2592,7 +2815,7 @@
 		{
 			var data = storage ? storage.getItem(name) : false;
 
-			if (data && data.match(/^\[fragment:([0-9]+),([0-9]+),([a-z_]+)\]$/))
+			if (data && data.match(fragmentPattern))
 				data = combineFragments(data);
 
 			if (data && data.match(/^[a-z0-9]+:.*$/i))
@@ -2639,7 +2862,7 @@
 			if (storage)
 			{
 				data = storage.getItem(name);
-				if (data && (match = data.match(/^\[fragment:([0-9]+),([0-9]+),([a-z_]+)\]$/)))
+				if (data && (match = data.match(fragmentPattern)))
 					dropFragments(match);
 				return storage.removeItem(name);
 			}
@@ -2726,6 +2949,18 @@
 			for (i = 0; i < list.length; ++i)
 				remove(list[i]);
 		};
+
+		/**
+		 *  Obtain the (approximate) byte size of the entire storage
+		 *  @name    size
+		 *  @type    method
+		 *  @access  public
+		 *  @return  int size
+		 */
+		ls.size = function()
+		{
+			return unescape(encodeURIComponent(JSON.stringify(localStorage))).length;
+		};
 	}
 
 
@@ -2769,13 +3004,12 @@
 
 					//  relay all methods
 					for (p in context.ctx2d)
-						if (typeof context.ctx2d[p] === 'function')
+						if (typeof context.ctx2d[p] === 'function' && typeof context[p] !== 'function')
 							context[p] = relayMethod(context.ctx2d[p]);
 
 					//  relay all properties (as we want chainability)
 					for (p in property)
-					{
-						if (property[p] === null)
+						if (property[p] === null || p in context.ctx2d.canvas)
 						{
 							context[p] = relayCanvasProperty(p);
 						}
@@ -2784,7 +3018,6 @@
 							context[p] = relayProperty(p);
 							context[p](property[p]);
 						}
-					}
 				}
 
 				function relayMethod(f)
@@ -2827,18 +3060,20 @@
 					return context;
 				}
 
-				context.data = function(data)
+
+
+				context.data = function(data, quality)
 				{
 					var image;
-					if (data)
+					if (data && !/^[a-z]+\/[a-z0-9\-\+\.]+/.test(data))
 					{
-						image = new Image();
+						image     = new Image();
 						image.src = data;
 						context.ctx2d.clearRect(0, 0, canvas.width, canvas.height);
 						context.drawImage(image, 0, 0);
 						return context;
 					}
-					return canvas.toDataURL();
+					return canvas.toDataURL(data, quality || .8);
 				};
 
 				context.append = function(target)
@@ -2866,6 +3101,17 @@
 					return context;
 				};
 
+				context.drawImage = function()
+				{
+					var arg = Array.prototype.slice.call(arguments);
+
+					//  if we have a request to draw a kxCanvasContext, we honorate it by fetching its canvas
+					if (arg[0] instanceof kxCanvasContext)
+						arg[0] = arg[0].ctx2d.canvas;
+
+					return context.ctx2d.drawImage.apply(context.ctx2d, arg);
+				};
+
 				context.colorFill = function(color)
 				{
 					if (color)
@@ -2883,7 +3129,6 @@
 					if (cap)
 						context.lineCap(cap);
 
-					context.stroke();
 					return context;
 				};
 
