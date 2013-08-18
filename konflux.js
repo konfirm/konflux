@@ -1,12 +1,12 @@
 /*
- *       __    Konflux (version 0.2.5, rev 331) - a javascript helper library
+ *       __    Konflux (version 0.2.6, rev 348) - a javascript helper library
  *      /\_\
  *   /\/ / /   Copyright 2012-2013, Konfirm (Rogier Spieker)
  *   \  / /    Releases under the MIT license
  *    \/_/     More information: http://konfirm.net/konflux
  */
 ;(function(window, undefined){
-	"use strict";
+	'use strict';
 
 	var document = window.document,
 
@@ -55,7 +55,9 @@
 			for (i = 0; i < arguments.length; ++i)
 				if (typeof arguments[i] === 'object')
 					for (p in arguments[i])
-						obj[p] = arguments[i][p];
+						obj[p] = p in obj && typeof obj[p] == 'object'
+							? combine(arguments[i][p], obj[p])
+							: arguments[i][p];
 
 			return obj;
 		},
@@ -186,7 +188,7 @@
 		 */
 		kx.master = function()
 		{
-			return kx
+			return kx;
 		};
 
 		/**
@@ -235,7 +237,7 @@
 		 *  @access  public
 		 *  @param   mixed variable1
 		 *  @param   mixed variableN, ...
-		 *  @return  bool  variable is empty
+		 *  @return  bool  variables are empty
 		 */
 		kx.empty = function()
 		{
@@ -301,7 +303,7 @@
 			//  https://gist.github.com/527683 (Conditional comments only work for IE 5 - 9)
 			var node = document.createElement('div'),
 				check = node.getElementsByTagName('i'),
-				version = 3;
+				version = 0;
 
 			//  Starting with IE 4 (as version is incremented before first use), an <i> element is added to
 			//  the 'node' element surrounded by conditional comments. The 'check' variable is automatically updated
@@ -444,6 +446,232 @@
 
 
 	/**
+	 *  Handle AJAX requests
+	 *  @module  ajax
+	 *  @note    available as konflux.ajax / kx.ajax
+	 */
+	function kxAjax()
+	{
+		var ajax = this,
+			stat = {};
+
+		/**
+		 *  Obtain a new XHR object
+		 *  @name    getXMLHTTPRequest
+		 *  @type    function
+		 *  @access  internal
+		 *  @return  object XMLHttpRequest
+		 */
+		function getXMLHTTPRequest()
+		{
+			var xhr     = new XMLHttpRequest();
+			xhr.__kxref = konflux.unique();
+			return xhr;
+		}
+		/**
+		 *  Request a resource using XHR
+		 *  @name    request
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   object config
+		 *  @return  object XMLHttpRequest
+		 */
+		function request(config)
+		{
+			var url   = 'url' in config ? config.url : (konflux.url ? konflux.url.path : null),
+				type  = 'type' in config ? config.type.toUpperCase() : 'GET',
+				data  = 'data' in config ? prepareData(config.data) : '',
+				async = 'async' in config ? config.async : true,
+				xhr   = getXMLHTTPRequest();
+
+			if (type !== 'POST')
+			{
+				url += data !== '' ? '?' + data : '';
+				data = null;
+			}
+
+			xhr.onload = function(){
+				var status = Math.floor(this.status / 100),
+					state = false;
+				++stat[type];
+
+				if (status === 2 && 'success' in config)
+				{
+					state = 'success';
+					config.success.apply(this, process(this));
+				}
+				else if (status >= 4 && 'error' in config)
+				{
+					state = 'error';
+					config.error.apply(this, [this.status, this.responseText]);
+				}
+
+				if ('complete' in config)
+				{
+					state = !state ? 'complete' : state;
+					config.complete.apply(this, [this.status, this.statusText, this]);
+				}
+
+				if (state)
+					konflux.observer.notify('konflux.ajax.' + type.toLowerCase() + '.' + state, xhr, config);
+			};
+			xhr.open(type, url, async);
+			xhr.send(data);
+			return xhr;
+		}
+		/**
+		 *  Process an XHR response
+		 *  @name    process
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   object XMLHttpRequest
+		 *  @return  array  response ([status, response text, XMLHttpRequest])
+		 */
+		function process(xhr)
+		{
+			var contentType = xhr.getResponseHeader('content-type'),
+				result = [];
+
+			switch (contentType)
+			{
+				case 'application/json':
+					result.push(JSON.parse(xhr.responseText));
+					result.push(xhr);
+					break;
+
+				default:
+					result.push(xhr.status);
+					result.push(xhr.responseText);
+					result.push(xhr);
+					break;
+			}
+
+			return result;
+		}
+		/**
+		 *  Prepare data to be send
+		 *  @name    prepareData
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   mixed  data
+		 *  @param   string name
+		 *  @return  string queryString
+		 */
+		function prepareData(data, name)
+		{
+			var r = [],
+				p;
+
+			if (data instanceof Array)
+				for (p = 0; p < data.length; ++p)
+					r = r.concat(prepareData(data[p], (name || '') + '[' + p + ']'));
+			else if (typeof data === 'object')
+				for (p in data)
+					r = r.concat(prepareData(data[p], name ? name + '[' + encodeURIComponent(p) + ']' : encodeURIComponent(p)));
+			else
+				r.push(name + '=' + encodeURIComponent(data));
+
+			return r.join('&');
+		}
+		/**
+		 *  Obtain a handler function for given request, this handler is triggered by the konflux observer (konflux.ajax.<type>)
+		 *  @name    requestType
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string   type
+		 *  @return  function handler
+		 */
+		function requestType(type)
+		{
+			var handler = function(config){
+				switch (typeof config)
+				{
+					case 'object':
+						config.type = type;
+						break;
+
+					case 'string':
+						//  we assume an URL
+						config = {
+							url: config,
+							type: type
+						};
+						break;
+
+					default:
+						config = {
+							type: type
+						};
+				}
+				return request(config);
+			};
+			stat[type.toUpperCase()] = 0;
+			konflux.observer.subscribe('konflux.ajax.' + type.toLowerCase(), function(ob, config){
+				handler(config);
+			});
+
+			return handler;
+		}
+
+
+		/**
+		 *  Perform a request
+		 *  @name    request
+		 *  @type    method
+		 *  @access  public
+		 *  @param   object config
+		 *  @return  object XMLHttpRequest
+		 */
+		ajax.request = request;
+		/**
+		 *  Perform a GET request
+		 *  @name    get
+		 *  @type    method
+		 *  @access  public
+		 *  @param   object config
+		 *  @return  object XMLHttpRequest
+		 */
+		ajax.get    = requestType('GET');
+		/**
+		 *  Perform a POST request
+		 *  @name    get
+		 *  @type    method
+		 *  @access  public
+		 *  @param   object config
+		 *  @return  object XMLHttpRequest
+		 */
+		ajax.post   = requestType('POST');
+		/**
+		 *  Perform a PUT request
+		 *  @name    get
+		 *  @type    method
+		 *  @access  public
+		 *  @param   object config
+		 *  @return  object XMLHttpRequest
+		 */
+		ajax.put    = requestType('PUT');
+		/**
+		 *  Perform a DELETE request
+		 *  @name    get
+		 *  @type    method
+		 *  @access  public
+		 *  @param   object config
+		 *  @return  object XMLHttpRequest
+		 */
+		ajax.del = requestType('DELETE');
+		/**
+		 *  Perform a PURGE request (mostly supported by caching servers such as Varnish)
+		 *  @name    purge
+		 *  @type    method
+		 *  @access  public
+		 *  @param   object config
+		 *  @return  object XMLHttpRequest
+		 */
+		ajax.purge = requestType('PURGE');
+	}
+
+
+	/**
 	 *  Handle URL's/URI's
 	 *  @module  url
 	 *  @note    available as konflux.url / kx.url
@@ -485,7 +713,7 @@
 		 *  @type    object
 		 *  @access  public
 		 */
-		url.current = window && window.location ? parse(window.location.href) : false;
+		url.current = typeof window.location.href != 'undefined' ? parse(window.location.href) : false;
 		/**
 		 *  Parse given URL into its URI components
 		 *  @name    parse
@@ -899,6 +1127,10 @@
 			var rule = '',
 				find, p;
 
+			//  in case the selector is not a string but a DOMNode, we go out and create a selector from it
+			if (typeof selector === 'object' && 'nodeType' in selector)
+				selector = style.selector(selector);
+
 			//  make the rules into an object
 			if (typeof rules === 'string')
 				rules = getStyleProperties(rules);
@@ -969,7 +1201,7 @@
 				rules = typeof sheet[i].cssRules ? sheet[i].cssRules : sheet[i].rules;
 				if (rules)
 					for (j = 0; j < rules.length; ++j)
-						if (!selector || normalizeSelector(rules[j].selectorText) === selector)
+						if ('selectorText' in rules[j] && (!selector || normalizeSelector(rules[j].selectorText) === selector))
 							match = combine(match, getStyleProperties(rules[j].style.cssText));
 			}
 
@@ -1351,6 +1583,118 @@
 		 *  @return  array shuffled
 		 */
 		array.shuffle = shuffle;
+	}
+
+
+	/**
+	 *  DOM Structure helper
+	 *  @module  dom
+	 *  @note    available as konflux.dom / kx.dom
+	 */
+	function kxDOM()
+	{
+		var dom = this;
+
+		/**
+		 *  Append given source element or structure to the target element
+		 *  @name   appendTo
+		 *  @type   function
+		 *  @access internal
+		 *  @param  DOMElement target
+		 *  @param  mixed source (one of: DOMElement, Object structure)
+		 *  @return Array of added source elements
+		 */
+		function appendTo(target, source)
+		{
+			var result, i;
+
+			if (typeof target == 'string')
+				target = document.querySelector(target);
+
+			if (source instanceof Array)
+			{
+				result = [];
+				for (i = 0; i < source.length; ++i)
+					result.push(appendTo(target, source[i]));
+			}
+			else
+			{
+				result = target.appendChild(source);
+			}
+
+			return result;
+		}
+
+		/**
+		 *  Create a dom structure from given variable
+		 *  @name   createStructure
+		 *  @type   function
+		 *  @access internal
+		 *  @param  mixed source
+		 *  @return DOMNode structure
+		 */
+		function createStructure(struct)
+		{
+			var nodeName, element, p, i;
+
+			switch (typeof struct)
+			{
+				case 'object':
+					if (struct instanceof Array)
+					{
+						element = [];
+						for (i = 0; i < struct.length; ++i)
+							element.push(createStructure(struct[i]));
+					}
+					else
+					{
+						nodeName = 'name' in struct ? struct.name : 'div';
+						if (!/^[a-z]+$/.test(nodeName))
+							element = document.querySelector(nodeName);
+						else
+							element = document.createElement(nodeName);
+
+						for (p in struct)
+						{
+							switch (p)
+							{
+								case 'name':
+									//  do nothing
+									break;
+
+								case 'child':
+								case 'content':
+									appendTo(element, createStructure(struct[p]));
+									break;
+
+								case 'className':
+									element.setAttribute('class', struct[p]);
+									break;
+
+								default:
+									element.setAttribute(p, struct[p]);
+									break;
+							}
+						}
+					}
+					break;
+
+				case 'boolean':
+					struct = struct ? 'true' : 'false';
+					//  no break, fall through;
+				default:
+					element = document.createTextNode(struct);
+					break;
+			}
+
+			return element;
+		}
+
+		dom.create   = createStructure;
+		dom.appendTo = function(target, source)
+		{
+			return appendTo(target, typeof source == 'object' && typeof source.nodeType != 'undefined' ? source : createStructure(source));
+		};
 	}
 
 
@@ -1933,6 +2277,22 @@
 		};
 
 		/**
+		 *  Is given point on the exact same position
+		 *  @name    equal
+		 *  @type    method
+		 *  @access  public
+		 *  @param   kxPoint point
+		 *  @param   bool    round
+		 *  @return  void
+		 */
+		point.equal = function(p, round)
+		{
+			return round
+				? Math.round(point.x) === Math.round(p.x) && Math.round(point.y) === Math.round(p.y)
+				: point.x === p.x && point.y === p.y;
+		};
+
+		/**
 		 *  Scale the points coordinates by given factor
 		 *  @name    scale
 		 *  @type    method
@@ -2415,8 +2775,15 @@
 					//  relay all properties (as we want chainability)
 					for (p in property)
 					{
-						context[p] = relayProperty(p);
-						context[p](property[p]);
+						if (property[p] === null)
+						{
+							context[p] = relayCanvasProperty(p);
+						}
+						else
+						{
+							context[p] = relayProperty(p);
+							context[p](property[p]);
+						}
 					}
 				}
 
@@ -2424,6 +2791,16 @@
 				{
 					return function(){
 						f.apply(context.ctx2d, arguments);
+						return context;
+					};
+				}
+
+				function relayCanvasProperty(key)
+				{
+					return function(value){
+						if (typeof value === 'undefined')
+							return context.ctx2d.canvas[key];
+						context.ctx2d.canvas[key] = value;
 						return context;
 					};
 				}
@@ -2531,11 +2908,16 @@
 
 				context.line = function()
 				{
-					var len = arguments.length,
+					var arg = Array.prototype.slice.call(arguments),
+						len = arguments.length,
 						i;
+
+					if (len === 1 && arg[0] instanceof Array)
+						return context.line.apply(context.line, arg[0]);
+
 					context.beginPath();
 					for (i = 0; i < len; ++i)
-						if (i == len - 1 && arguments[i].x === arguments[0].x && arguments[i].y === arguments[0].y)
+						if (i == len - 1 && arguments[i].equal(arguments[0]))
 							context.closePath();
 						else
 							context[i == 0 ? 'moveTo' : 'lineTo'](arguments[i].x, arguments[i].y);
@@ -2586,9 +2968,14 @@
 			},
 			design = {
 				konfirm: [
-					{line:[P(3, 44), P(2, 35), P(41, 66), P(96, 22), P(94, 31), P(41, 75), P(3, 44)],fillStyle:['rgb(25,25,25)'],fill:[]},
-					{line:[P(77, 0), P(41, 25), P(21, 12), P(0, 25), P(2, 35), P(41, 66), P(96, 22), P(99, 12), P(77, 0)],fillStyle:['rgb(7,221,246)'],fill:[]},
-					{globalAlpha:[.2],line:[P(0, 25), P(2, 35), P(41, 66), P(96, 22), P(99, 12), P(41, 56), P(0, 25)],fillStyle:['rgb(0, 0, 0)'],fill:[]}
+					//  remove the outline
+					{lineWidth:[0],strokeStyle:['transparent']},
+					//  the dark base segment
+					{line:[P(6, 88), P(4, 70), P(82, 132), P(192, 44), P(188, 62), P(82, 150), P(6, 88)],fillStyle:['rgb(25,25,25)'],fill:[]},
+					//  the main color fill
+					{line:[P(154, 0), P(82, 50), P(42, 24), P(0, 50), P(4, 70), P(82, 132), P(192, 44), P(198, 24), P(154, 0)],fillStyle:[Math.round(Math.random()) == 1 ? 'rgb(10,220,250)' : 'rgb(200,250,10)'],fill:[]},
+					//  the opaque darker overlay
+					{globalAlpha:[.2],line:[P(0, 50), P(4, 70), P(82, 132), P(192, 44), P(198, 24), P(82, 112), P(0, 50)],fillStyle:['rgb(0, 0, 0)'],fill:[]}
 				]
 			},
 			render = function(dsgn){
@@ -2597,7 +2984,7 @@
 
 				if (typeof design[dsgn] !== 'undefined')
 				{
-					c = konflux.canvas.create(100, 75);
+					c = konflux.canvas.create(200, 150);
 					for (i = 0; i < design[dsgn].length; ++i)
 						for (p in design[dsgn][i])
 							c[p].apply(null, design[dsgn][i][p]);
@@ -2606,18 +2993,18 @@
 				return false;
 			};
 
-		logo.append = function(o)
+		logo.append = function(o, d)
 		{
-			return render().append(o);
+			return render(d).append(o);
 		};
-		logo.data = function()
+		logo.data = function(d)
 		{
-			return render().data()
+			return render(d).data();
 		};
-		logo.image = function()
+		logo.image = function(d)
 		{
 			var img = document.createElement('img');
-			img.src = logo.data();
+			img.src = logo.data(d);
 			return img;
 		};
 	}
@@ -2629,15 +3016,17 @@
 	konflux.logo  = kxLogo;
 
 	//  expose object instances
+	konflux.observer   = new kxObserver();
 	konflux.browser    = new kxBrowser();
 	konflux.url        = new kxURL();
+	konflux.ajax       = new kxAjax();
 	konflux.style      = new kxStyle();
 	konflux.number     = new kxNumber();
 	konflux.string     = new kxString();
 	konflux.array      = new kxArray();
+	konflux.dom        = new kxDOM();
 	konflux.event      = new kxEvent();
 	konflux.timing     = new kxTiming();
-	konflux.observer   = new kxObserver();
 	konflux.breakpoint = new kxBreakpoint();
 	konflux.cookie     = new kxCookie();
 	konflux.storage    = new kxStorage();
