@@ -1,5 +1,5 @@
-/**
- *       __    Konflux (version 0.2.4, rev 317) - a javascript helper library
+/*
+ *       __    Konflux (version 0.2.5, rev 331) - a javascript helper library
  *      /\_\
  *   /\/ / /   Copyright 2012-2013, Konfirm (Rogier Spieker)
  *   \  / /    Releases under the MIT license
@@ -14,11 +14,11 @@
 
 		/**
 		 *  Obtain a reference to a specific buffer object, creates one if it does not exist
-		 *  @name   buffer
-		 *  @type   function
-		 *  @access internal
-		 *  @param  string object name
-		 *  @return object
+		 *  @name    buffer
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string object name
+		 *  @return  object
 		 */
 		buffer = function(key)
 		{
@@ -28,10 +28,10 @@
 		},
 		/**
 		 *  Obtain the milliseconds since the UNIX Epoch (Jan 1, 1970 00:00:00)
-		 *  @name   time
-		 *  @type   function
-		 *  @access internal
-		 *  @return int milliseconds
+		 *  @name    time
+		 *  @type    function
+		 *  @access  internal
+		 *  @return  int milliseconds
 		 */
 		time = function()
 		{
@@ -39,13 +39,13 @@
 		},
 		/**
 		 *  Shorthand method for creating a combined version of several objects
-		 *  @name   combine
-		 *  @type   function
-		 *  @access internal
-		 *  @param  object 1
-		 *  @param  object ...
-		 *  @param  object N
-		 *  @return function constructor
+		 *  @name    combine
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   object 1
+		 *  @param   object ...
+		 *  @param   object N
+		 *  @return  function constructor
 		 */
 		combine = function()
 		{
@@ -61,12 +61,12 @@
 		},
 		/**
 		 *  Shorthand method creating object prototypes
-		 *  @name   proto
-		 *  @type   function
-		 *  @access internal
-		 *  @param  function prototype
-		 *  @param  object extension
-		 *  @return function constructor
+		 *  @name    proto
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   function prototype
+		 *  @param   object extension
+		 *  @return  function constructor
 		 */
 		proto = function(construct, prototype)
 		{
@@ -80,10 +80,10 @@
 		},
 		/**
 		 *  Obtain the elapsed time since Konflux started (roughly), using the format: [Nd ] hh:mm:ss.ms
-		 *  @name   elapsed
-		 *  @type   function
-		 *  @access internal
-		 *  @return string formatted time
+		 *  @name    elapsed
+		 *  @type    function
+		 *  @access  internal
+		 *  @return  string formatted time
 		 */
 		elapsed = function()
 		{
@@ -101,10 +101,10 @@
 		},
 		/**
 		 *  Obtain an unique key, the key is guaranteed to be unique within the browser runtime
-		 *  @name   unique
-		 *  @type   function
-		 *  @access internal
-		 *  @return string key
+		 *  @name    unique
+		 *  @type    function
+		 *  @access  internal
+		 *  @return  string key
 		 */
 		unique = function()
 		{
@@ -112,11 +112,11 @@
 		},
 		/**
 		 *  Verify whether given argument is empty
-		 *  @name   empty
-		 *  @type   function
-		 *  @access internal
-		 *  @param  mixed variable to check
-`		 *  @note   The function follows PHP's empty function; null, undefined, 0, '', '0' and false are all considered empty
+		 *  @name    empty
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   mixed variable to check
+`		 *  @note    The function follows PHP's empty function; null, undefined, 0, '', '0' and false are all considered empty
 		 */
 		empty = function(p)
 		{
@@ -133,15 +133,28 @@
 		},
 		/**
 		 *  Determine the type of given variable
-		 *  @name   type
-		 *  @type   function
-		 *  @access internal
-		 *  @param  mixed variable
-		 *  @return string type
+		 *  @name    type
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   mixed variable
+		 *  @return  string type
 		 */
 		type = function(variable)
 		{
 			return variable instanceof Array ? 'array' : typeof variable;
+		},
+		/**
+		 *  Does given object have given property
+		 *  @name    hasProperty
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   object haystack
+		 *  @param   string property
+		 *  @return  bool   available
+		 */
+		hasProperty = function(haystack, needle)
+		{
+			return !!(needle in haystack);
 		},
 
 		//  Private properties
@@ -152,16 +165,24 @@
 		konflux
 	; //  end var
 
+	/**
+	 *  The Konflux object itself
+	 *  @name    Konflux
+	 *  @type    constructor function
+	 *  @access  internal
+	 *  @return  Konflux instance
+	 *  @note    konflux is available both as (window.)konflux and (window.)kx
+	 */
 	function Konflux()
 	{
 		var kx = this;
 
 		/**
 		 *  Return konflux itself
-		 *  @name   master
-		 *  @type   method
-		 *  @access public
-		 *  @return object konflux
+		 *  @name    master
+		 *  @type    method
+		 *  @access  public
+		 *  @return  object konflux
 		 */
 		kx.master = function()
 		{
@@ -170,39 +191,51 @@
 
 		/**
 		 *  Obtain the milliseconds since the UNIX Epoch (Jan 1, 1970 00:00:00)
-		 *  @name   time
-		 *  @type   method
-		 *  @access public
-		 *  @return int milliseconds
+		 *  @name    time
+		 *  @type    method
+		 *  @access  public
+		 *  @return  int milliseconds
 		 */
 		kx.time = time;
 
 		/**
 		 *  Obtain the elapsed time since Konflux started (roughly), using the format: [Nd ] hh:mm:ss.ms
-		 *  @name   elapsed
-		 *  @type   method
-		 *  @access public
-		 *  @return string formatted time
+		 *  @name    elapsed
+		 *  @type    method
+		 *  @access  public
+		 *  @return  string formatted time
 		 */
 		kx.elapsed = elapsed;
 
 		/**
 		 *  Obtain an unique key, the key is guaranteed to be unique within the browser runtime
-		 *  @name   unique
-		 *  @type   method
-		 *  @access public
-		 *  @return string key
+		 *  @name    unique
+		 *  @type    method
+		 *  @access  public
+		 *  @return  string key
 		 */
 		kx.unique = unique;
 
 		/**
+		 *  Shorthand method for creating a combined version of several objects
+		 *  @name    combine
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   object 1
+		 *  @param   object ...
+		 *  @param   object N
+		 *  @return  function constructor
+		 */
+		kx.combine = combine;
+
+		/**
 		 *  Verify whether given arguments are empty
-		 *  @name   empty
-		 *  @type   method
-		 *  @access public
-		 *  @param  mixed variable1
-		 *  @param  mixed variableN, ...
-		 *  @return bool  variable is empty
+		 *  @name    empty
+		 *  @type    method
+		 *  @access  public
+		 *  @param   mixed variable1
+		 *  @param   mixed variableN, ...
+		 *  @return  bool  variable is empty
 		 */
 		kx.empty = function()
 		{
@@ -215,12 +248,12 @@
 
 		/**
 		 *  Determine the type of given variable
-		 *  @name   type
-		 *  @type   method
-		 *  @access public
-		 *  @param  mixed  variable
-		 *  @param  bool   object types
-		 *  @return string type
+		 *  @name    type
+		 *  @type    method
+		 *  @access  public
+		 *  @param   mixed  variable
+		 *  @param   bool   object types
+		 *  @return  string type
 		 */
 		kx.type = function(variable, objectTypes)
 		{
@@ -236,95 +269,201 @@
 
 			return result;
 		};
+
+		return this;
 	}
 	konflux = new Konflux();
 
 
 	/**
 	 *  Browser/feature detection
-	 *  @note  available as konflux.browser / kx.browser
+	 *  @module  browser
+	 *  @note    available as konflux.browser / kx.browser
 	 */
 	function kxBrowser()
 	{
 		var browser = this,
+			support = {
+				touch: hasProperty(window, 'ontouchstart') || hasProperty(window.navigator, 'msMaxTouchPoints')
+			},
+			prefix,
 			ieVersion;
 
 		/**
-		 *  Verify if the browser at hand is any version of Internet Explorer (4+)
-		 *  @name   detectIE
-		 *  @type   function
-		 *  @access internal
-		 *  @return mixed (boolean false if not IE, version number if IE)
+		 *  Determine whether or not the browser is Internet Explorer (4+)
+		 *  @name    detectIE
+		 *  @type    function
+		 *  @access  internal
+		 *  @return  mixed (boolean false if not IE, version number if IE)
 		 */
 		function detectIE()
 		{
 			//  https://gist.github.com/527683 (Conditional comments only work for IE 5 - 9)
 			var node = document.createElement('div'),
 				check = node.getElementsByTagName('i'),
-				version = 0;
+				version = 3;
 
 			//  Starting with IE 4 (as version is incremented before first use), an <i> element is added to
 			//  the 'node' element surrounded by conditional comments. The 'check' variable is automatically updated
 			//  to contain all <i> elements. These elements are not there if the browser does not support conditional
-			//  comments or does not match the IE version.
+			//  comments or does not match the IE version
 			//  Note that there are two conditions for the while loop; the innerHTML filling and the check, the while
 			//  loop itself has no body (as it is closed off by a semi-colon right after declaration)
-			while (
-				node.innerHTML = '<!--[if gt IE ' + (++version) + ']><i></i><![endif]-->',
-				check.length && version < 10
-			);
+			while (node.innerHTML = '<!--[if gt IE ' + (++version) + ']><i></i><![endif]-->', check.length && version < 10);
 			//  Added IE's @cc_on trickery for browser which do not support conditional comments (such as IE10)
 			return version > 4 ? version : Function('/*@cc_on return document.documentMode@*/return false')();
 		}
 
 		/**
+		 *  Determine whether or not the browser has given feature in either the window or document scope
+		 *  @name    hasFeature
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string   feature
+		 *  @return  boolean  has feature
+		 */
+		function hasFeature(feature)
+		{
+			return typeof support[feature] !== 'undefined' ? support[feature] : hasProperty(window, feature) || hasProperty(document, feature);
+		}
+
+		/**
+		 *  Obtain the vendor prefix for the current browser
+		 *  @name   vendorPrefix
+		 *  @type   function
+		 *  @access internal
+		 *  @return string prefix
+		 */
+		function vendorPrefix()
+		{
+			var vendor = ['O', 'ms', 'Moz', 'Icab', 'Khtml', 'Webkit'],
+				regex  = new RegExp('^(' + vendor.join('|') + ')(?=[A-Z])'),
+				script = document.createElement('script'),
+				p;
+
+			for (p in script.style)
+				if (regex.test(p))
+				{
+					prefix = p.match(regex).shift();
+					break;
+				}
+
+			while (!prefix && vendor.length)
+			{
+				p = vendor.pop();
+				if (hasProperty(script.style, p + 'Opacity'))
+					prefix = p;
+			}
+
+			script = null;
+			return prefix;
+		};
+
+		/**
 		 *  Verify if the browser at hand is any version of Internet Explorer (4+)
-		 *  @name   ie
-		 *  @type   method
-		 *  @access public
-		 *  @return mixed (boolean false if not IE, version number if IE)
-		 *  @see    detectIE
-		 *  @note   this public implementation caches the result
+		 *  @name    ie
+		 *  @type    method
+		 *  @access  public
+		 *  @return  mixed (boolean false if not IE, version number if IE)
+		 *  @see     detectIE
+		 *  @note    this public implementation caches the result
 		 */
 		browser.ie = function()
 		{
 			if (typeof ieVersion === 'undefined')
 				ieVersion = detectIE();
 			return ieVersion;
-		}
+		};
+		/**
+		 *  Obtain the vendor prefix for the current browser
+		 *  @name    prefix
+		 *  @type    method
+		 *  @access  public
+		 *  @return  string prefix
+		 *  @note    this public implementation caches the result
+		 */
+		browser.prefix = function()
+		{
+			if (!prefix)
+				prefix = vendorPrefix();
+
+			return prefix;
+		};
 		/**
 		 *  Test whether or not the browser at hand is aware of given feature(s) exist in either the window or document scope
-		 *  @name   supports
-		 *  @type   method
-		 *  @access public
-		 *  @param  string feature
-		 *  @param  string ...
-		 *  @return boolean support
-		 *  @note   multi features can be provided, in which case the return value indicates the support of all given features
+		 *  @name    supports
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string feature
+		 *  @param   string ...
+		 *  @return  boolean support
+		 *  @note    multiple features can be provided, in which case the return value indicates the support of all given features
 		 */
 		browser.supports = function()
 		{
 			var r = true,
 				i = arguments.length;
+
+			//  test all the features given
 			while (r && --i >= 0)
-				r = r && (typeof window[arguments[i]] !== 'undefined' || typeof document[arguments[i]] !== 'undefined');
+				r = r && hasFeature(arguments[i]);
+
 			return r;
-		}
+		};
+		/**
+		 *  Enable the HTML5 fullscreen mode for given element
+		 *  @name    fullscreen
+		 *  @type    method
+		 *  @access  public
+		 *  @param   DOMNode target
+		 *  @return  bool    success
+		 *  @note    this method is highly experimental
+		 */
+		browser.fullscreen = function(target)
+		{
+			var check = ['fullScreen', 'isFullScreen'],
+				vendor = konflux.browser.prefix().toLowerCase(),
+				method, i;
+
+			if (!target)
+				target = document.documentElement;
+
+			for (i = 0, method = null; i < check.length, method === null; ++i)
+			{
+				method = hasProperty(document, check[i]) ? check[i] : vendor + konflux.string.ucFirst(check[i]);
+				if (!hasProperty(document, method))
+					method = null;
+			}
+
+			vendor = method.match(new RegExp('^' + vendor)) ? vendor : null;
+			vendor = (vendor || (document[method] ? 'cancel' : 'request')) + konflux.string.ucFirst((vendor ? (document[method] ? 'cancel' : 'request') : '') + konflux.string.ucFirst(check[0]));
+
+			(document[method] ? document : target)[vendor](Element.ALLOW_KEYBOARD_INPUT || null);
+		};
 	}
 
 
 	/**
 	 *  Handle URL's/URI's
-	 *  @note  available as konflux.url / kx.url
+	 *  @module  url
+	 *  @note    available as konflux.url / kx.url
 	 */
 	function kxURL()
 	{
 		var url = this;
 
-		function parse(loc)
+		/**
+		 *  Parse given URL into its URI components
+		 *  @name    parse
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string location
+		 *  @return  object result
+		 */
+		function parse(location)
 		{
 			//  URL regex + key processing based on the work of Derek Watson's jsUri (http://code.google.com/p/jsuri/)
-			var match = /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/.exec(loc),
+			var match = /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/.exec(location),
 				prop = ['source', 'protocol', 'domain', 'userInfo', 'user', 'password', 'host', 'port', 'relative', 'path', 'directory', 'file', 'query', 'anchor'],
 				result = {};
 			while (prop.length)
@@ -340,18 +479,41 @@
 			return result;
 		}
 
+		/**
+		 *  The parsed url for the URL of the current page
+		 *  @name    current
+		 *  @type    object
+		 *  @access  public
+		 */
 		url.current = window && window.location ? parse(window.location.href) : false;
+		/**
+		 *  Parse given URL into its URI components
+		 *  @name    parse
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string url
+		 *  @return  object result
+		 */
 		url.parse   = parse;
-		url.isLocal = function(loc)
+		/**
+		 *  Determine whether given URL is on the same domain as the page itself
+		 *  @name    isLocal
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string location
+		 *  @return  bool   local
+		 */
+		url.isLocal = function(location)
 		{
-			return url.current.domain === url.parse(loc).domain;
+			return url.current.domain === url.parse(location).domain;
 		};
 	}
 
 
 	/**
 	 *  Style(sheet) manipulation
-	 *  @note  available as konflux.style / kx.style
+	 *  @module  style
+	 *  @note    available as konflux.style / kx.style
 	 */
 	function kxStyle()
 	{
@@ -359,12 +521,12 @@
 
 		/**
 		 *  Obtain the script property notation for given property
-		 *  @name   scriptProperty
-		 *  @type   function
-		 *  @access internal
-		 *  @param  string property
-		 *  @return string script property
-		 *  @note   'background-color' => 'backgroundColor'
+		 *  @name    scriptProperty
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string property
+		 *  @return  string script property
+		 *  @note    'background-color' => 'backgroundColor'
 		 */
 		function scriptProperty(property)
 		{
@@ -376,12 +538,12 @@
 
 		/**
 		 *  Obtain the CSS property notation for given property
-		 *  @name   cssProperty
-		 *  @type   function
-		 *  @access internal
-		 *  @param  string property
-		 *  @return string CSS property
-		 *  @note   'backgroundColor' => 'background-color'
+		 *  @name    cssProperty
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string property
+		 *  @return  string CSS property
+		 *  @note    'backgroundColor' => 'background-color'
 		 */
 		function cssProperty(property)
 		{
@@ -390,10 +552,10 @@
 
 		/**
 		 *  Obtain all local stylesheets, where local is determined on a match of the domain
-		 *  @name   getLocalStylesheets
-		 *  @type   function
-		 *  @access internal
-		 *  @return Array stylesheets
+		 *  @name    getLocalStylesheets
+		 *  @type    function
+		 *  @access  internal
+		 *  @return  array stylesheets
 		 */
 		function getLocalStylesheets()
 		{
@@ -410,12 +572,12 @@
 
 		/**
 		 *  Obtain specific stylesheets
-		 *  @name   getStylesheet
-		 *  @type   function
-		 *  @access internal
-		 *  @param  string name (optional, default 'all'. Possible values 'first', 'last', 'all' or string filename)
-		 *  @param  bool   includeOffset (optional default false, local stylesheets only)
-		 *  @return Array stylesheets
+		 *  @name    getStylesheet
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string name [optional, default 'all'. Possible values 'first', 'last', 'all' or string filename]
+		 *  @param   bool   includeOffset [optional, default false, local stylesheets only]
+		 *  @return  array stylesheets
 		 */
 		function getStylesheet(name, includeOffsite)
 		{
@@ -439,8 +601,10 @@
 
 				default:
 					//  if no name was provided, return the entire list of (editable) stylesheets
-					if (!name || name === 'all')
+					if (name === 'all')
 						match = list;
+					else if (!name)
+						match = false;
 					//  search for the stylesheet(s) whose href matches the given name
 					else if (list.length > 0)
 						for (i = 0; i < list.length; ++i)
@@ -458,12 +622,12 @@
 
 		/**
 		 *  Obtain a stylesheet by its url or title
-		 *  @name   findStylesheet
-		 *  @type   function
-		 *  @access internal
-		 *  @param  string url
-		 *  @param  string name
-		 *  @return StyleSheet (bool false if not found)
+		 *  @name    findStylesheet
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string url
+		 *  @param   string name
+		 *  @return  StyleSheet (bool false if not found)
 		 */
 		function findStylesheet(url, name)
 		{
@@ -475,18 +639,19 @@
 
 		/**
 		 *  Create a new stylesheet
-		 *  @name   createStylesheet
-		 *  @type   function
-		 *  @access internal
-		 *  @param  string url
-		 *  @param  bool   before (effectively true for being the first stylesheet, anything else for last)
-		 *  @param  string name
-		 *  @return style node
+		 *  @name    createStylesheet
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string url
+		 *  @param   bool   before (effectively true for being the first stylesheet, anything else for last)
+		 *  @param   string name
+		 *  @return  style node
 		 */
 		function createStylesheet(url, before, name)
 		{
 			var element = findStylesheet(url, name),
-				head = document.head || document.getElementsByTagName('head')[0];
+				head = document.head || document.getElementsByTagName('head')[0],
+				i;
 
 			if (!element)
 			{
@@ -515,11 +680,11 @@
 
 		/**
 		 *  Parse the style declarations' cssText into key/value pairs
-		 *  @name   getStyleProperties
-		 *  @type   function
-		 *  @access internal
-		 *  @param  CSS Rule
-		 *  @return Object key value pairs
+		 *  @name    getStyleProperties
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   CSS Rule
+		 *  @return  Object key value pairs
 		 */
 		function getStyleProperties(declaration)
 		{
@@ -539,11 +704,11 @@
 
 		/**
 		 *  Normalize given selector string
-		 *  @name   normalizeSelector
-		 *  @type   function
-		 *  @access internal
-		 *  @param  string selector
-		 *  @return string normalized selector
+		 *  @name    normalizeSelector
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string selector
+		 *  @return  string normalized selector
 		 */
 		function normalizeSelector(selector)
 		{
@@ -552,11 +717,11 @@
 
 		/**
 		 *  Normalize given CSS value
-		 *  @name   normalizeValue
-		 *  @type   function
-		 *  @access internal
-		 *  @param  string value
-		 *  @return string normalized value
+		 *  @name    normalizeValue
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string value
+		 *  @return  string normalized value
 		 */
 		function normalizeValue(value)
 		{
@@ -593,13 +758,51 @@
 
 
 		/**
+		 *  Apply style rules to target DOMElement
+		 *  @name    inline
+		 *  @type    method
+		 *  @access  public
+		 *  @param   DOMElement target
+		 *  @param   object style rules
+		 *  @return  void
+		 */
+		style.inline = function(target, rules)
+		{
+			var p;
+
+			for (p in rules)
+				target.style[scriptProperty(p)] = rules[p];
+		};
+
+		/**
+		 *  Obtain a CSS selector for given element
+		 *  @name    selector
+		 *  @type    method
+		 *  @access  public
+		 *  @param   DOMElement target
+		 *  @return  string selector
+		 */
+		style.selector = function(target)
+		{
+			var node = target.nodeName.toLowerCase(),
+				id = target.hasAttribute('id') ? '#' + target.getAttribute('id') : null,
+				classes = target.hasAttribute('class') ? '.' + target.getAttribute('class').split(' ').join('.') : null,
+				select = '';
+
+			if (arguments.length === 1 || id || classes)
+				select = node + (id || classes || '');
+
+			return kx.string.trim((!id && target.parentNode && target !== document.body ? style.selector(target.parentNode, true) + ' ' : '') + select);
+		};
+
+		/**
 		 *  Obtain a stylesheet by its name or by a mnemonic (first, last, all)
-		 *  @name   sheet
-		 *  @type   method
-		 *  @access public
-		 *  @param  string target (optional, default 'all'. Possible values 'first', 'last', 'all' or string filename)
-		 *  @param  bool   editable (optional, default true)
-		 *  @return Array  stylesheets
+		 *  @name    sheet
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string target [optional, default 'all'. Possible values 'first', 'last', 'all' or string filename]
+		 *  @param   bool   editable [optional, default true]
+		 *  @return  array  stylesheets
 		 */
 		style.sheet = function(target, editable)
 		{
@@ -616,26 +819,27 @@
 
 		/**
 		 *  Create a new stylesheet, either as first or last
-		 *  @name   create
-		 *  @type   method
-		 *  @access public
-		 *  @param  bool  before all other stylesheets
-		 *  @return styleSheet
+		 *  @name    create
+		 *  @type    method
+		 *  @access  public
+		 *  @param   bool  before all other stylesheets
+		 *  @return  styleSheet
 		 */
 		 style.create = function(name, before)
 		 {
-		 	return createStylesheet(false, before, name);
+		 	var element = createStylesheet(false, before, name);
+		 	return element.sheet || false;
 		 };
 
 		/**
 		 *  Load an external stylesheet, either as first or last
-		 *  @name   load
-		 *  @type   method
-		 *  @access public
-		 *  @param  string   url the url of the stylesheet to load
-		 *  @param  function callback
-		 *  @param  bool     before all other style sheets
-		 *  @return style node (<link...> element
+		 *  @name    load
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string   url the url of the stylesheet to load
+		 *  @param   function callback
+		 *  @param   bool     before all other style sheets
+		 *  @return  style node (<link...> element
 		 */
 		 style.load = function(url, callback, before)
 		 {
@@ -662,11 +866,11 @@
 
 		/**
 		 *  Determine whether or not the given style (node) is editable
-		 *  @name   isEditable
-		 *  @type   method
-		 *  @access public
-		 *  @param  Stylesheet object or DOMelement style/link
-		 *  @return bool  editable
+		 *  @name    isEditable
+		 *  @type    method
+		 *  @access  public
+		 *  @param   Stylesheet object or DOMelement style/link
+		 *  @return  bool  editable
 		 */
 		style.isEditable = function(stylesheet)
 		{
@@ -682,13 +886,13 @@
 
 		/**
 		 *  Create and add a new style rule
-		 *  @name   add
-		 *  @type   method
-		 *  @access public
-		 *  @param  string selector
-		 *  @param  mixed  rules (one of; object {property: value} or string 'property: value')
-		 *  @param  mixed  sheet (either a sheet object or named reference, like 'first', 'last' or file name)
-		 *  @return int    index at which the rule was added
+		 *  @name    add
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string selector
+		 *  @param   mixed  rules (one of; object {property: value} or string 'property: value')
+		 *  @param   mixed  sheet (either a sheet object or named reference, like 'first', 'last' or file name)
+		 *  @return  int    index at which the rule was added
 		 */
 		style.add = function(selector, rules, sheet)
 		{
@@ -726,7 +930,7 @@
 			//  populate the find buffer, so we can determine which style rules we actually need
 			find = style.find(selector, sheet);
 			for (p in rules)
-				if (typeof find[p] === 'undefined' || normalizeValue(find[p]) !== normalizeValue(rules[p]))
+				if (!(p in find) || normalizeValue(find[p]) !== normalizeValue(rules[p]))
 					rule += (rule !== '' ? ';' : '') + cssProperty(p) + ':' + rules[p];
 
 			//  finally, add the rules to the stylesheet
@@ -740,12 +944,12 @@
 
 		/**
 		 *  Find all style rules for given selector (in optionally given sheet)
-		 *  @name   find
-		 *  @type   method
-		 *  @access public
-		 *  @param  string selector
-		 *  @param  mixed  sheet (optional, either a sheet object or named reference, like 'first', 'last' or file name)
-		 *  @return object style rules
+		 *  @name    find
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string selector
+		 *  @param   mixed  sheet [optional, either a sheet object or named reference, like 'first', 'last' or file name]
+		 *  @return  object style rules
 		 */
 		style.find = function(selector, sheet)
 		{
@@ -775,8 +979,62 @@
 
 
 	/**
+	 *  Number utils
+	 *  @module  number
+	 *  @note    available as konflux.number / kx.number
+	 */
+	function kxNumber()
+	{
+		var number = this;
+
+
+		/**
+		 *  Test wheter given input is an even number
+		 *  @name    even
+		 *  @type    method
+		 *  @access  public
+		 *  @param   number input
+		 *  @return  bool even
+		 */
+		number.even = function(input)
+		{
+			return input % 2 === 0;
+		};
+
+		/**
+		 *  Test wheter given input is an odd number
+		 *  @name    odd
+		 *  @type    method
+		 *  @access  public
+		 *  @param   number input
+		 *  @return  bool odd
+		 */
+		number.odd = function(input)
+		{
+			return !number.even(input);
+		};
+
+		/**
+		 *  Test wheter given input between the low and high values
+		 *  @name    between
+		 *  @type    method
+		 *  @access  public
+		 *  @param   number input
+		 *  @param   number low
+		 *  @param   number hight
+		 *  @return  bool between
+		 */
+		number.between = function(input, low, high)
+		{
+			return input >= low && input <= high;
+		};
+	}
+
+
+	/**
 	 *  String utils
-	 *  @note  available as konflux.string / kx.string
+	 *  @module  string
+	 *  @note    available as konflux.string / kx.string
 	 */
 	function kxString()
 	{
@@ -784,11 +1042,11 @@
 			/**
 			 *  Javascript port of Java’s String.hashCode()
 			 *  (Based on http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/)
-			 *  @name   hashCode
-			 *  @type   function
-			 *  @access internal
-			 *  @param  string input
-			 *  @return number hash (32bit integer)
+			 *  @name    hashCode
+			 *  @type    function
+			 *  @access  internal
+			 *  @param   string input
+			 *  @return  number hash (32bit integer)
 			 */
 			hashCode = function(s)
 			{
@@ -798,11 +1056,11 @@
 			},
 			/**
 			 *  Create a hash from a string
-			 *  @name   hash
-			 *  @type   function
-			 *  @access internal
-			 *  @param  string source
-			 *  @return string hash
+			 *  @name    hash
+			 *  @type    function
+			 *  @access  internal
+			 *  @param   string source
+			 *  @return  string hash
 			 */
 			hash = function(s)
 			{
@@ -818,11 +1076,11 @@
 			},
 			/**
 			 *  Return the ASCII value of given character
-			 *  @name   ord
-			 *  @type   function
-			 *  @access internal
-			 *  @param  string character
-			 *  @return number character code
+			 *  @name    ord
+			 *  @type    function
+			 *  @access  internal
+			 *  @param   string character
+			 *  @return  number character code
 			 */
 			ord = function(s)
 			{
@@ -830,11 +1088,11 @@
 			},
 			/**
 			 *  Return the character corresponding with given ASCII value
-			 *  @name   chr
-			 *  @type   function
-			 *  @access internal
-			 *  @param  number character code
-			 *  @return string character
+			 *  @name    chr
+			 *  @type    function
+			 *  @access  internal
+			 *  @param   number character code
+			 *  @return  string character
 			 */
 			chr = function(n)
 			{
@@ -842,14 +1100,14 @@
 			},
 			/**
 			 *  Pad a string
-			 *  @name   pad
-			 *  @type   function
-			 *  @access internal
-			 *  @param  string to pad
-			 *  @param  number length
-			 *  @param  string pad string (optional, default ' ')
-			 *  @param  int pad type (optional, default PAD_RIGHT)
-			 *  @return padded string
+			 *  @name    pad
+			 *  @type    function
+			 *  @access  internal
+			 *  @param   string to pad
+			 *  @param   number length
+			 *  @param   string pad string [optional, default ' ']
+			 *  @param   int pad type [optional, default PAD_RIGHT]
+			 *  @return  padded string
 			 */
 			pad = function(s, n, c, t)
 			{
@@ -860,11 +1118,11 @@
 			},
 			/**
 			 *  Generate a checksum for given string
-			 *  @name   checksum
-			 *  @type   function
-			 *  @access internal
-			 *  @param  string source
-			 *  @return string checksum
+			 *  @name    checksum
+			 *  @type    function
+			 *  @access  internal
+			 *  @param   string source
+			 *  @return  string checksum
 			 */
 			checksum = function(s)
 			{
@@ -873,10 +1131,10 @@
 			},
 			/**
 			 *  Generate a UUID
-			 *  @name   uuid
-			 *  @type   function
-			 *  @access internal
-			 *  @return string uuid
+			 *  @name    uuid
+			 *  @type    function
+			 *  @access  internal
+			 *  @return  string uuid
 			 */
 			uuid = function()
 			{
@@ -893,11 +1151,11 @@
 
 		/**
 		 *  Trim string from leading/trailing whitespace
-		 *  @name   trim
-		 *  @type   method
-		 *  @access public
-		 *  @param  string to trim
-		 *  @return trimmed string
+		 *  @name    trim
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string to trim
+		 *  @return  trimmed string
 		 */
 		string.trim = function(s)
 		{
@@ -909,11 +1167,11 @@
 		};
 		/**
 		 *  Reverse given string
-		 *  @name   reverse
-		 *  @type   method
-		 *  @access public
-		 *  @param  string to reverse
-		 *  @return reversed string
+		 *  @name    reverse
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string to reverse
+		 *  @return  reversed string
 		 */
 		string.reverse = function(s)
 		{
@@ -922,26 +1180,38 @@
 		};
 		/**
 		 *  Pad a string
-		 *  @name   pad
-		 *  @type   method
-		 *  @access public
-		 *  @param  string to pad
-		 *  @param  number length
-		 *  @param  string pad string (optional, default ' ')
-		 *  @param  int pad type (optional, default PAD_RIGHT)
-		 *  @return padded string
+		 *  @name    pad
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string to pad
+		 *  @param   number length
+		 *  @param   string pad string [optional, default ' ']
+		 *  @param   int pad type [optional, default PAD_RIGHT]
+		 *  @return  padded string
 		 */
 		string.pad = function(s, n, c, t)
 		{
 			return pad(s, n, c || ' ', t || string.PAD_RIGHT);
 		};
 		/**
+		 *  Uppercase the first character of given string
+		 *  @name    ucFirst
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string of which to uppercase the first char
+		 *  @return  string
+		 */
+		string.ucFirst = function(input)
+		{
+			return input.charAt(0).toUpperCase() + input.substr(1);
+		};
+		/**
 		 *  Create a hash from a string
-		 *  @name   hash
-		 *  @type   method
-		 *  @access public
-		 *  @param  string source
-		 *  @return string hash
+		 *  @name    hash
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string source
+		 *  @return  string hash
 		 */
 		string.hash = function(s)
 		{
@@ -949,19 +1219,19 @@
 		};
 		/**
 		 *  Generate a checksum for given string
-		 *  @name   checksum
-		 *  @type   method
-		 *  @access public
-		 *  @param  string source
-		 *  @return string checksum
+		 *  @name    checksum
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string source
+		 *  @return  string checksum
 		 */
 		string.checksum = checksum;
 		/**
 		 *  Generate a UUID
-		 *  @name   uuid
-		 *  @type   method
-		 *  @access public
-		 *  @return string uuid
+		 *  @name    uuid
+		 *  @type    method
+		 *  @access  public
+		 *  @return  string uuid
 		 */
 		string.uuid = uuid;
 	}
@@ -969,19 +1239,20 @@
 
 	/**
 	 *  Array utils
-	 *  @note  available as konflux.array / kx.array
+	 *  @module  array
+	 *  @note    available as konflux.array / kx.array
 	 */
 	function kxArray()
 	{
 		var array = this,
 			/**
 			 *  Create a hash from a string
-			 *  @name   contains
-			 *  @type   function
-			 *  @access internal
-			 *  @param  array haystack
-			 *  @param  mixed value
-			 *  @return boolean contains
+			 *  @name    contains
+			 *  @type    function
+			 *  @access  internal
+			 *  @param   array haystack
+			 *  @param   mixed value
+			 *  @return  boolean contains
 			 */
 			contains = function(a, v)
 			{
@@ -992,12 +1263,12 @@
 			},
 			/**
 			 *  Return the difference between two arrays
-			 *  @name   diff
-			 *  @type   function
-			 *  @access internal
-			 *  @param  array array1
-			 *  @param  array array2
-			 *  @return array difference
+			 *  @name    diff
+			 *  @type    function
+			 *  @access  internal
+			 *  @param   array array1
+			 *  @param   array array2
+			 *  @return  array difference
 			 */
 			diff = function(a, b)
 			{
@@ -1010,12 +1281,12 @@
 			},
 			/**
 			 *  Create an array with values between (including) given start and end
-			 *  @name   range
-			 *  @type   function
-			 *  @access internal
-			 *  @param  number start
-			 *  @param  number end
-			 *  @return array range
+			 *  @name    range
+			 *  @type    function
+			 *  @access  internal
+			 *  @param   number start
+			 *  @param   number end
+			 *  @return  array range
 			 */
 			range = function(a, b)
 			{
@@ -1027,11 +1298,11 @@
 			},
 			/**
 			 *  Shuffle given array
-			 *  @name   shuffle
-			 *  @type   function
-			 *  @access internal
-			 *  @param  array source
-			 *  @return array shuffled
+			 *  @name    shuffle
+			 *  @type    function
+			 *  @access  internal
+			 *  @param   array source
+			 *  @return  array shuffled
 			 */
 			shuffle = function(a)
 			{
@@ -1042,42 +1313,42 @@
 
 		//  expose
 		/**
-		 *  Create a hash from a string
-		 *  @name   hash
-		 *  @type   method
-		 *  @access public
-		 *  @param  array haystack
-		 *  @param  mixed value
-		 *  @return boolean contains
+		 *  Does the array contain given value
+		 *  @name    contains
+		 *  @type    method
+		 *  @access  public
+		 *  @param   array haystack
+		 *  @param   mixed value
+		 *  @return  boolean contains
 		 */
 		array.contains = contains;
 		/**
 		 *  Return the difference between two arrays
-		 *  @name   diff
-		 *  @type   function
-		 *  @access internal
-		 *  @param  array array1
-		 *  @param  array array2
-		 *  @return array difference
+		 *  @name    diff
+		 *  @type    method
+		 *  @access  public
+		 *  @param   array array1
+		 *  @param   array array2
+		 *  @return  array difference
 		 */
 		array.diff = diff;
 		/**
 		 *  Create an array with values between (including) given start and end
-		 *  @name   range
-		 *  @type   method
-		 *  @access public
-		 *  @param  number start
-		 *  @param  number end
-		 *  @return array range
+		 *  @name    range
+		 *  @type    method
+		 *  @access  public
+		 *  @param   number start
+		 *  @param   number end
+		 *  @return  array range
 		 */
 		array.range = range;
 		/**
 		 *  Shuffle given array
-		 *  @type   method
-		 *  @access public
-		 *  @access internal
-		 *  @param  array source
-		 *  @return array shuffled
+		 *  @name    shuffle
+		 *  @type    method
+		 *  @access  public
+		 *  @param   array source
+		 *  @return  array shuffled
 		 */
 		array.shuffle = shuffle;
 	}
@@ -1085,19 +1356,21 @@
 
 	/**
 	 *  Event attachment handler
-	 *  @note  available as konflux.event / kx.event
+	 *  @module  event
+	 *  @note    available as konflux.event / kx.event
 	 */
 	function kxEvent()
 	{
 		var event = this,
 			queue = buffer('event.queue'),
+			touch = konflux.browser.supports('touch'),
 
 			/**
 			 *  Ready state handler, removes all relevant triggers and executes any handler that is set
-			 *  @name   ready
-			 *  @type   function
-			 *  @access internal
-			 *  @return void
+			 *  @name    ready
+			 *  @type    function
+			 *  @access  internal
+			 *  @return  void
 			 */
 			ready = function(e){
 				var run = false,
@@ -1122,10 +1395,10 @@
 			},
 			/**
 			 *  Unify the event object, which makes event more consistent across browsers
-			 *  @name   unifyEvent
-			 *  @type   function
-			 *  @access internal
-			 *  @return Event object
+			 *  @name    unifyEvent
+			 *  @type    function
+			 *  @access  internal
+			 *  @return  Event object
 			 */
 			unifyEvent = function(e)
 			{
@@ -1144,14 +1417,27 @@
 			};
 
 		/**
-		 *  A custom DOMReady handler
-		 *  @name   add
-		 *  @type   method
-		 *  @access public
-		 *  @param  function handler
-		 *  @return void
+		 *  Is the browser capable of touch events
+		 *  @name    hasTouch
+		 *  @type    method
+		 *  @access  public
+		 *  @return  bool is touch device
 		 */
-		event.ready = function(handler){
+		event.hasTouch = function()
+		{
+			return touch;
+		};
+
+		/**
+		 *  A custom DOMReady handler
+		 *  @name    add
+		 *  @type    method
+		 *  @access  public
+		 *  @param   function handler
+		 *  @return  void
+		 */
+		event.ready = function(handler)
+		{
 			//  the document is ready already
 			if (document.readyState === 'complete')
 				return setTimeout(handler, 1); // make sure we run the 'event' asynchronously
@@ -1180,15 +1466,16 @@
 
 		/**
 		 *  Add event listeners to target
-		 *  @name   listen
-		 *  @type   method
-		 *  @access public
-		 *  @param  DOMElement target
-		 *  @param  string event type
-		 *  @param  function handler
-		 *  @return bool success
+		 *  @name    listen
+		 *  @type    method
+		 *  @access  public
+		 *  @param   DOMElement target
+		 *  @param   string event type
+		 *  @param   function handler
+		 *  @return  bool success
 		 */
-		event.listen = function(target, type, handler){
+		event.listen = function(target, type, handler)
+		{
 			var delegate = function(e){handler.apply(target, [unifyEvent(e)])},
 				list = typeof type === 'string' ? type.split(',') : type,
 				i;
@@ -1210,8 +1497,9 @@
 
 	/**
 	 *  Timing utils
-	 *  @note  available as konflux.timing / kx.timing
-	 *  @TODO  documentation (honestly... what DOES this do??)
+	 *  @module  timing
+	 *  @note    available as konflux.timing / kx.timing
+	 *  @TODO    documentation (honestly... what DOES this do??)
 	 */
 	function kxTiming()
 	{
@@ -1260,7 +1548,8 @@
 
 	/**
 	 *  Observer object, handles subscriptions to messages
-	 *  @note  available as konflux.observer / kx.observer
+	 *  @module  observer
+	 *  @note    available as konflux.observer / kx.observer
 	 */
 	function kxObserver()
 	{
@@ -1270,11 +1559,11 @@
 
 			/**
 			 *  Create the subscription stack if it does not exist
-			 *  @name   ensureSubscriptionStack
-			 *  @type   function
-			 *  @access internal
-			 *  @param  string stack name
-			 *  @return void
+			 *  @name    ensureSubscriptionStack
+			 *  @type    function
+			 *  @access  internal
+			 *  @param   string stack name
+			 *  @return  void
 			 */
 			ensureSubscriptionStack = function(s)
 			{
@@ -1282,12 +1571,12 @@
 			},
 			/**
 			 *  Add handler to specified stack
-			 *  @name   add
-			 *  @type   function
-			 *  @access internal
-			 *  @param  string stack name
-			 *  @param  function handler
-			 *  @return int total number of subscriptions in this stack
+			 *  @name    add
+			 *  @type    function
+			 *  @access  internal
+			 *  @param   string stack name
+			 *  @param   function handler
+			 *  @return  int total number of subscriptions in this stack
 			 */
 			add = function(s, f)
 			{
@@ -1296,13 +1585,13 @@
 			},
 			/**
 			 *  Disable a handler for specified stack
-			 *  @name   disable
-			 *  @type   function
-			 *  @access internal
-			 *  @param  string stack name
-			 *  @param  function handler
-			 *  @return void
-			 *  @note   this method is used from the Observation object, which would influence the number of
+			 *  @name    disable
+			 *  @type    function
+			 *  @access  internal
+			 *  @param   string stack name
+			 *  @param   function handler
+			 *  @return  void
+			 *  @note    this method is used from the Observation object, which would influence the number of
 			 *          subscriptions if the subscription itself was removed immediately
 			 */
 			disable = function(s, f)
@@ -1313,12 +1602,12 @@
 			},
 			/**
 			 *  Remove specified handler (and all disabled handlers) from specified stack
-			 *  @name   remove
-			 *  @type   function
-			 *  @access internal
-			 *  @param  string stack name
-			 *  @param  function handler (optional)
-			 *  @return array removed handlers
+			 *  @name    remove
+			 *  @type    function
+			 *  @access  internal
+			 *  @param   string stack name
+			 *  @param   function handler [optional]
+			 *  @return  array removed handlers
 			 */
 			remove = function(s, f)
 			{
@@ -1331,11 +1620,11 @@
 			},
 			/**
 			 *  Flush specified stack
-			 *  @name   flush
-			 *  @type   function
-			 *  @access internal
-			 *  @param  string stack name
-			 *  @return array removed handlers (false if the stack did not exist);
+			 *  @name    flush
+			 *  @type    function
+			 *  @access  internal
+			 *  @param   string stack name
+			 *  @return  array removed handlers (false if the stack did not exist);
 			 */
 			flush = function(s)
 			{
@@ -1349,12 +1638,12 @@
 			},
 			/**
 			 *  Trigger the handlers in specified stack
-			 *  @name   trigger
-			 *  @type   function
-			 *  @access internal
-			 *  @param  string stack name
-			 *  @param  mixed  arg1 ... argN
-			 *  @return void
+			 *  @name    trigger
+			 *  @type    function
+			 *  @access  internal
+			 *  @param   string stack name
+			 *  @param   mixed  arg1 ... argN
+			 *  @return  void
 			 */
 			trigger = function(s)
 			{
@@ -1390,13 +1679,13 @@
 
 		/**
 		 *  Observation object, instances of this are be provided to all observer notification subscribers
-		 *  @name   kxObservation
-		 *  @type   class
-		 *  @access internal
-		 *  @param  string type
-		 *  @param  function handle
-		 *  @param  string reference
-		 *  @return kxObservation object
+		 *  @name    kxObservation
+		 *  @type    class
+		 *  @access  internal
+		 *  @param   string type
+		 *  @param   function handle
+		 *  @param   string reference
+		 *  @return  kxObservation object
 		 */
 		function kxObservation(type, handle, reference)
 		{
@@ -1409,10 +1698,10 @@
 
 			/**
 			 *  Unsubscribe from the current observer stack
-			 *  @name   unsubscribe
-			 *  @type   function
-			 *  @access public
-			 *  @return void
+			 *  @name    unsubscribe
+			 *  @type    method
+			 *  @access  public
+			 *  @return  void
 			 */
 			observation.unsubscribe = function()
 			{
@@ -1420,10 +1709,10 @@
 			};
 			/**
 			 *  Stop the execution of this Observation
-			 *  @name   stop
-			 *  @type   function
-			 *  @access public
-			 *  @return void
+			 *  @name    stop
+			 *  @type    method
+			 *  @access  public
+			 *  @return  void
 			 */
 			observation.stop = function()
 			{
@@ -1433,14 +1722,14 @@
 
 		/**
 		 *  Subscribe a handler to an observer stack
-		 *  @name   subscribe
-		 *  @type   method
-		 *  @access public
-		 *  @param  string stack name
-		 *  @param  function handle
-		 *  @return bool success
+		 *  @name    subscribe
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string stack name
+		 *  @param   function handle
+		 *  @return  bool success
 		 */
-		observer.subscribe = function subscribe(stack, handle)
+		observer.subscribe = function(stack, handle)
 		{
 			var list = stack.split(','),
 				result = true,
@@ -1452,14 +1741,14 @@
 
 		/**
 		 *  Unsubscribe a handler from an observer stack
-		 *  @name   unsubscribe
-		 *  @type   method
-		 *  @access public
-		 *  @param  string stack name
-		 *  @param  function handle
-		 *  @return array removed handlers
+		 *  @name    unsubscribe
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string stack name
+		 *  @param   function handle
+		 *  @return  array removed handlers
 		 */
-		observer.unsubscribe = function unsubscribe(stack, handle)
+		observer.unsubscribe = function(stack, handle)
 		{
 			var list = stack.split(','),
 				result = [],
@@ -1471,14 +1760,14 @@
 
 		/**
 		 *  Notify all subscribers to a stack
-		 *  @name   subscribe
-		 *  @type   method
-		 *  @access public
-		 *  @param  string stack name
-		 *  @param  mixed  arg1 ... argN
-		 *  @return void
+		 *  @name    notify
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string stack name
+		 *  @param   mixed  arg1 ... argN
+		 *  @return  void
 		 */
-		observer.notify = function notify()
+		observer.notify = function()
 		{
 			return trigger.apply(observer, arguments);
 		};
@@ -1488,7 +1777,8 @@
 	/**
 	 *  Breakpoint object, add/remove classes on specified object (or body) when specific browser dimensions are met
 	 *  (triggers observations when viewport dimensions change)
-	 *  @note  available as konflux.breakpoint / kx.breakpoint
+	 *  @module  breakpoint
+	 *  @note    available as konflux.breakpoint / kx.breakpoint
 	 */
 	function kxBreakpoint()
 	{
@@ -1501,11 +1791,11 @@
 
 			/**
 			 *  Handle browser window resize events, matching the most appropriate size
-			 *  @name   _resize
-			 *  @type   function
-			 *  @access internal
-			 *  @param  event
-			 *  @return void
+			 *  @name    resize
+			 *  @type    function
+			 *  @access  internal
+			 *  @param   event
+			 *  @return  void
 			 */
 			resize = function(e)
 			{
@@ -1531,11 +1821,11 @@
 			},
 			/**
 			 *  Determine the best matching dimension and return the settings
-			 *  @name   match
-			 *  @type   function
-			 *  @access internal
-			 *  @param  int browser width
-			 *  @return object config
+			 *  @name    match
+			 *  @type    function
+			 *  @access  internal
+			 *  @param   int browser width
+			 *  @return  object config
 			 */
 			match = function(width){
 				var found, delta, min, p;
@@ -1552,10 +1842,10 @@
 			},
 			/**
 			 *  Determine the best matching pixel ratio and set the defined classes
-			 *  @name   pixelRatio
-			 *  @type   function
-			 *  @access internal
-			 *  @return void
+			 *  @name    pixelRatio
+			 *  @type    function
+			 *  @access  internal
+			 *  @return  void
 			 */
 			pixelRatio = function(){
 				var ratio = typeof window.devicePixelRatio !== 'undefined' ? window.devicePixelRatio : 1;
@@ -1565,16 +1855,16 @@
 
 		/**
 		 *  Add breakpoint configuration
-		 *  @name   add
-		 *  @type   function
-		 *  @access public
-		 *  @param  int width
-		 *  @param  string classname
-		 *  @param  DOMElement target (defaults to 'body')
-		 *  @return breakpoint object
-		 *  @note   when a breakpoint is added, the _resize handler will be triggered with a slight delay,
-		 *          so if a suitable breakpoint is added it will be used immediately but _resize will occur only once.
-		 *          This ought to prevent FOUC
+		 *  @name    add
+		 *  @type    method
+		 *  @access  public
+		 *  @param   int width
+		 *  @param   string classname
+		 *  @param   DOMElement target (defaults to 'body')
+		 *  @return  object breakpoint
+		 *  @note    when a breakpoint is added, the internal resize handler will be triggered with a slight delay,
+		 *           so if a suitable breakpoint is added it will be used immediately but _resize will occur only once.
+		 *           This ought to prevent FOUC
 		 */
 		breakpoint.add = function(width, className, target)
 		{
@@ -1590,14 +1880,14 @@
 
 		/**
 		 *  Add pixel ratio configuration
-		 *  @name   ratio
-		 *  @type   function
-		 *  @access public
-		 *  @param  int ratio
-		 *  @param  string classname
-		 *  @param  DOMElement target (defaults to 'body')
-		 *  @return breakpoint object
-		 *  @note   as the ratio does not change, the best matching ratio will be added once
+		 *  @name    ratio
+		 *  @type    method
+		 *  @access  public
+		 *  @param   int ratio
+		 *  @param   string classname
+		 *  @param   DOMElement target (defaults to 'body')
+		 *  @return  object breakpoint
+		 *  @note    as the ratio does not change, the best matching ratio will be added once
 		 */
 		breakpoint.ratio = function(ratio, className, target)
 		{
@@ -1618,8 +1908,8 @@
 
 	/**
 	 *  Point object, handling the (heavy) lifting of working with points
-	 *  @note  available as konflux.point / kx.point
-	 *  @TODO  documentation
+	 *  @module  point
+	 *  @note    available as konflux.point / kx.point
 	 */
 	function kxPoint(x, y)
 	{
@@ -1629,12 +1919,12 @@
 
 		/**
 		 *  Move the point object by given x and y
-		 *  @name   move
-		 *  @type   method
-		 *  @access public
-		 *  @param  number x
-		 *  @param  number y
-		 *  @return void
+		 *  @name    move
+		 *  @type    method
+		 *  @access  public
+		 *  @param   number x
+		 *  @param   number y
+		 *  @return  void
 		 */
 		point.move = function(x, y)
 		{
@@ -1644,11 +1934,11 @@
 
 		/**
 		 *  Scale the points coordinates by given factor
-		 *  @name   scale
-		 *  @type   method
-		 *  @access public
-		 *  @param  number factor
-		 *  @return void
+		 *  @name    scale
+		 *  @type    method
+		 *  @access  public
+		 *  @param   number factor
+		 *  @return  void
 		 */
 		point.scale = function(factor)
 		{
@@ -1658,11 +1948,11 @@
 
 		/**
 		 *  Subtract a point for the current point
-		 *  @name   subtract
-		 *  @type   method
-		 *  @access public
-		 *  @param  object point
-		 *  @return kxPoint
+		 *  @name    subtract
+		 *  @type    method
+		 *  @access  public
+		 *  @param   object point
+		 *  @return  kxPoint
 		 */
 		point.subtract = function(p)
 		{
@@ -1671,11 +1961,11 @@
 
 		/**
 		 *  Add a point to the current point
-		 *  @name   add
-		 *  @type   method
-		 *  @access public
-		 *  @param  object point
-		 *  @return kxPoint
+		 *  @name    add
+		 *  @type    method
+		 *  @access  public
+		 *  @param   object point
+		 *  @return  kxPoint
 		 */
 		point.add = function(p)
 		{
@@ -1684,11 +1974,11 @@
 
 		/**
 		 *  Get the distance between given and current point
-		 *  @name   distance
-		 *  @type   method
-		 *  @access public
-		 *  @param  object point
-		 *  @return number distance
+		 *  @name    distance
+		 *  @type    method
+		 *  @access  public
+		 *  @param   object point
+		 *  @return  number distance
 		 */
 		point.distance = function(p)
 		{
@@ -1697,11 +1987,11 @@
 
 		/**
 		 *  Get the angle in radians between given and current point
-		 *  @name   angle
-		 *  @type   method
-		 *  @access public
-		 *  @param  object point
-		 *  @return number angle
+		 *  @name    angle
+		 *  @type    method
+		 *  @access  public
+		 *  @param   object point
+		 *  @return  number angle
 		 */
 		point.angle = function(p)
 		{
@@ -1712,7 +2002,8 @@
 
 	/**
 	 *  Cookie object, making working with cookies a wee bit easier
-	 *  @note  available as konflux.cookie / kx.cookie
+	 *  @module  cookie
+	 *  @note    available as konflux.cookie / kx.cookie
 	 */
 	function kxCookie()
 	{
@@ -1720,10 +2011,10 @@
 			jar = {},
 			/**
 			 *  Read the available cookie information and populate the jar variable
-			 *  @name   init
-			 *  @type   function
-			 *  @access internal
-			 *  @return void
+			 *  @name    init
+			 *  @type    function
+			 *  @access  internal
+			 *  @return  void
 			 */
 			init = function()
 			{
@@ -1738,16 +2029,16 @@
 			},
 			/**
 			 *  Set a cookie
-			 *  @name   setCookie
-			 *  @type   function
-			 *  @access internal
-			 *  @param  string key
-			 *  @param  string value
-			 *  @param  int    expire [optional, default expire at the end of the session]
-			 *  @param  string path   [optional, default the current path]
-			 *  @param  string domain [optional, default the current domain]
-			 *  @return void
-			 *  @note   the syntax of setCookie is compatible with that of PHP's setCookie
+			 *  @name    setCookie
+			 *  @type    function
+			 *  @access  internal
+			 *  @param   string key
+			 *  @param   string value
+			 *  @param   int    expire [optional, default expire at the end of the session]
+			 *  @param   string path   [optional, default the current path]
+			 *  @param   string domain [optional, default the current domain]
+			 *  @return  void
+			 *  @note    the syntax of setCookie is compatible with that of PHP's setCookie
 			 *          this means that setting an empty value (string '' | null | false) or
 			 *          an expiry time in the past, the cookie will be removed
 			 */
@@ -1779,11 +2070,11 @@
 			},
 			/**
 			 *  Obtain a cookie value
-			 *  @name   getCookie
-			 *  @type   function
-			 *  @access internal
-			 *  @param  string key
-			 *  @return void
+			 *  @name    getCookie
+			 *  @type    function
+			 *  @access  internal
+			 *  @param   string key
+			 *  @return  void
 			 */
 			getCookie = function(key)
 			{
@@ -1793,15 +2084,15 @@
 
 		/**
 		 *  Get and/or set cookies
-		 *  @name   value
-		 *  @type   function
-		 *  @access internal
-		 *  @param  string key    [optional, an object containing all cookies is returned id omitted]
-		 *  @param  string value  [optional, if no value is given the current value will be returned]
-		 *  @param  int    expire [optional, default expire at the end of the session]
-		 *  @param  string path   [optional, default the current path]
-		 *  @param  string domain [optional, default the current domain]
-		 *  @return void
+		 *  @name    value
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string key    [optional, an object containing all cookies is returned if omitted]
+		 *  @param   string value  [optional, if no value is given the current value will be returned]
+		 *  @param   int    expire [optional, default expire at the end of the session]
+		 *  @param   string path   [optional, default the current path]
+		 *  @param   string domain [optional, default the current domain]
+		 *  @return  void
 		 */
 		cookie.value = function(key, value, expire, path, domain)
 		{
@@ -1821,7 +2112,8 @@
 
 	/**
 	 *  Storage object, a simple wrapper for localStorage
-	 *  @note  available as konflux.storage / kx.storage
+	 *  @module  storage
+	 *  @note    available as konflux.storage / kx.storage
 	 */
 	function kxStorage()
 	{
@@ -1831,11 +2123,11 @@
 
 		/**
 		 *  Combine stored fragments together into the original data string
-		 *  @name   combineFragments
-		 *  @type   function
-		 *  @access internal
-		 *  @param  string data index
-		 *  @return string data combined
+		 *  @name    combineFragments
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string data index
+		 *  @return  string data combined
 		 */
 		function combineFragments(data)
 		{
@@ -1865,12 +2157,12 @@
 
 		/**
 		 *  Split a large data string into several smaller fragments
-		 *  @name   createFragments
-		 *  @type   function
-		 *  @access internal
-		 *  @param  string name
-		 *  @param  string data
-		 *  @return bool   success
+		 *  @name    createFragments
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string name
+		 *  @param   string data
+		 *  @return  bool   success
 		 */
 		function createFragments(name, data)
 		{
@@ -1887,11 +2179,11 @@
 
 		/**
 		 *  Remove all fragmented keys
-		 *  @name   dropFragments
-		 *  @type   function
-		 *  @access internal
-		 *  @param  array  match
-		 *  @return void
+		 *  @name    dropFragments
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   array  match
+		 *  @return  void
 		 */
 		function dropFragments(match)
 		{
@@ -1904,36 +2196,63 @@
 		}
 
 		/**
+		 *  Obtain all data from localStorage
+		 *  @name    getAll
+		 *  @type    function
+		 *  @access  internal
+		 *  @return  mixed  data
+		 */
+		function getAll()
+		{
+			var result = null,
+				i, key;
+
+			if (storage)
+			{
+				result = {};
+				for (i = 0; i < storage.length; ++i)
+				{
+					key = storage.key(i);
+					result[key] = getItem(key);
+				}
+			}
+
+			return result;
+		}
+
+		/**
 		 *  Obtain the data for given name
-		 *  @name   getItem
-		 *  @type   function
-		 *  @access internal
-		 *  @param  string name
-		 *  @return mixed  data
+		 *  @name    getItem
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string name
+		 *  @return  mixed  data
 		 */
 		function getItem(name)
 		{
-			var data = storage ? storage.getItem(name) : false,
-				checksum;
+			var data = storage ? storage.getItem(name) : false;
 
 			if (data && data.match(/^\[fragment:([0-9]+),([0-9]+),([a-z_]+)\]$/))
 				data = combineFragments(data);
 
-			data = /([a-z0-9]+):(.*)/i.exec(data);
-			if (data.length > 2 && data[1] === konflux.string.checksum(data[2]))
-				return JSON.parse(data[2]);
+			if (data && data.match(/^[a-z0-9]+:.*$/i))
+			{
+				data = /([a-z0-9]+):(.*)/i.exec(data);
+				if (data.length > 2 && data[1] === konflux.string.checksum(data[2]))
+					return JSON.parse(data[2]);
+			}
 
-			return false;
+			return data ? data : false;
 		}
 
 		/**
 		 *  Set the data for given name
-		 *  @name   setItem
-		 *  @type   function
-		 *  @access internal
-		 *  @param  string name
-		 *  @param  mixed  data
-		 *  @return string data
+		 *  @name    setItem
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string name
+		 *  @param   mixed  data
+		 *  @return  string data
 		 */
 		function setItem(name, data)
 		{
@@ -1946,14 +2265,14 @@
 		}
 
 		/**
-		 *  Drop the data for given name
-		 *  @name   drop
-		 *  @type   function
-		 *  @access internal
-		 *  @param  string name
-		 *  @return bool   success
+		 *  Remove the data for given name
+		 *  @name    remove
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string name
+		 *  @return  bool   success
 		 */
-		function drop(name)
+		function remove(name)
 		{
 			var data, match;
 
@@ -1970,41 +2289,91 @@
 
 		/**
 		 *  Get the data for given name
-		 *  @name   get
-		 *  @type   method
-		 *  @access public
-		 *  @param  string name
-		 *  @return mixed  data
+		 *  @name    get
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string name [optional, omit to get all stored entries]
+		 *  @return  mixed  data
 		 */
-		ls.get = getItem;
+		ls.get = function(name)
+		{
+			return name ? getItem(name) : getAll();
+		};
 
 		/**
 		 *  Set the data for given name
-		 *  @name   set
-		 *  @type   method
-		 *  @access public
-		 *  @param  string name
-		 *  @param  mixed  data
-		 *  @return void
+		 *  @name    set
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string name
+		 *  @param   mixed  data
+		 *  @return  void
 		 */
 		ls.set = setItem;
 
 		/**
 		 *  Remove the data for given name
-		 *  @name   remove
-		 *  @type   method
-		 *  @access public
-		 *  @param  string name
-		 *  @return bool   success
+		 *  @name    remove
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string name
+		 *  @return  bool   success
 		 */
-		ls.remove = drop;
+		ls.remove = remove;
+
+		/**
+		 *  Get the amount of stored keys
+		 *  @name    length
+		 *  @type    method
+		 *  @access  public
+		 *  @return  number stored keys
+		 */
+		ls.length = function()
+		{
+			return storage ? storage.length : false;
+		};
+
+		/**
+		 *  Obtain all the keys
+		 *  @name    keys
+		 *  @type    method
+		 *  @access  public
+		 *  @return  Array  keys
+		 */
+		ls.keys = function()
+		{
+			var key = getAll(),
+				list = [],
+				p;
+
+			for (p in key)
+				list.push(p);
+
+			return list;
+		};
+
+		/**
+		 *  Flush all stored items
+		 *  @name    flush
+		 *  @type    method
+		 *  @access  public
+		 *  @return  void
+		 */
+		ls.flush = function()
+		{
+			var list = ls.keys(),
+				i;
+			for (i = 0; i < list.length; ++i)
+				remove(list[i]);
+		};
 	}
 
 
 	/**
 	 *  Canvas object, allowing for chainable access to canvas methods
-	 *  @note  available as konflux.canvas / kx.canvas
-	 *  @TODO  documentation
+	 *  @module  canvas
+	 *  @note    available as konflux.canvas / kx.canvas
+	 *  @TODO    documentation
 	 */
 	function kxCanvas()
 	{
@@ -2194,7 +2563,7 @@
 		canvas.append = function(target, mixed)
 		{
 			if (typeof mixed === 'number')
-				mixed = canvas.create(arguments[1], arguments[2]);
+				mixed = canvas.create(mixed, arguments.length > 2 ? arguments[2] : mixed);
 
 			if (mixed instanceof kxCanvasContext)
 				return mixed.append(target);
@@ -2205,8 +2574,9 @@
 
 	/**
 	 *  Logo object, creates the konflux logo on canvas
-	 *  @note  available as konflux.logo / kx.logo
-	 *  @TODO  documentation
+	 *  @module  logo
+	 *  @note    available as konflux.logo / kx.logo
+	 *  @TODO    documentation
 	 */
 	function kxLogo()
 	{
@@ -2262,6 +2632,7 @@
 	konflux.browser    = new kxBrowser();
 	konflux.url        = new kxURL();
 	konflux.style      = new kxStyle();
+	konflux.number     = new kxNumber();
 	konflux.string     = new kxString();
 	konflux.array      = new kxArray();
 	konflux.event      = new kxEvent();
