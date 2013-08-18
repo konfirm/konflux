@@ -56,9 +56,7 @@
 			for (i = 0; i < arguments.length; ++i)
 				if (typeof arguments[i] === 'object')
 					for (p in arguments[i])
-						obj[p] = p in obj && typeof obj[p] == 'object'
-							? combine(arguments[i][p], obj[p])
-							: arguments[i][p];
+						obj[p] = p in obj && typeof obj[p] == 'object' ? combine(arguments[i][p], obj[p]) : arguments[i][p];
 
 			return obj;
 		},
@@ -304,7 +302,7 @@
 			//  https://gist.github.com/527683 (Conditional comments only work for IE 5 - 9)
 			var node = document.createElement('div'),
 				check = node.getElementsByTagName('i'),
-				version = 0;
+				version = 3;
 
 			//  Starting with IE 4 (as version is incremented before first use), an <i> element is added to
 			//  the 'node' element surrounded by conditional comments. The 'check' variable is automatically updated
@@ -342,17 +340,24 @@
 		{
 			var vendor = vendorPrefix(),
 				uc     = konflux.string.ucFirst(feature),
+				object = [
+					window,
+					document,
+					navigator
+				],
 				search = [
 					feature,
 					vendor + uc,
 					vendor.toLowerCase() + uc
-				];
+				],
+				i;
 
 			while (search.length)
 			{
 				feature = search.shift();
-				if (hasProperty(window, feature))
-					return window[feature];
+				for (i = 0; i < object.length; ++i)
+					if (hasProperty(object[i], feature))
+						return object[i][feature];
 			}
 
 			return false;
@@ -1580,9 +1585,12 @@
 			};
 
 		//  'constants'
-		string.PAD_LEFT  = 1;
-		string.PAD_BOTH  = 2;
-		string.PAD_RIGHT = 3;
+		string.PAD_LEFT   = 1;
+		string.PAD_BOTH   = 2;
+		string.PAD_RIGHT  = 3;
+		string.TRIM_LEFT  = 1;
+		string.TRIM_BOTH  = 2;
+		string.TRIM_RIGHT = 3;
 
 		/**
 		 *  Trim string from leading/trailing whitespace
@@ -1592,12 +1600,15 @@
 		 *  @param   string to trim
 		 *  @return  trimmed string
 		 */
-		string.trim = function(s)
+		string.trim = function(s, side)
 		{
-			var	r = s.replace(/^\s\s*/, ''),
+			var	w = side || string.TRIM_BOTH,
+				r = w === string.TRIM_RIGHT ? s : s.replace(/^\s\s*/, ''),
 				x = /\s/,
 				i = r.length;
-			while (x.test(r.charAt(--i)));
+
+			if (w !== string.TRIM_LEFT)
+				while (x.test(r.charAt(--i)));
 			return r.slice(0, i + 1);
 		};
 		/**
@@ -2022,7 +2033,7 @@
 		 *  @param   DOMElement target
 		 *  @param   string event type
 		 *  @param   function handler
-		 *  @return  bool success
+		 *  @return  function delegate handler
 		 */
 		event.listen = function(target, type, handler)
 		{
@@ -2040,7 +2051,30 @@
 					target['on' + list[i]] = delegate;
 			}
 
-			return event;
+			return delegate;
+		};
+
+		/**
+		 *  Listen for events on a parent element and only trigger it if the given selector applies
+		 *  @name    live
+		 *  @type    method
+		 *  @access  public
+		 *  @param   target element
+		 *  @param   string event type(s)
+		 *  @param   string selector
+		 *  @param   function handler
+		 *  @return  bool success
+		 */
+		event.live = function(target, type, selector, handler)
+		{
+			var delegate = function(e){
+				var list = this.querySelectorAll(selector),
+					i;
+					for (i = 0; i < list.length; ++i)
+						if (list[i].isEqualNode(e.target))
+							handler.apply(e.target, [unifyEvent(e)]);
+				};
+			return event.listen(target, type, delegate);
 		};
 	}
 
@@ -2974,52 +3008,64 @@
 	{
 		var canvas = this;
 
-		function kxCanvasContext(canvas)
+		/**
+		 *  Context wrapper, this is the actual 'canvas' which gets returned
+		 *  @module  canvas
+		 *  @name    kxCanvasContext
+		 *  @type    module
+		 *  @access  internal
+		 *  @param   DOMElement canvas
+		 *  @param   object default properties
+		 *  @return  kxCanvasContext instance
+		 */
+		function kxCanvasContext(canvas, defaults)
 		{
 			var context = this;
 
+				/**
+				 *  kxCanvasContext initializer function
+				 *  @name    init
+				 *  @type    function
+				 *  @access  internal
+				 *  @return  void
+				 */
 				function init()
 				{
-					var property = {
-							globalAlpha: 1,
-							globalCompositeOperation: 'source-over',  //  source-over, source-in, source-out, source-atop, destination-over, destination-in, destination-out, destination-atop, lighter, copy, xor
+					var property = combine(defaults || {}, {
 							height: null, //  readonly
-							lineWidth: 1,
-							lineCap: 'butt',  //  butt, round, square
-							lineJoin: 'miter',  //  round, bevel, miter
-							miterLimit: 10,
-							strokeStyle: '#000',
-							fillStyle: '#000',
-							shadowOffsetX: 0,
-							shadowOffsetY: 0,
-							shadowBlur: 0,
-							shadowColor: 'transparent black',
-							font: '10px sans-serif',
-							textAlign: 'start',  //  start, end, left, right, center
-							textBaseLine: 'alphabetic',  //  top, hanging, middle, alphabetic, ideographic, bottom
-							width: null //  readonly
-						},
+							width: null   //  readonly
+						}),
 						p;
 					context.ctx2d = canvas.getContext('2d');
 
 					//  relay all methods
 					for (p in context.ctx2d)
-						if (typeof context.ctx2d[p] === 'function' && typeof context[p] !== 'function')
-							context[p] = relayMethod(context.ctx2d[p]);
+						if (typeof context[p] !== 'function')
+						{
+							if (typeof context.ctx2d[p] === 'function')
+								context[p] = relayMethod(context.ctx2d[p]);
+							else if (p in context.ctx2d.canvas)
+								context[p] = relayCanvasProperty(p, p in property && property[p] === null);
+							else
+	 							context[p] = relayProperty(p, p in property && property[p] === null);
 
-					//  relay all properties (as we want chainability)
-					for (p in property)
-						if (property[p] === null || p in context.ctx2d.canvas)
-						{
-							context[p] = relayCanvasProperty(p);
-						}
-						else
-						{
-							context[p] = relayProperty(p);
-							context[p](property[p]);
+	 						if (p in property && property[p] !== null)
+	 						{
+	 							console.log(p, 'we want', property[p], 'we have', context[p]());
+	 							context[p](property[p]);
+	 						}
 						}
 				}
 
+				/**
+				 *  Create a delegation function which call a context method and returns the kxCanvasContext
+				 *  instance (providing chainability)
+				 *  @name    relayMethod
+				 *  @type    function
+				 *  @access  internal
+				 *  @param   function context method
+				 *  @return  function delegate
+				 */
 				function relayMethod(f)
 				{
 					return function(){
@@ -3028,22 +3074,44 @@
 					};
 				}
 
-				function relayCanvasProperty(key)
+				/**
+				 *  Create a delegation function which gets/sets a canvas value and returns the kxCanvasContext
+				 *  instance (providing chainability)
+				 *  @name    relayCanvasProperty
+				 *  @type    function
+				 *  @access  internal
+				 *  @param   string   canvas property
+				 *  @param   bool     read only
+				 *  @return  function delegate
+				 */
+				function relayCanvasProperty(key, ro)
 				{
 					return function(value){
 						if (typeof value === 'undefined')
 							return context.ctx2d.canvas[key];
-						context.ctx2d.canvas[key] = value;
+						if (!ro)
+							context.ctx2d.canvas[key] = value;
 						return context;
 					};
 				}
 
-				function relayProperty(key)
+				/**
+				 *  Create a delegation function which gets/sets a context value and returns the kxCanvasContext
+				 *  instance (providing chainability)
+				 *  @name    relayCanvasProperty
+				 *  @type    function
+				 *  @access  internal
+				 *  @param   string  context property
+				 *  @param   bool    read only
+				 *  @return  function delegate
+				 */
+				function relayProperty(key, ro)
 				{
 					return function(value){
 						if (typeof value === 'undefined')
 							return context.ctx2d[key];
-						context.ctx2d[key] = value;
+						if (!ro)
+							context.ctx2d[key] = value;
 						return context;
 					};
 				}
@@ -3060,7 +3128,34 @@
 					return context;
 				}
 
+				context.resize = function(width, height)
+				{
+					var percentage = /([0-9]+)%/,
+						cnvs;
 
+					if (width > 0 && width < 1)
+						width = Math.round(canvas.width * width);
+					else if (typeof width === 'string' && percentage.test(width))
+						width = Math.round(canvas.width * (parseInt(width) / 100));
+
+					if (height > 0 && height < 1)
+						height = Math.round(canvas.height * height);
+					else if (typeof height === 'string' && percentage.test(height))
+						height = Math.round(canvas.height * (parseInt(height) / 100));
+
+					if (!width && height)
+						width = Math.round(height * (canvas.width / canvas.height));
+					else if (!height && width)
+						height = Math.round(width * (canvas.height / canvas.width));
+
+					if (width && height)
+					{
+						cnvs = konflux.canvas.create(width, height);
+						cnvs.drawImage(context, 0, 0, canvas.width, canvas.height, 0, 0, width, height);
+						return cnvs;
+					}
+					return false;
+				};
 
 				context.data = function(data, quality)
 				{
@@ -3123,11 +3218,11 @@
 				context.strokeStyle = function(color, width, cap)
 				{
 					if (color)
-						context.strokeStyle(color);
+						context.ctx2d.strokeStyle = color;
 					if (width)
-						context.lineWidth(width);
+						context.ctx2d.lineWidth = width;
 					if (cap)
-						context.lineCap(cap);
+						context.ctx2d.lineCap = cap;
 
 					return context;
 				};
@@ -3175,17 +3270,17 @@
 		}
 
 
-		canvas.create = function(width, height)
+		canvas.create = function(width, height, defaults)
 		{
 			var object = document.createElement('canvas');
 			object.setAttribute('width', width);
 			object.setAttribute('height', height);
 
-			return canvas.init(object);
+			return canvas.init(object, defaults);
 		};
-		canvas.init = function(object)
+		canvas.init = function(object, defaults)
 		{
-			return new kxCanvasContext(object);
+			return new kxCanvasContext(object, defaults);
 		};
 		canvas.append = function(target, mixed)
 		{
