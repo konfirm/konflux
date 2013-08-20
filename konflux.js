@@ -17,7 +17,7 @@
 		_timestamp,    //  rough execution start time
 		konflux;
 
-	//  Private functions
+	//  Internal functions
 
 	/**
 	 *  Obtain a reference to a specific buffer object, creates one if it does not exist
@@ -66,26 +66,6 @@
 				for (p in arguments[i])
 					obj[p] = p in obj && typeof obj[p] == 'object' ? combine(arguments[i][p], obj[p]) : arguments[i][p];
 
-		return obj;
-	}
-
-	/**
-	 *  Shorthand method creating object prototypes
-	 *  @name    proto
-	 *  @type    function
-	 *  @access  internal
-	 *  @param   function prototype
-	 *  @param   object extension
-	 *  @return  function constructor
-	 */
-	function proto(construct, prototype)
-	{
-		var obj = construct || function(){};
-		if (prototype)
-		{
-			obj.prototype = typeof prototype === 'function' ? new prototype : prototype;
-			obj.prototype.constructor = obj;
-		}
 		return obj;
 	}
 
