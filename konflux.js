@@ -1,5 +1,5 @@
 /*
- *       __    Konflux (version $DEV$) - a javascript helper library
+ *       __    Konflux (version $DEV$ - $DATE$) - a javascript helper library
  *      /\_\
  *   /\/ / /   Copyright 2012-2013, Konfirm (Rogier Spieker)
  *   \  / /    Releases under the MIT license
