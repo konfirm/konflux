@@ -13,9 +13,9 @@
 		undef = 'undefined',
 		//  Private properties
 		_buffer  = {}, //  singleton-like container, providing 'static' objects
-		_timestamp = time(), //  rough execution start time
-		_count = 0,
-		konflux
+		_count = 0,    //  internal counter, used to create unique values
+		_timestamp,    //  rough execution start time
+		konflux;
 
 	//  Private functions
 
@@ -192,6 +192,11 @@
 				break;
 			}
 	}
+
+	//  use the time() function to obtain the starting time
+	_timestamp = time();
+
+
 
 	/**
 	 *  The Konflux object itself
