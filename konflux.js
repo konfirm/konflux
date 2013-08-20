@@ -1,5 +1,5 @@
 /*
- *       __    Konflux (version 0.2.8, rev 389) - a javascript helper library
+ *       __    Konflux - a javascript helper library
  *      /\_\
  *   /\/ / /   Copyright 2012-2013, Konfirm (Rogier Spieker)
  *   \  / /    Releases under the MIT license
@@ -10,6 +10,7 @@
 
 	var version = '0.2.8',
 		document = window.document,
+		undef = 'undefined',
 
 		//  Private functions
 
@@ -23,7 +24,7 @@
 		 */
 		buffer = function(key)
 		{
-			if (typeof _buffer[key] === 'undefined')
+			if (typeof _buffer[key] === undef)
 				_buffer[key] = {};
 			return _buffer[key];
 		},
@@ -158,21 +159,21 @@
 			return !!(needle in haystack);
 		},
 		/**
-		 *  Provide feedback about depricated features
-		 *  @name    depricate
+		 *  Provide feedback about deprecated features
+		 *  @name    deprecate
 		 *  @type    function
 		 *  @access  internal
 		 *  @param   string message
 		 *  @return  void
 		 */
-		depricate = function(message)
+		deprecate = function(message)
 		{
 			var method = ['info', 'warn', 'log'],
 				i;
 			for (i = 0 ; i < method.length; ++i)
 				if (typeof console[method[i]] === 'function')
 				{
-					console[method[i]].apply(null, [elapsed() + ' DEPRICATED: ' + message]);
+					console[method[i]].apply(null, [elapsed() + ' deprecatED: ' + message]);
 					break;
 				}
 		},
@@ -344,7 +345,7 @@
 		 */
 		function hasFeature(feature)
 		{
-			return typeof support[feature] !== 'undefined' ? support[feature] : hasProperty(window, feature) || hasProperty(document, feature);
+			return typeof support[feature] !== undef ? support[feature] : hasProperty(window, feature) || hasProperty(document, feature);
 		}
 
 		/**
@@ -425,7 +426,7 @@
 		 */
 		browser.ie = function()
 		{
-			if (typeof ieVersion === 'undefined')
+			if (typeof ieVersion === undef)
 				ieVersion = detectIE();
 			return ieVersion;
 		};
@@ -670,14 +671,14 @@
 		 */
 		function prepareData(data, name, formData)
 		{
-			var r = formData || new (typeof FormData !== 'undefined' ? FormData : kxFormData)(),
+			var r = formData || new (typeof FormData !== undef ? FormData : kxFormData)(),
 				p;
 
-			if (typeof File !== 'undefined' && data instanceof File)
+			if (typeof File !== undef && data instanceof File)
 				r.append(name, data, data.name);
-			else if (typeof Blob !== 'undefined' && data instanceof Blob)
+			else if (typeof Blob !== undef && data instanceof Blob)
 				r.append(name, data, 'blob');
-			else if (data instanceof Array || (typeof FileList !== 'undefined' && data instanceof FileList))
+			else if (data instanceof Array || (typeof FileList !== undef && data instanceof FileList))
 				for (p = 0; p < data.length; ++p)
 					prepareData(data[p], (name || '') + '[' + p + ']', r);
 			else if (typeof data === 'object')
@@ -828,7 +829,7 @@
 		 *  @type    object
 		 *  @access  public
 		 */
-		url.current = typeof window.location.href != 'undefined' ? parse(window.location.href) : false;
+		url.current = typeof window.location.href != undef ? parse(window.location.href) : false;
 		/**
 		 *  Parse given URL into its URI components
 		 *  @name    parse
@@ -1242,7 +1243,7 @@
 			var list = getStylesheet(typeof target === 'string' ? target : null, editable === false ? true : false),
 				i;
 
-			if (typeof target.nodeName !== 'undefined')
+			if (typeof target.nodeName !== undef)
 				for (i = 0; i < list.length; ++i)
 					if (list[i].ownerNode === target)
 						return [list[i]];
@@ -1279,7 +1280,7 @@
 		 	var style = createStylesheet(url, before);
 
 			//  if style is a StyleSheet object, it has the ownerNode property containing the actual DOMElement in which it resides
-			if (typeof style.ownerNode !== 'undefined')
+			if (typeof style.ownerNode !== undef)
 			{
 				style = style.ownerNode;
 				//  it is safe to assume here that the stylesheet was loaded, hence we need to apply the callback (with a slight delay, so the order of returning and execution of the callback is the same for both load scenario's)
@@ -1308,7 +1309,7 @@
 		style.isEditable = function(stylesheet)
 		{
 			var list = getLocalStylesheets(),
-				node = typeof stylesheet.ownerNode !== 'undefined' ? stylesheet.ownerNode : stylesheet,
+				node = typeof stylesheet.ownerNode !== undef ? stylesheet.ownerNode : stylesheet,
 				i;
 			for (i = 0; i < list.length; ++i)
 				if (list[i].ownerNode === node)
@@ -1929,7 +1930,7 @@
 		dom.create   = createStructure;
 		dom.appendTo = function(target, source)
 		{
-			return appendTo(target, typeof source == 'object' && typeof source.nodeType != 'undefined' ? source : createStructure(source));
+			return appendTo(target, typeof source == 'object' && typeof source.nodeType != undef ? source : createStructure(source));
 		};
 	}
 
@@ -1983,8 +1984,8 @@
 			unifyEvent = function(e)
 			{
 				var evt = e || window.event;
-				if (typeof evt.target === 'undefined')
-					evt.target = typeof evt.srcElement !== 'undefined' ? evt.srcElement : null;
+				if (typeof evt.target === undef)
+					evt.target = typeof evt.srcElement !== undef ? evt.srcElement : null;
 
 				if (/^mouse[a-z]+|drag[a-z]+|drop$/i.test(evt.type))
 				{
@@ -2023,7 +2024,7 @@
 				return setTimeout(handler, 1); // make sure we run the 'event' asynchronously
 
 			//  we cannot use the event.listen method, as we need very different event listeners
-			if (typeof queue.ready === 'undefined')
+			if (typeof queue.ready === undef)
 			{
 				queue.ready = [];
 				if (document.addEventListener)
@@ -2128,7 +2129,7 @@
 		var timing = this,
 			stack = buffer('timing.delay'),
 			remove = function(reference){
-				if (typeof stack[reference] !== 'undefined')
+				if (typeof stack[reference] !== undef)
 				{
 					//  cancel the stack reference
 					stack[reference].cancel();
@@ -2170,7 +2171,7 @@
 			 */
 			ensureSubscriptionStack = function(s)
 			{
-				if (typeof subscription[s] === 'undefined') subscription[s] = [];
+				if (typeof subscription[s] === undef) subscription[s] = [];
 			},
 			/**
 			 *  Add handler to specified stack
@@ -2232,7 +2233,7 @@
 			flush = function(s)
 			{
 				var r = false;
-				if (typeof subscription[s] !== 'undefined')
+				if (typeof subscription[s] !== undef)
 				{
 					r = subscription[s];
 					delete subscription[s];
@@ -2262,7 +2263,7 @@
 					name = part.join('.') + (wildcard ? (part.length ? '.' : '') + '*' : '');
 					wildcard = true;
 
-					if (typeof subscription[name] !== 'undefined')
+					if (typeof subscription[name] !== undef)
 						for (i = 0; i < subscription[name].length; ++i)
 						{
 							if (!active[ref])
@@ -2451,8 +2452,8 @@
 			 *  @return  void
 			 */
 			pixelRatio = function(){
-				var ratio = typeof window.devicePixelRatio !== 'undefined' ? window.devicePixelRatio : 1;
-				if (typeof ratioStack[ratio] !== 'undefined')
+				var ratio = typeof window.devicePixelRatio !== undef ? window.devicePixelRatio : 1;
+				if (typeof ratioStack[ratio] !== undef)
 					ratioStack[ratio].element.className = konflux.string.trim(ratioStack[ratio].element.className) + ' ' + ratioStack[ratio].className;
 			};
 
@@ -2685,18 +2686,18 @@
 				if (pairs[0].substr(-1) === '=')
 					expire = -1;
 
-				if (typeof expire !== 'undefined' && expire)
+				if (typeof expire !== undef && expire)
 					date = new Date(expire);
 
 				if (date)
 				{
-					if (date < (new Date()).getTime() && typeof jar[key] !== 'undefined')
+					if (date < (new Date()).getTime() && typeof jar[key] !== undef)
 						delete jar[key];
 					pairs.push('expires=' + date);
 				}
-				if (typeof path !== 'undefined' && path)
+				if (typeof path !== undef && path)
 					pairs.push('path=' + path);
-				if (typeof domain !== 'undefined' && domain)
+				if (typeof domain !== undef && domain)
 					pairs.push('domain=' + domain);
 
 				document.cookie = pairs.join(';');
@@ -2713,7 +2714,7 @@
 			 */
 			getCookie = function(key)
 			{
-				return typeof jar[key] !== 'undefined' ? jar[key] : null;
+				return typeof jar[key] !== undef ? jar[key] : null;
 			};
 
 
@@ -2731,7 +2732,7 @@
 		 */
 		cookie.value = function(key, value, expire, path, domain)
 		{
-			if (typeof key === 'undefined')
+			if (typeof key === undef)
 				return jar;
 
 			//  if a second argument (value) was given, we update the cookie
@@ -2754,7 +2755,7 @@
 	{
 		var ls = this,
 			maxSize = 2048,
-			storage = typeof window.localStorage !== 'undefined' ? window.localStorage : false,
+			storage = typeof window.localStorage !== undef ? window.localStorage : false,
 			fragmentPattern = /^\[fragment:([0-9]+),([0-9]+),([a-z0-9_]+)\]$/;
 
 		/**
@@ -3105,7 +3106,7 @@
 				function relayCanvasProperty(key, ro)
 				{
 					return function(value){
-						if (typeof value === 'undefined')
+						if (typeof value === undef)
 							return context.ctx2d.canvas[key];
 						if (!ro)
 							context.ctx2d.canvas[key] = value;
@@ -3126,7 +3127,7 @@
 				function relayProperty(key, ro)
 				{
 					return function(value){
-						if (typeof value === 'undefined')
+						if (typeof value === undef)
 							return context.ctx2d[key];
 						if (!ro)
 							context.ctx2d[key] = value;
@@ -3254,7 +3255,7 @@
 						context.shadowOffsetY(y);
 					if (typeof blur === 'number')
 						context.shadowBlur(blur);
-					if (typeof color !== 'undefined')
+					if (typeof color !== undef)
 						context.shadowColor(color);
 
 					return context;
@@ -3473,7 +3474,7 @@
 	 */
 	function kxLogo()
 	{
-		depricate('kxLogo will be removed from the default Konflux package in the near future');
+		deprecate('kxLogo will be removed from the default Konflux package in the near future');
 		var logo = this,
 			P = function(x, y){
 				return new konflux.point(x, y);
@@ -3504,7 +3505,7 @@
 			var c, p, i;
 			dsgn = dsgn || 'konfirm';
 
-			if (typeof design[dsgn] !== 'undefined')
+			if (typeof design[dsgn] !== undef)
 			{
 				c = konflux.canvas.create(200, 150);
 				for (i = 0; i < design[dsgn].length; ++i)
