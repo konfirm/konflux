@@ -56,7 +56,6 @@
 	 *  @param   object N
 	 *  @return  function constructor
 	 */
-
 	function combine()
 	{
 		var obj = {},
@@ -105,6 +104,7 @@
 			minutes = Math.floor((delta -= hours * 3600000) / 60000),
 			seconds = Math.floor((delta -= minutes * 60000) / 1000),
 			ms = Math.floor(delta -= seconds * 1000);
+
 		return (days > 0 ? days + 'd ' : '') +
 				('00' + hours).substr(-2) + ':' +
 				('00' + minutes).substr(-2) + ':' +
@@ -130,7 +130,7 @@
 	 *  @type    function
 	 *  @access  internal
 	 *  @param   mixed variable to check
-`		 *  @note    The function follows PHP's empty function; null, undefined, 0, '', '0' and false are all considered empty
+	 *  @note    The function follows PHP's empty function; null, undefined, 0, '', '0' and false are all considered empty
 	 */
 	function empty(p)
 	{
@@ -188,7 +188,7 @@
 		for (i = 0 ; i < method.length; ++i)
 			if (typeof console[method[i]] === 'function')
 			{
-				console[method[i]].apply(null, [elapsed() + ' deprecatED: ' + message]);
+				console[method[i]].apply(null, [elapsed() + ' DEPRECATED: ' + message]);
 				break;
 			}
 	}
