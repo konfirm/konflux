@@ -64,7 +64,7 @@
 		for (i = 0; i < arguments.length; ++i)
 			if (typeof arguments[i] === 'object')
 				for (p in arguments[i])
-					obj[p] = p in obj && typeof obj[p] == 'object' ? combine(arguments[i][p], obj[p]) : arguments[i][p];
+					obj[p] = p in obj && typeof obj[p] === 'object' ? combine(arguments[i][p], obj[p]) : arguments[i][p];
 
 		return obj;
 	}
@@ -115,10 +115,10 @@
 	function empty(p)
 	{
 		var types = {
-				'object':  function(o){if (o instanceof Array)return o.length > 0; for (o in o)return true;return false},
-				'boolean': function(b){return b},
-				'number':  function(n){return n !== 0},
-				'string':  function(s){return !/^0?$/.test(p)}
+				'object':  function(o){if (o instanceof Array)return o.length > 0; for (o in o)return true;return false;},
+				'boolean': function(b){return b;},
+				'number':  function(n){return n !== 0;},
+				'string':  function(s){return !/^0?$/.test(p);}
 			};
 
 		if (typeof types[typeof p] === 'function' && types[typeof p](p))
@@ -277,7 +277,7 @@
 			{
 				name = /(?:function\s+)?(.{1,})\(/i.exec(variable.constructor.toString());
 				if (name && name.length > 1)
- 					result = name[1];
+					result = name[1];
 			}
 
 			return result;
@@ -405,7 +405,7 @@
 
 			script = null;
 			return prefix;
-		};
+		}
 
 		/**
 		 *  Verify if the browser at hand is any version of Internet Explorer (4+)
@@ -537,8 +537,8 @@
 					r.push(p + '=' + encodeURIComponent(data[p]));
 
 				return r.join('&');
-			}
-		};
+			};
+		}
 		kxFormData.prototype.toString = function()
 		{
 			return this.serialize();
@@ -557,6 +557,7 @@
 			xhr.__kxref = konflux.unique();
 			return xhr;
 		}
+
 		/**
 		 *  Request a resource using XHR
 		 *  @name    request
@@ -821,7 +822,7 @@
 		 *  @type    object
 		 *  @access  public
 		 */
-		url.current = typeof window.location.href != undef ? parse(window.location.href) : false;
+		url.current = typeof window.location.href !== undef ? parse(window.location.href) : false;
 		/**
 		 *  Parse given URL into its URI components
 		 *  @name    parse
@@ -1128,7 +1129,8 @@
 		{
 			var current = konflux.string.trim(element.className).split(/\s+/);
 
-			return element.className = current.concat(konflux.array.diff(classes.split(/[,\s]+/), current)).join(' ');
+			element.className = current.concat(konflux.array.diff(classes.split(/[,\s]+/), current)).join(' ');
+			return element.className;
 		};
 
 		/**
@@ -1153,7 +1155,8 @@
 					delta.splice(p, 1);
 			}
 
-			return element.className = delta.join(' ');
+			element.className = delta.join(' ')
+			return element.className;
 		};
 
 		/**
@@ -1251,11 +1254,11 @@
 		 *  @param   bool  before all other stylesheets
 		 *  @return  styleSheet
 		 */
-		 style.create = function(name, before)
-		 {
-		 	var element = createStylesheet(false, before, name);
-		 	return element.sheet || false;
-		 };
+		style.create = function(name, before)
+		{
+			var element = createStylesheet(false, before, name);
+			return element.sheet || false;
+		};
 
 		/**
 		 *  Load an external stylesheet, either as first or last
@@ -1267,9 +1270,9 @@
 		 *  @param   bool     before all other style sheets
 		 *  @return  style node (<link...> element
 		 */
-		 style.load = function(url, callback, before)
-		 {
-		 	var style = createStylesheet(url, before);
+		style.load = function(url, callback, before)
+		{
+			var style = createStylesheet(url, before);
 
 			//  if style is a StyleSheet object, it has the ownerNode property containing the actual DOMElement in which it resides
 			if (typeof style.ownerNode !== undef)
@@ -1282,13 +1285,13 @@
 					}, 1);
 			}
 			else if (callback)
-		 	{
+			{
 				konflux.event.listen(style, 'load', function(e){
 					callback.apply(style, [style]);
 				});
-		 	}
-		 	return style;
-		 };
+			}
+			return style;
+		};
 
 		/**
 		 *  Determine whether or not the given style (node) is editable
@@ -1564,9 +1567,7 @@
 			pad = function(s, n, c, t)
 			{
 				c = Array(n).join(c);
-				return (n -= s.length) > 0 && (t = t === string.PAD_LEFT ? n : (t === string.PAD_BOTH ? Math.ceil(n / 2): 0)) !== false
-					? (t > 0 ? c.substr(0, 1 + t) : '') + s + c.substr(0, 1 + n - t)
-					: s;
+				return (n -= s.length) > 0 && (t = t === string.PAD_LEFT ? n : (t === string.PAD_BOTH ? Math.ceil(n / 2): 0)) !== false ? (t > 0 ? c.substr(0, 1 + t) : '') + s + c.substr(0, 1 + n - t) : s;
 			},
 			/**
 			 *  Generate a checksum for given string
@@ -1836,7 +1837,7 @@
 		{
 			var result, i;
 
-			if (typeof target == 'string')
+			if (typeof target === 'string')
 				target = document.querySelector(target);
 
 			if (source instanceof Array)
@@ -1922,7 +1923,7 @@
 		dom.create   = createStructure;
 		dom.appendTo = function(target, source)
 		{
-			return appendTo(target, typeof source == 'object' && typeof source.nodeType != undef ? source : createStructure(source));
+			return appendTo(target, typeof source === 'object' && typeof source.nodeType !== undef ? source : createStructure(source));
 		};
 	}
 
@@ -2778,7 +2779,7 @@
 						return false;
 				}
 
-				if (!data || data.length != length)
+				if (!data || data.length !== length)
 					return false;
 			}
 			return data;
@@ -3390,10 +3391,10 @@
 
 					context.beginPath();
 					for (i = 0; i < len; ++i)
-						if (i == len - 1 && arguments[i].equal(arguments[0]))
+						if (i === len - 1 && arguments[i].equal(arguments[0]))
 							context.closePath();
 						else
-							context[i == 0 ? 'moveTo' : 'lineTo'](arguments[i].x, arguments[i].y);
+							context[i === 0 ? 'moveTo' : 'lineTo'](arguments[i].x, arguments[i].y);
 					context.stroke();
 					return context;
 				};
@@ -3478,7 +3479,7 @@
 					//  the dark base segment
 					{line:[P(6, 88), P(4, 70), P(82, 132), P(192, 44), P(188, 62), P(82, 150), P(6, 88)],fillStyle:['rgb(25,25,25)'],fill:[]},
 					//  the main color fill
-					{line:[P(154, 0), P(82, 50), P(42, 24), P(0, 50), P(4, 70), P(82, 132), P(192, 44), P(198, 24), P(154, 0)],fillStyle:[Math.round(Math.random()) == 1 ? 'rgb(10,220,250)' : 'rgb(200,250,10)'],fill:[]},
+					{line:[P(154, 0), P(82, 50), P(42, 24), P(0, 50), P(4, 70), P(82, 132), P(192, 44), P(198, 24), P(154, 0)],fillStyle:[Math.round(Math.random()) === 1 ? 'rgb(10,220,250)' : 'rgb(200,250,10)'],fill:[]},
 					//  the opaque darker overlay
 					{globalAlpha:[.2],line:[P(0, 50), P(4, 70), P(82, 132), P(192, 44), P(198, 24), P(82, 112), P(0, 50)],fillStyle:['rgb(0, 0, 0)'],fill:[]}
 				]
