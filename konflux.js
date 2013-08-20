@@ -11,180 +11,187 @@
 	var version = '0.2.8',
 		document = window.document,
 		undef = 'undefined',
-
-		//  Private functions
-
-		/**
-		 *  Obtain a reference to a specific buffer object, creates one if it does not exist
-		 *  @name    buffer
-		 *  @type    function
-		 *  @access  internal
-		 *  @param   string object name
-		 *  @return  object
-		 */
-		buffer = function(key)
-		{
-			if (typeof _buffer[key] === undef)
-				_buffer[key] = {};
-			return _buffer[key];
-		},
-		/**
-		 *  Obtain the milliseconds since the UNIX Epoch (Jan 1, 1970 00:00:00)
-		 *  @name    time
-		 *  @type    function
-		 *  @access  internal
-		 *  @return  int milliseconds
-		 */
-		time = function()
-		{
-			return Date.now ? Date.now() : (new Date()).getTime();
-		},
-		/**
-		 *  Shorthand method for creating a combined version of several objects
-		 *  @name    combine
-		 *  @type    function
-		 *  @access  internal
-		 *  @param   object 1
-		 *  @param   object ...
-		 *  @param   object N
-		 *  @return  function constructor
-		 */
-		combine = function()
-		{
-			var obj = {},
-				i, p;
-
-			for (i = 0; i < arguments.length; ++i)
-				if (typeof arguments[i] === 'object')
-					for (p in arguments[i])
-						obj[p] = p in obj && typeof obj[p] == 'object' ? combine(arguments[i][p], obj[p]) : arguments[i][p];
-
-			return obj;
-		},
-		/**
-		 *  Shorthand method creating object prototypes
-		 *  @name    proto
-		 *  @type    function
-		 *  @access  internal
-		 *  @param   function prototype
-		 *  @param   object extension
-		 *  @return  function constructor
-		 */
-		proto = function(construct, prototype)
-		{
-			var obj = construct || function(){};
-			if (prototype)
-			{
-				obj.prototype = typeof prototype === 'function' ? new prototype : prototype;
-				obj.prototype.constructor = obj;
-			}
-			return obj;
-		},
-		/**
-		 *  Obtain the elapsed time since Konflux started (roughly), using the format: [Nd ] hh:mm:ss.ms
-		 *  @name    elapsed
-		 *  @type    function
-		 *  @access  internal
-		 *  @return  string formatted time
-		 */
-		elapsed = function()
-		{
-			var delta = Math.abs((new Date()).getTime() - _timestamp),
-				days = Math.floor(delta / 86400000),
-				hours = Math.floor((delta -= days * 86400000) / 3600000),
-				minutes = Math.floor((delta -= hours * 3600000) / 60000),
-				seconds = Math.floor((delta -= minutes * 60000) / 1000),
-				ms = Math.floor(delta -= seconds * 1000);
-			return (days > 0 ? days + 'd ' : '') +
-					('00' + hours).substr(-2) + ':' +
-					('00' + minutes).substr(-2) + ':' +
-					('00' + seconds).substr(-2) + '.' +
-					('000' + ms).substr(-3);
-		},
-		/**
-		 *  Obtain an unique key, the key is guaranteed to be unique within the browser runtime
-		 *  @name    unique
-		 *  @type    function
-		 *  @access  internal
-		 *  @return  string key
-		 */
-		unique = function()
-		{
-			return (++_count + time() % 86400000).toString(36);
-		},
-		/**
-		 *  Verify whether given argument is empty
-		 *  @name    empty
-		 *  @type    function
-		 *  @access  internal
-		 *  @param   mixed variable to check
-`		 *  @note    The function follows PHP's empty function; null, undefined, 0, '', '0' and false are all considered empty
-		 */
-		empty = function(p)
-		{
-			var types = {
-					'object':  function(o){if (o instanceof Array)return o.length > 0; for (o in o)return true;return false},
-					'boolean': function(b){return b},
-					'number':  function(n){return n !== 0},
-					'string':  function(s){return !/^0?$/.test(p)}
-				};
-
-			if (typeof types[typeof p] === 'function' && types[typeof p](p))
- 					return false;
-			return true;
-		},
-		/**
-		 *  Determine the type of given variable
-		 *  @name    type
-		 *  @type    function
-		 *  @access  internal
-		 *  @param   mixed variable
-		 *  @return  string type
-		 */
-		type = function(variable)
-		{
-			return variable instanceof Array ? 'array' : typeof variable;
-		},
-		/**
-		 *  Does given object have given property
-		 *  @name    hasProperty
-		 *  @type    function
-		 *  @access  internal
-		 *  @param   object haystack
-		 *  @param   string property
-		 *  @return  bool   available
-		 */
-		hasProperty = function(haystack, needle)
-		{
-			return !!(needle in haystack);
-		},
-		/**
-		 *  Provide feedback about deprecated features
-		 *  @name    deprecate
-		 *  @type    function
-		 *  @access  internal
-		 *  @param   string message
-		 *  @return  void
-		 */
-		deprecate = function(message)
-		{
-			var method = ['info', 'warn', 'log'],
-				i;
-			for (i = 0 ; i < method.length; ++i)
-				if (typeof console[method[i]] === 'function')
-				{
-					console[method[i]].apply(null, [elapsed() + ' deprecatED: ' + message]);
-					break;
-				}
-		},
-
 		//  Private properties
 		_buffer  = {}, //  singleton-like container, providing 'static' objects
 		_timestamp = time(), //  rough execution start time
 		_count = 0,
-
 		konflux
-	; //  end var
+
+	//  Private functions
+
+	/**
+	 *  Obtain a reference to a specific buffer object, creates one if it does not exist
+	 *  @name    buffer
+	 *  @type    function
+	 *  @access  internal
+	 *  @param   string object name
+	 *  @return  object
+	 */
+	function buffer(key)
+	{
+		if (typeof _buffer[key] === undef)
+			_buffer[key] = {};
+		return _buffer[key];
+	}
+
+	/**
+	 *  Obtain the milliseconds since the UNIX Epoch (Jan 1, 1970 00:00:00)
+	 *  @name    time
+	 *  @type    function
+	 *  @access  internal
+	 *  @return  int milliseconds
+	 */
+	function time()
+	{
+		return Date.now ? Date.now() : (new Date()).getTime();
+	}
+
+	/**
+	 *  Shorthand method for creating a combined version of several objects
+	 *  @name    combine
+	 *  @type    function
+	 *  @access  internal
+	 *  @param   object 1
+	 *  @param   object ...
+	 *  @param   object N
+	 *  @return  function constructor
+	 */
+
+	function combine()
+	{
+		var obj = {},
+			i, p;
+
+		for (i = 0; i < arguments.length; ++i)
+			if (typeof arguments[i] === 'object')
+				for (p in arguments[i])
+					obj[p] = p in obj && typeof obj[p] == 'object' ? combine(arguments[i][p], obj[p]) : arguments[i][p];
+
+		return obj;
+	}
+
+	/**
+	 *  Shorthand method creating object prototypes
+	 *  @name    proto
+	 *  @type    function
+	 *  @access  internal
+	 *  @param   function prototype
+	 *  @param   object extension
+	 *  @return  function constructor
+	 */
+	function proto(construct, prototype)
+	{
+		var obj = construct || function(){};
+		if (prototype)
+		{
+			obj.prototype = typeof prototype === 'function' ? new prototype : prototype;
+			obj.prototype.constructor = obj;
+		}
+		return obj;
+	}
+
+	/**
+	 *  Obtain the elapsed time since Konflux started (roughly), using the format: [Nd ] hh:mm:ss.ms
+	 *  @name    elapsed
+	 *  @type    function
+	 *  @access  internal
+	 *  @return  string formatted time
+	 */
+	function elapsed()
+	{
+		var delta = Math.abs((new Date()).getTime() - _timestamp),
+			days = Math.floor(delta / 86400000),
+			hours = Math.floor((delta -= days * 86400000) / 3600000),
+			minutes = Math.floor((delta -= hours * 3600000) / 60000),
+			seconds = Math.floor((delta -= minutes * 60000) / 1000),
+			ms = Math.floor(delta -= seconds * 1000);
+		return (days > 0 ? days + 'd ' : '') +
+				('00' + hours).substr(-2) + ':' +
+				('00' + minutes).substr(-2) + ':' +
+				('00' + seconds).substr(-2) + '.' +
+				('000' + ms).substr(-3);
+	}
+
+	/**
+	 *  Obtain an unique key, the key is guaranteed to be unique within the browser runtime
+	 *  @name    unique
+	 *  @type    function
+	 *  @access  internal
+	 *  @return  string key
+	 */
+	function unique()
+	{
+		return (++_count + time() % 86400000).toString(36);
+	}
+
+	/**
+	 *  Verify whether given argument is empty
+	 *  @name    empty
+	 *  @type    function
+	 *  @access  internal
+	 *  @param   mixed variable to check
+`		 *  @note    The function follows PHP's empty function; null, undefined, 0, '', '0' and false are all considered empty
+	 */
+	function empty(p)
+	{
+		var types = {
+				'object':  function(o){if (o instanceof Array)return o.length > 0; for (o in o)return true;return false},
+				'boolean': function(b){return b},
+				'number':  function(n){return n !== 0},
+				'string':  function(s){return !/^0?$/.test(p)}
+			};
+
+		if (typeof types[typeof p] === 'function' && types[typeof p](p))
+				return false;
+		return true;
+	}
+
+	/**
+	 *  Determine the type of given variable
+	 *  @name    type
+	 *  @type    function
+	 *  @access  internal
+	 *  @param   mixed variable
+	 *  @return  string type
+	 */
+	function type(variable)
+	{
+		return variable instanceof Array ? 'array' : typeof variable;
+	}
+
+	/**
+	 *  Does given object have given property
+	 *  @name    hasProperty
+	 *  @type    function
+	 *  @access  internal
+	 *  @param   object haystack
+	 *  @param   string property
+	 *  @return  bool   available
+	 */
+	function hasProperty(haystack, needle)
+	{
+		return !!(needle in haystack);
+	}
+
+	/**
+	 *  Provide feedback about deprecated features
+	 *  @name    deprecate
+	 *  @type    function
+	 *  @access  internal
+	 *  @param   string message
+	 *  @return  void
+	 */
+	function deprecate(message)
+	{
+		var method = ['info', 'warn', 'log'],
+			i;
+		for (i = 0 ; i < method.length; ++i)
+			if (typeof console[method[i]] === 'function')
+			{
+				console[method[i]].apply(null, [elapsed() + ' deprecatED: ' + message]);
+				break;
+			}
+	}
 
 	/**
 	 *  The Konflux object itself
