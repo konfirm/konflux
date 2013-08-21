@@ -1927,6 +1927,7 @@
 				case 'boolean':
 					struct = struct ? 'true' : 'false';
 					//  no break, fall through;
+
 				default:
 					element = document.createTextNode(struct);
 					break;
@@ -1935,7 +1936,25 @@
 			return element;
 		}
 
+		/**
+		 *  Create a dom structure from given variable
+		 *  @name   create
+		 *  @type   method
+		 *  @access public
+		 *  @param  mixed source
+		 *  @return DOMNode structure
+		 */
 		dom.create   = createStructure;
+
+		/**
+		 *  Append given source element or structure to the target element
+		 *  @name   appendTo
+		 *  @type   method
+		 *  @access public
+		 *  @param  DOMElement target
+		 *  @param  mixed source (one of: DOMElement, Object structure)
+		 *  @return Array of added source elements
+		 */
 		dom.appendTo = function(target, source)
 		{
 			return appendTo(target, typeof source === 'object' && typeof source.nodeType !== undef ? source : createStructure(source));
