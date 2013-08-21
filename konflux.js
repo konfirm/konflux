@@ -1490,112 +1490,119 @@
 	 */
 	function kxString()
 	{
-		var string = this,
-			/**
-			 *  Javascript port of Java’s String.hashCode()
-			 *  (Based on http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/)
-			 *  @name    hashCode
-			 *  @type    function
-			 *  @access  internal
-			 *  @param   string input
-			 *  @return  number hash (32bit integer)
-			 */
-			hashCode = function(s)
-			{
-				for (var r = 0, i = 0, l = s.length; i < l; ++i)
-					r  = (r = r * 31 + s.charCodeAt(i)) & r;
-				return r;
-			},
-			/**
-			 *  Create a hash from a string
-			 *  @name    hash
-			 *  @type    function
-			 *  @access  internal
-			 *  @param   string source
-			 *  @return  string hash
-			 */
-			hash = function(s)
-			{
-				var p = 16,
-					pad = ('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ' + s).substr(-(Math.ceil((s.length || 1) / p) * p)),
-					r = 0,
-					c;
+		var string = this;
 
-				while (pad.length)
-				{
-					r  += hashCode(pad.substr(0, p));
-					pad = pad.substr(p);
-				}
+		/**
+		 *  Javascript port of Java’s String.hashCode()
+		 *  (Based on http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/)
+		 *  @name    hashCode
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string input
+		 *  @return  number hash (32bit integer)
+		 */
+		function hashCode(s)
+		{
+			for (var r = 0, i = 0, l = s.length; i < l; ++i)
+				r  = (r = r * 31 + s.charCodeAt(i)) & r;
+			return r;
+		}
 
-				return Math.abs(r).toString(36);
-			},
-			/**
-			 *  Return the ASCII value of given character
-			 *  @name    ord
-			 *  @type    function
-			 *  @access  internal
-			 *  @param   string character
-			 *  @return  number character code
-			 */
-			ord = function(s)
+		/**
+		 *  Create a hash from a string
+		 *  @name    hash
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string source
+		 *  @return  string hash
+		 */
+		function hash(s)
+		{
+			var p = 16,
+				pad = ('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ' + s).substr(-(Math.ceil((s.length || 1) / p) * p)),
+				r = 0,
+				c;
+
+			while (pad.length)
 			{
-				return s.charCodeAt(0);
-			},
-			/**
-			 *  Return the character corresponding with given ASCII value
-			 *  @name    chr
-			 *  @type    function
-			 *  @access  internal
-			 *  @param   number character code
-			 *  @return  string character
-			 */
-			chr = function(n)
-			{
-				return String.fromCharCode(n);
-			},
-			/**
-			 *  Pad a string
-			 *  @name    pad
-			 *  @type    function
-			 *  @access  internal
-			 *  @param   string to pad
-			 *  @param   number length
-			 *  @param   string pad string [optional, default ' ']
-			 *  @param   int pad type [optional, default PAD_RIGHT]
-			 *  @return  padded string
-			 */
-			pad = function(s, n, c, t)
-			{
-				c = Array(n).join(c);
-				return (n -= s.length) > 0 && (t = t === string.PAD_LEFT ? n : (t === string.PAD_BOTH ? Math.ceil(n / 2): 0)) !== false ? (t > 0 ? c.substr(0, 1 + t) : '') + s + c.substr(0, 1 + n - t) : s;
-			},
-			/**
-			 *  Generate a checksum for given string
-			 *  @name    checksum
-			 *  @type    function
-			 *  @access  internal
-			 *  @param   string source
-			 *  @return  string checksum
-			 */
-			checksum = function(s)
-			{
-				for (var n = s.length, r = 0; n > 0; r += n * ord(s[--n]));
-				return Math.abs((r + '' + s.length) | 0).toString(36);
-			},
-			/**
-			 *  Generate a UUID
-			 *  @name    uuid
-			 *  @type    function
-			 *  @access  internal
-			 *  @return  string uuid
-			 */
-			uuid = function()
-			{
-				return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c){
-					var r = Math.random() * 16 | 0;
-					return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-				});
-			};
+				r  += hashCode(pad.substr(0, p));
+				pad = pad.substr(p);
+			}
+
+			return Math.abs(r).toString(36);
+		}
+
+		/**
+		 *  Return the ASCII value of given character
+		 *  @name    ord
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string character
+		 *  @return  number character code
+		 */
+		function ord(s)
+		{
+			return s.charCodeAt(0);
+		}
+
+		/**
+		 *  Return the character corresponding with given ASCII value
+		 *  @name    chr
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   number character code
+		 *  @return  string character
+		 */
+		function chr(n)
+		{
+			return String.fromCharCode(n);
+		}
+
+		/**
+		 *  Pad a string
+		 *  @name    pad
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string to pad
+		 *  @param   number length
+		 *  @param   string pad string [optional, default ' ']
+		 *  @param   int pad type [optional, default PAD_RIGHT]
+		 *  @return  padded string
+		 */
+		function pad(s, n, c, t)
+		{
+			c = Array(n).join(c);
+			return (n -= s.length) > 0 && (t = t === string.PAD_LEFT ? n : (t === string.PAD_BOTH ? Math.ceil(n / 2): 0)) !== false ? (t > 0 ? c.substr(0, 1 + t) : '') + s + c.substr(0, 1 + n - t) : s;
+		}
+
+		/**
+		 *  Generate a checksum for given string
+		 *  @name    checksum
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string source
+		 *  @return  string checksum
+		 */
+		function checksum(s)
+		{
+			for (var n = s.length, r = 0; n > 0; r += n * ord(s[--n]));
+			return Math.abs((r + '' + s.length) | 0).toString(36);
+		}
+
+		/**
+		 *  Generate a UUID
+		 *  @name    uuid
+		 *  @type    function
+		 *  @access  internal
+		 *  @return  string uuid
+		 */
+		function uuid()
+		{
+			return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c){
+				var r = Math.random() * 16 | 0;
+				return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+			});
+		}
 
 		//  'constants'
 		string.PAD_LEFT   = 1;
@@ -1624,6 +1631,7 @@
 				while (x.test(r.charAt(--i)));
 			return r.slice(0, i + 1);
 		};
+
 		/**
 		 *  Reverse given string
 		 *  @name    reverse
@@ -1637,6 +1645,7 @@
 			for (var n = s.length, r = ''; n > 0; r += s[--n]);
 			return r;
 		};
+
 		/**
 		 *  Pad a string
 		 *  @name    pad
@@ -1652,6 +1661,7 @@
 		{
 			return pad(s, n, c || ' ', t || string.PAD_RIGHT);
 		};
+
 		/**
 		 *  Uppercase the first character of given string
 		 *  @name    ucFirst
@@ -1664,6 +1674,7 @@
 		{
 			return input.charAt(0).toUpperCase() + input.substr(1);
 		};
+
 		/**
 		 *  Create a hash from a string
 		 *  @name    hash
@@ -1676,6 +1687,7 @@
 		{
 			return hash(s);
 		};
+
 		/**
 		 *  Generate a checksum for given string
 		 *  @name    checksum
@@ -1705,71 +1717,74 @@
 	 */
 	function kxArray()
 	{
-		var array = this,
-			/**
-			 *  Determine whether given value (needle) is in the array (haystack)
-			 *  @name    contains
-			 *  @type    function
-			 *  @access  internal
-			 *  @param   array haystack
-			 *  @param   mixed needle
-			 *  @return  int   position
-			 */
-			contains = function(a, v)
-			{
-				for (var i = 0; i < a.length; ++i)
-					if (a[i] === v)
-						return i;
-				return false;
-			},
-			/**
-			 *  Return the difference between two arrays
-			 *  @name    diff
-			 *  @type    function
-			 *  @access  internal
-			 *  @param   array array1
-			 *  @param   array array2
-			 *  @return  array difference
-			 */
-			diff = function(a, b)
-			{
-				var ret = [],
-					i;
-				for (i = 0; i < a.length; ++i)
-					if (contains(b, a[i]) === false)
-						ret.push(a[i]);
-				return ret;
-			},
-			/**
-			 *  Create an array with values between (including) given start and end
-			 *  @name    range
-			 *  @type    function
-			 *  @access  internal
-			 *  @param   number start
-			 *  @param   number end
-			 *  @return  array range
-			 */
-			range = function(a, b)
-			{
-				var r = [];
-				b -= a;
-				while (r.length <= b)
-					r.push(a + r.length);
-				return r;
-			},
-			/**
-			 *  Shuffle given array
-			 *  @name    shuffle
-			 *  @type    function
-			 *  @access  internal
-			 *  @param   array source
-			 *  @return  array shuffled
-			 */
-			shuffle = function(a)
-			{
-				for (var j, x, i = a.length; i; j = parseInt(Math.random() * i), x = a[--i], a[i] = a[j], a[j] = x);
-				return a;
-			};
+		var array = this;
+		/**
+		 *  Determine whether given value (needle) is in the array (haystack)
+		 *  @name    contains
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   array haystack
+		 *  @param   mixed needle
+		 *  @return  int   position
+		 */
+		function contains(a, v)
+		{
+			for (var i = 0; i < a.length; ++i)
+				if (a[i] === v)
+					return i;
+			return false;
+		}
+
+		/**
+		 *  Return the difference between two arrays
+		 *  @name    diff
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   array array1
+		 *  @param   array array2
+		 *  @return  array difference
+		 */
+		function diff(a, b)
+		{
+			var ret = [],
+				i;
+			for (i = 0; i < a.length; ++i)
+				if (contains(b, a[i]) === false)
+					ret.push(a[i]);
+			return ret;
+		}
+
+		/**
+		 *  Create an array with values between (including) given start and end
+		 *  @name    range
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   number start
+		 *  @param   number end
+		 *  @return  array range
+		 */
+		function range(a, b)
+		{
+			var r = [];
+			b -= a;
+			while (r.length <= b)
+				r.push(a + r.length);
+			return r;
+		}
+
+		/**
+		 *  Shuffle given array
+		 *  @name    shuffle
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   array source
+		 *  @return  array shuffled
+		 */
+		function shuffle(a)
+		{
+			for (var j, x, i = a.length; i; j = parseInt(Math.random() * i), x = a[--i], a[i] = a[j], a[j] = x);
+			return a;
+		}
 
 
 		//  expose
@@ -1937,59 +1952,62 @@
 	{
 		var event = this,
 			queue = buffer('event.queue'),
-			touch = konflux.browser.supports('touch'),
+			touch = konflux.browser.supports('touch');
 
-			/**
-			 *  Ready state handler, removes all relevant triggers and executes any handler that is set
-			 *  @name    ready
-			 *  @type    function
-			 *  @access  internal
-			 *  @return  void
-			 */
-			ready = function(e){
-				var run = false,
-					p;
+		/**
+		 *  Ready state handler, removes all relevant triggers and executes any handler that is set
+		 *  @name    ready
+		 *  @type    function
+		 *  @access  internal
+		 *  @return  void
+		 */
+		function ready(e)
+		{
+			var run = false,
+				p;
 
-				if (document.removeEventListener)
-				{
-					document.removeEventListener('DOMContentLoaded', ready, false);
-					window.removeEventListener('load', ready, false);
-					run = true;
-				}
-				else if (document.readyState === 'complete')
-				{
-					document.detachEvent('onreadystate', ready);
-					window.detachEvent('onload', ready);
-					run = true;
-				}
-
-				if (run && queue.ready)
-					for (p in queue.ready)
-						queue.ready[p].call(e);
-			},
-			/**
-			 *  Unify the event object, which makes event more consistent across browsers
-			 *  @name    unifyEvent
-			 *  @type    function
-			 *  @access  internal
-			 *  @return  Event object
-			 */
-			unifyEvent = function(e)
+			if (document.removeEventListener)
 			{
-				var evt = e || window.event;
-				if (typeof evt.target === undef)
-					evt.target = typeof evt.srcElement !== undef ? evt.srcElement : null;
+				document.removeEventListener('DOMContentLoaded', ready, false);
+				window.removeEventListener('load', ready, false);
+				run = true;
+			}
+			else if (document.readyState === 'complete')
+			{
+				document.detachEvent('onreadystate', ready);
+				window.detachEvent('onload', ready);
+				run = true;
+			}
 
-				if (/^mouse[a-z]+|drag[a-z]+|drop$/i.test(evt.type))
-				{
-					evt.mouse = new kxPoint(
-						evt.pageX ? evt.pageX : (evt.clientX ? evt.clientX + document.body.scrollLeft + document.documentElement.scrollLeft : 0),
-						evt.pageY ? evt.pageY : (evt.clientY ? evt.clientY + document.body.scrollTop + document.documentElement.scrollTop : 0)
-					);
-				}
-				return evt;
-			};
+			if (run && queue.ready)
+				for (p in queue.ready)
+					queue.ready[p].call(e);
+		}
 
+		/**
+		 *  Unify the event object, which makes event more consistent across browsers
+		 *  @name    unifyEvent
+		 *  @type    function
+		 *  @access  internal
+		 *  @return  Event object
+		 */
+		function unifyEvent(e)
+		{
+			var evt = e || window.event;
+			if (typeof evt.target === undef)
+				evt.target = typeof evt.srcElement !== undef ? evt.srcElement : null;
+
+			if (/^mouse[a-z]+|drag[a-z]+|drop$/i.test(evt.type))
+			{
+				evt.mouse = new kxPoint(
+					evt.pageX ? evt.pageX : (evt.clientX ? evt.clientX + document.body.scrollLeft + document.documentElement.scrollLeft : 0),
+					evt.pageY ? evt.pageY : (evt.clientY ? evt.clientY + document.body.scrollTop + document.documentElement.scrollTop : 0)
+				);
+			}
+			return evt;
+		}
+
+		//  expose
 		/**
 		 *  Is the browser capable of touch events
 		 *  @name    hasTouch
@@ -2096,49 +2114,124 @@
 	 *  Timing utils
 	 *  @module  timing
 	 *  @note    available as konflux.timing / kx.timing
-	 *  @TODO    documentation (honestly... what DOES this do??)
 	 */
 	function kxTiming()
 	{
-		function kxDelay(handler, timeout, reference){
+		/**
+		 *  Delay object, instances of this are be provided for all kxTimings
+		 *  @name    kxDelay
+		 *  @type    class
+		 *  @access  internal
+		 *  @param   function handle
+		 *  @param   Number   timeout
+		 *  @param   string   reference
+		 *  @return  kxDelay  object
+		 */
+		function kxDelay(handler, timeout, reference)
+		{
 			var delay = this,
-				timer = null,
-				cancel = function(){
-					clearTimeout(timer);
-				},
-				start = function(){
-					timer = setTimeout(function(){cancel();handler.call();}, timeout);
-				};
+				timer = null;
 
-			delay.cancel = function()
+			/**
+			 *  Cancel the timer
+			 *  @name    cancel
+			 *  @type    function
+			 *  @access  internal
+			 *  @return  void
+			 */
+			function cancel()
 			{
-				cancel();
-			};
+				clearTimeout(timer);
+			}
+
+			/**
+			 *  Start the timer
+			 *  @name    start
+			 *  @type    function
+			 *  @access  internal
+			 *  @return  void
+			 */
+			function start()
+			{
+				timer = setTimeout(function(){cancel();handler.call();}, timeout);
+			}
+
+			//  expose
+			/**
+			 *  Cancel the timer
+			 *  @name    cancel
+			 *  @type    method
+			 *  @access  public
+			 *  @return  void
+			 */
+			delay.cancel = cancel;
 
 			start();
 		}
 
 
 		var timing = this,
-			stack = buffer('timing.delay'),
-			remove = function(reference){
-				if (typeof stack[reference] !== undef)
-				{
-					//  cancel the stack reference
-					stack[reference].cancel();
-					//  delete it
-					delete stack[reference];
-				}
-			},
-			create = function(handler, delay, reference){
-				if (reference)
-					remove(reference);
-				else
-					reference = handler.toString() || unique();
-				return stack[reference] = new kxDelay(handler, delay, reference);
-			};
+			stack = buffer('timing.delay');
 
+		/**
+		 *  Remove timer object by their reference
+		 *  @name    remove
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string reference
+		 *  @return  void
+		 */
+		function remove(reference)
+		{
+			if (typeof stack[reference] !== undef)
+			{
+				//  cancel the stack reference
+				stack[reference].cancel();
+				//  delete it
+				delete stack[reference];
+			}
+		}
+
+		/**
+		 *  Create a timer object to call given handler after given delay and store it with given reference
+		 *  @name    create
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   function handle
+		 *  @param   Number   delay
+		 *  @param   string   reference
+		 *  @return  kxDelay  object
+		 */
+		function create(handler, delay, reference)
+		{
+			if (reference)
+				remove(reference);
+			else
+				reference = handler.toString() || unique();
+			return stack[reference] = new kxDelay(handler, delay, reference);
+		}
+
+		//  expose
+		/**
+		 *  Remove timer object by their reference
+		 *  @name    remove
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string reference
+		 *  @return  void
+		 */
  		timing.remove = remove;
+
+		/**
+		 *  Create a timer object to call given handler after given delay and store it with given reference
+		 *  @name    create
+		 *  @type    method
+		 *  @access  public
+		 *  @param   function handle
+		 *  @param   Number   delay
+		 *  @param   string   reference
+		 *  @return  kxDelay  object
+		 */
  		timing.create = create;
 	}
 
@@ -2152,127 +2245,139 @@
 	{
 		var observer = this,
 			subscription = buffer('observer.subscriptions'),
-			active = buffer('observer.active'),
+			active = buffer('observer.active');
 
-			/**
-			 *  Create the subscription stack if it does not exist
-			 *  @name    ensureSubscriptionStack
-			 *  @type    function
-			 *  @access  internal
-			 *  @param   string stack name
-			 *  @return  void
-			 */
-			ensureSubscriptionStack = function(s)
-			{
-				if (typeof subscription[s] === undef) subscription[s] = [];
-			},
-			/**
-			 *  Add handler to specified stack
-			 *  @name    add
-			 *  @type    function
-			 *  @access  internal
-			 *  @param   string stack name
-			 *  @param   function handler
-			 *  @return  int total number of subscriptions in this stack
-			 */
-			add = function(s, f)
-			{
-				ensureSubscriptionStack(s);
-				return subscription[s].push(f);
-			},
-			/**
-			 *  Disable a handler for specified stack
-			 *  @name    disable
-			 *  @type    function
-			 *  @access  internal
-			 *  @param   string stack name
-			 *  @param   function handler
-			 *  @return  void
-			 *  @note    this method is used from the Observation object, which would influence the number of
-			 *          subscriptions if the subscription itself was removed immediately
-			 */
-			disable = function(s, f)
-			{
-				for (var i = 0; i < subscription[s].length; ++i)
-					if (subscription[s][i] === f)
-						subscription[s][i] = false;
-			},
-			/**
-			 *  Remove specified handler (and all disabled handlers) from specified stack
-			 *  @name    remove
-			 *  @type    function
-			 *  @access  internal
-			 *  @param   string stack name
-			 *  @param   function handler [optional]
-			 *  @return  array removed handlers
-			 */
-			remove = function(s, f)
-			{
-				var r = [], n = [], i;
-				ensureSubscriptionStack(s);
-				for (i = 0; i < subscription[s].length; ++i)
-					(!subscription[s][i] || subscription[s][i] === f ? r : n).push(subscription[s][i]);
-				subscription[s] = n;
-				return r;
-			},
-			/**
-			 *  Flush specified stack
-			 *  @name    flush
-			 *  @type    function
-			 *  @access  internal
-			 *  @param   string stack name
-			 *  @return  array removed handlers (false if the stack did not exist);
-			 */
-			flush = function(s)
-			{
-				var r = false;
-				if (typeof subscription[s] !== undef)
-				{
-					r = subscription[s];
-					delete subscription[s];
-				}
-				return r;
-			},
-			/**
-			 *  Trigger the handlers in specified stack
-			 *  @name    trigger
-			 *  @type    function
-			 *  @access  internal
-			 *  @param   string stack name
-			 *  @param   mixed  arg1 ... argN
-			 *  @return  void
-			 */
-			trigger = function(s)
-			{
-				var arg = Array.prototype.slice.call(arguments),
-					ref = unique(),
-					part = s.split('.'),
-					wildcard = false,
-					name, i;
+		/**
+		 *  Create the subscription stack if it does not exist
+		 *  @name    ensureSubscriptionStack
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string stack name
+		 *  @return  void
+		 */
+		function ensureSubscriptionStack(stack)
+		{
+			if (typeof subscription[stack] === undef) subscription[stack] = [];
+		}
 
-				while (part.length >= 0)
-				{
-					active[ref] = true;
-					name = part.join('.') + (wildcard ? (part.length ? '.' : '') + '*' : '');
-					wildcard = true;
+		/**
+		 *  Add handler to specified stack
+		 *  @name    add
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string stack name
+		 *  @param   function handler
+		 *  @return  int total number of subscriptions in this stack
+		 */
+		function add(stack, handle)
+		{
+			ensureSubscriptionStack(stack);
+			return subscription[stack].push(handle);
+		}
 
-					if (typeof subscription[name] !== undef)
-						for (i = 0; i < subscription[name].length; ++i)
+		/**
+		 *  Disable a handler for specified stack
+		 *  @name    disable
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string stack name
+		 *  @param   function handler
+		 *  @return  void
+		 *  @note    this method is used from the Observation object, which would influence the number of
+		 *          subscriptions if the subscription itself was removed immediately
+		 */
+		function disable(stack, handle)
+		{
+			var i;
+
+			for (i = 0; i < subscription[stack].length; ++i)
+				if (subscription[stack][i] === handle)
+					subscription[stack][i] = false;
+		}
+
+		/**
+		 *  Remove specified handler (and all disabled handlers) from specified stack
+		 *  @name    remove
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string stack name
+		 *  @param   function handler [optional]
+		 *  @return  array removed handlers
+		 */
+		function remove(stack, handle)
+		{
+			var remove = [],
+				maintain = [],
+				i;
+
+			ensureSubscriptionStack(stack);
+			for (i = 0; i < subscription[stack].length; ++i)
+				(!subscription[stack][i] || subscription[stack][i] === handle ? remove : maintain).push(subscription[stack][i]);
+			subscription[stack] = n;
+			return remove;
+		}
+
+		/**
+		 *  Flush specified stack
+		 *  @name    flush
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string stack name
+		 *  @return  array removed handlers (false if the stack did not exist);
+		 */
+		function flush(stack)
+		{
+			var remove = false;
+
+			if (typeof subscription[stack] !== undef)
+			{
+				remove = subscription[stack];
+				delete subscription[stack];
+			}
+			return remove;
+		}
+
+		/**
+		 *  Trigger the handlers in specified stack
+		 *  @name    trigger
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string stack name
+		 *  @param   mixed  arg1 ... argN
+		 *  @return  void
+		 */
+		function trigger(stack)
+		{
+			var arg = Array.prototype.slice.call(arguments),
+				ref = unique(),
+				part = stack.split('.'),
+				wildcard = false,
+				name, i;
+
+			while (part.length >= 0)
+			{
+				active[ref] = true;
+				name = part.join('.') + (wildcard ? (part.length ? '.' : '') + '*' : '');
+				wildcard = true;
+
+				if (typeof subscription[name] !== undef)
+					for (i = 0; i < subscription[name].length; ++i)
+					{
+						if (!active[ref])
+							break;
+
+						if (subscription[name][i])
 						{
-							if (!active[ref])
-								break;
-							if (subscription[name][i])
-							{
-								arg[0] = new kxObservation(s, subscription[name][i], ref);
-								subscription[name][i].apply(subscription[name][i], arg);
-							}
+							arg[0] = new kxObservation(stack, subscription[name][i], ref);
+							subscription[name][i].apply(subscription[name][i], arg);
 						}
+					}
 
-					if (!part.pop())
-						break;
-				}
-				delete active[ref];
-			};
+				if (!part.pop())
+					break;
+			}
+			delete active[ref];
+		};
 
 		/**
 		 *  Observation object, instances of this are be provided to all observer notification subscribers
@@ -2384,72 +2489,80 @@
 			ratioStack = buffer('breakpoint.ratio'),
 			current = null,
 			timer = null,
-			ratioTimer = null,
+			ratioTimer = null;
 
-			/**
-			 *  Handle browser window resize events, matching the most appropriate size
-			 *  @name    resize
-			 *  @type    function
-			 *  @access  internal
-			 *  @param   event
-			 *  @return  void
-			 */
-			resize = function(e)
+		/**
+		 *  Handle browser window resize events, matching the most appropriate size
+		 *  @name    resize
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   event
+		 *  @return  void
+		 */
+		function resize(e)
+		{
+			var dimension = match(window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth);
+
+			//  if we don't have any valid dimension or the dimension is equal to the current one, stop
+			if (!dimension || current === dimension)
+				return false;
+
+			//  is there a current set, remove it
+			if (current)
+				current.element.className = current.element.className.replace(current.expression, '');
+
+			//  do we have an element to manipulate
+			if (!dimension.element)
+				dimension.element = document.body;
+
+			//  set the given class on the element
+			dimension.element.className = konflux.string.trim(dimension.element.className + ' ' + dimension.className);
+			konflux.observer.notify('breakpoint.change', dimension.className);
+
+			current = dimension;
+		}
+
+		/**
+		 *  Determine the best matching dimension and return the settings
+		 *  @name    match
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   int browser width
+		 *  @return  object config
+		 */
+		function match(width)
+		{
+			var found, delta, min, p;
+
+			for (p in dimensionStack)
 			{
-				var dimension = match(window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth);
-
-				//  if we don't have any valid dimension or the dimension is equal to the current one, stop
-				if (!dimension || current === dimension)
-					return false;
-
-				//  is there a current set, remove it
-				if (current)
-					current.element.className = current.element.className.replace(current.expression, '');
-
-				//  do we have an element to manipulate
-				if (!dimension.element)
-					dimension.element = document.body;
-
-				//  set the given class on the element
-				dimension.element.className = konflux.string.trim(dimension.element.className + ' ' + dimension.className);
-				konflux.observer.notify('breakpoint.change', dimension.className);
-
-				current = dimension;
-			},
-			/**
-			 *  Determine the best matching dimension and return the settings
-			 *  @name    match
-			 *  @type    function
-			 *  @access  internal
-			 *  @param   int browser width
-			 *  @return  object config
-			 */
-			match = function(width){
-				var found, delta, min, p;
-				for (p in dimensionStack)
+				min = !min ? p : Math.min(min, p);
+				if (p < width && (!delta || width - p < delta))
 				{
-					min = !min ? p : Math.min(min, p);
-					if (p < width && (!delta || width - p < delta))
-					{
-						found = p;
-						delta = width - p;
-					}
+					found = p;
+					delta = width - p;
 				}
-				return dimensionStack[found] || dimensionStack[min] || false;
-			},
-			/**
-			 *  Determine the best matching pixel ratio and set the defined classes
-			 *  @name    pixelRatio
-			 *  @type    function
-			 *  @access  internal
-			 *  @return  void
-			 */
-			pixelRatio = function(){
-				var ratio = typeof window.devicePixelRatio !== undef ? window.devicePixelRatio : 1;
-				if (typeof ratioStack[ratio] !== undef)
-					ratioStack[ratio].element.className = konflux.string.trim(ratioStack[ratio].element.className) + ' ' + ratioStack[ratio].className;
-			};
+			}
 
+			return dimensionStack[found] || dimensionStack[min] || false;
+		}
+
+		/**
+		 *  Determine the best matching pixel ratio and set the defined classes
+		 *  @name    pixelRatio
+		 *  @type    function
+		 *  @access  internal
+		 *  @return  void
+		 */
+		function pixelRatio()
+		{
+			var ratio = typeof window.devicePixelRatio !== undef ? window.devicePixelRatio : 1;
+
+			if (typeof ratioStack[ratio] !== undef)
+				ratioStack[ratio].element.className = konflux.string.trim(ratioStack[ratio].element.className) + ' ' + ratioStack[ratio].className;
+		};
+
+		//  expose
 		/**
 		 *  Add breakpoint configuration
 		 *  @name    add
@@ -2511,6 +2624,7 @@
 	function kxPoint(x, y)
 	{
 		var point = this;
+
 		point.x = x || 0;
 		point.y = y || 0;
 
@@ -2637,80 +2751,84 @@
 	function kxCookie()
 	{
 		var cookie = this,
-			jar = {},
-			/**
-			 *  Read the available cookie information and populate the jar variable
-			 *  @name    init
-			 *  @type    function
-			 *  @access  internal
-			 *  @return  void
-			 */
-			init = function()
+			jar = {};
+
+		/**
+		 *  Read the available cookie information and populate the jar variable
+		 *  @name    init
+		 *  @type    function
+		 *  @access  internal
+		 *  @return  void
+		 */
+		function init()
+		{
+			var part = document.cookie.split(';'),
+				data;
+
+			while (part.length)
 			{
-				var part = document.cookie.split(';'),
-					data;
+				data = part.shift().split('=');
+				jar[konflux.string.trim(data.shift())] = konflux.string.trim(data.join('='));
+			}
+		}
 
-				while (part.length)
-				{
-					data = part.shift().split('=');
-					jar[konflux.string.trim(data.shift())] = konflux.string.trim(data.join('='));
-				}
-			},
-			/**
-			 *  Set a cookie
-			 *  @name    setCookie
-			 *  @type    function
-			 *  @access  internal
-			 *  @param   string key
-			 *  @param   string value
-			 *  @param   int    expire [optional, default expire at the end of the session]
-			 *  @param   string path   [optional, default the current path]
-			 *  @param   string domain [optional, default the current domain]
-			 *  @return  void
-			 *  @note    the syntax of setCookie is compatible with that of PHP's setCookie
-			 *          this means that setting an empty value (string '' | null | false) or
-			 *          an expiry time in the past, the cookie will be removed
-			 */
-			setCookie = function(key, value, expire, path, domain)
+		/**
+		 *  Set a cookie
+		 *  @name    setCookie
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string key
+		 *  @param   string value
+		 *  @param   int    expire [optional, default expire at the end of the session]
+		 *  @param   string path   [optional, default the current path]
+		 *  @param   string domain [optional, default the current domain]
+		 *  @return  void
+		 *  @note    the syntax of setCookie is compatible with that of PHP's setCookie
+		 *          this means that setting an empty value (string '' | null | false) or
+		 *          an expiry time in the past, the cookie will be removed
+		 */
+		function setCookie(key, value, expire, path, domain)
+		{
+			var pairs = [key + '=' + (typeof value === 'number' ? value : value || '')],
+				date;
+
+			if (pairs[0].substr(-1) === '=')
+				expire = -1;
+
+			if (typeof expire !== undef && expire)
+				date = new Date(expire);
+
+			if (date)
 			{
-				var pairs = [key + '=' + (typeof value === 'number' ? value : value || '')],
-					date;
+				if (date < (new Date()).getTime() && typeof jar[key] !== undef)
+					delete jar[key];
+				pairs.push('expires=' + date);
+			}
+			if (typeof path !== undef && path)
+				pairs.push('path=' + path);
+			if (typeof domain !== undef && domain)
+				pairs.push('domain=' + domain);
 
-				if (pairs[0].substr(-1) === '=')
-					expire = -1;
+			document.cookie = pairs.join(';');
+			if (document.cookie.indexOf(pairs.shift()) >= 0)
+				jar[key] = value + '';
+		}
 
-				if (typeof expire !== undef && expire)
-					date = new Date(expire);
-
-				if (date)
-				{
-					if (date < (new Date()).getTime() && typeof jar[key] !== undef)
-						delete jar[key];
-					pairs.push('expires=' + date);
-				}
-				if (typeof path !== undef && path)
-					pairs.push('path=' + path);
-				if (typeof domain !== undef && domain)
-					pairs.push('domain=' + domain);
-
-				document.cookie = pairs.join(';');
-				if (document.cookie.indexOf(pairs.shift()) >= 0)
-					jar[key] = value + '';
-			},
-			/**
-			 *  Obtain a cookie value
-			 *  @name    getCookie
-			 *  @type    function
-			 *  @access  internal
-			 *  @param   string key
-			 *  @return  void
-			 */
-			getCookie = function(key)
-			{
-				return typeof jar[key] !== undef ? jar[key] : null;
-			};
+		/**
+		 *  Obtain a cookie value
+		 *  @name    getCookie
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string key
+		 *  @return  void
+		 */
+		function getCookie(key)
+		{
+			return typeof jar[key] !== undef ? jar[key] : null;
+		}
 
 
+		//  expose
 		/**
 		 *  Get and/or set cookies
 		 *  @name    value
@@ -3468,20 +3586,60 @@
 	function kxLogo()
 	{
 		deprecate('kxLogo will be removed from the default Konflux package in the near future');
+
 		var logo = this,
-			P = function(x, y){
-				return new konflux.point(x, y);
-			},
 			design = {
 				konfirm: [
 					//  remove the outline
-					{lineWidth:[0],strokeStyle:['transparent']},
+					{
+						lineWidth:[0],
+						strokeStyle:['transparent']
+					},
 					//  the dark base segment
-					{line:[P(6, 88), P(4, 70), P(82, 132), P(192, 44), P(188, 62), P(82, 150), P(6, 88)],fillStyle:['rgb(25,25,25)'],fill:[]},
+					{
+						line:[
+							new konflux.point(6, 88),
+							new konflux.point(4, 70),
+							new konflux.point(82, 132),
+							new konflux.point(192, 44),
+							new konflux.point(188, 62),
+							new konflux.point(82, 150),
+							new konflux.point(6, 88)
+						],
+						fillStyle:['rgb(25,25,25)'],
+						fill:[]
+					},
 					//  the main color fill
-					{line:[P(154, 0), P(82, 50), P(42, 24), P(0, 50), P(4, 70), P(82, 132), P(192, 44), P(198, 24), P(154, 0)],fillStyle:[Math.round(Math.random()) === 1 ? 'rgb(10,220,250)' : 'rgb(200,250,10)'],fill:[]},
+					{
+						line:[
+							new konflux.point(154, 0),
+							new konflux.point(82, 50),
+							new konflux.point(42, 24),
+							new konflux.point(0, 50),
+							new konflux.point(4, 70),
+							new konflux.point(82, 132),
+							new konflux.point(192, 44),
+							new konflux.point(198, 24),
+							new konflux.point(154, 0)
+						],
+						fillStyle:[Math.round(Math.random()) === 1 ? 'rgb(10,220,250)' : 'rgb(200,250,10)'],
+						fill:[]
+					},
 					//  the opaque darker overlay
-					{globalAlpha:[.2],line:[P(0, 50), P(4, 70), P(82, 132), P(192, 44), P(198, 24), P(82, 112), P(0, 50)],fillStyle:['rgb(0, 0, 0)'],fill:[]}
+					{
+						globalAlpha:[.2],
+						line:[
+							new konflux.point(0, 50),
+							new konflux.point(4, 70),
+							new konflux.point(82, 132),
+							new konflux.point(192, 44),
+							new konflux.point(198, 24),
+							new konflux.point(82, 112),
+							new konflux.point(0, 50)
+						],
+						fillStyle:['rgb(0, 0, 0)'],
+						fill:[]
+					}
 				]
 			};
 
