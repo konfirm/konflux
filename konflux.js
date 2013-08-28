@@ -2801,12 +2801,13 @@
 		 *  @param   int    expire [optional, default expire at the end of the session]
 		 *  @param   string path   [optional, default the current path]
 		 *  @param   string domain [optional, default the current domain]
+		 *  @param   bool   secure [optional, default false]
 		 *  @return  void
 		 *  @note    the syntax of setCookie is compatible with that of PHP's setCookie
 		 *          this means that setting an empty value (string '' | null | false) or
 		 *          an expiry time in the past, the cookie will be removed
 		 */
-		function setCookie(key, value, expire, path, domain)
+		function setCookie(key, value, expire, path, domain, secure)
 		{
 			var pairs = [key + '=' + (typeof value === 'number' ? value : value || '')],
 				date;
@@ -2827,6 +2828,8 @@
 				pairs.push('path=' + path);
 			if (typeof domain !== undef && domain)
 				pairs.push('domain=' + domain);
+			if (typeof secure !== undef && secure)
+				pairs.push('secure');
 
 			document.cookie = pairs.join(';');
 			if (document.cookie.indexOf(pairs.shift()) >= 0)
@@ -2858,16 +2861,17 @@
 		 *  @param   int    expire [optional, default expire at the end of the session]
 		 *  @param   string path   [optional, default the current path]
 		 *  @param   string domain [optional, default the current domain]
+		 *  @param   bool   secure [optional, default false]
 		 *  @return  void
 		 */
-		cookie.value = function(key, value, expire, path, domain)
+		cookie.value = function(key, value, expire, path, domain, secure)
 		{
 			if (typeof key === undef)
 				return jar;
 
 			//  if a second argument (value) was given, we update the cookie
 			if (arguments.length >= 2)
-				setCookie(key, value, expire, path, domain);
+				setCookie(key, value, expire, path, domain, secure);
 
 			return getCookie(key);
 		}
