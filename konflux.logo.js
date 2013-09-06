@@ -12,12 +12,9 @@
 	 *  Logo object, creates the konflux logo on canvas
 	 *  @module  logo
 	 *  @note    available as konflux.logo / kx.logo
-	 *  @note    This object doesn't prove to be useful for the masses, hence it will be removed in a next version
 	 */
 	function kxLogo()
 	{
-		deprecate('kxLogo will be removed from the default Konflux package in the near future');
-
 		var logo = this,
 			design = {
 				konfirm: [
