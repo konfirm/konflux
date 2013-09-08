@@ -1155,7 +1155,7 @@
 					delta.splice(p, 1);
 			}
 
-			element.className = delta.join(' ')
+			element.className = delta.join(' ');
 			return element.className;
 		};
 
