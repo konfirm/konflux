@@ -1565,14 +1565,14 @@
 		 *  @access  internal
 		 *  @param   string to pad
 		 *  @param   number length
-		 *  @param   string pad string [optional, default ' ']
-		 *  @param   int pad type [optional, default PAD_RIGHT]
+		 *  @param   string pad string
+		 *  @param   int pad type
 		 *  @return  padded string
 		 */
 		function pad(s, n, c, t)
 		{
-			c = Array(n).join(c);
-			return (n -= s.length) > 0 && (t = t === string.PAD_LEFT ? n : (t === string.PAD_BOTH ? Math.ceil(n / 2): 0)) !== false ? (t > 0 ? c.substr(0, 1 + t) : '') + s + c.substr(0, 1 + n - t) : s;
+			c = Array(n + 1).join(c);
+			return (n -= s.length) > 0 && (t = t === string.PAD_LEFT ? n : (t === string.PAD_BOTH ? Math.ceil(n / 2) : 0)) !== false ? (t > 0 ? c.substr(0, t) : '') + s + c.substr(0, n - t) : s;
 		}
 
 		/**
