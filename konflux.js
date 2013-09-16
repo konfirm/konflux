@@ -247,7 +247,8 @@
 		 *  @type    method
 		 *  @access  public
 		 *  @param   mixed variable1
-		 *  @param   mixed variableN, ...
+		 *  @param   mixed ...
+		 *  @param   mixed variableN
 		 *  @return  bool  variables are empty
 		 */
 		kx.empty = function()
@@ -439,7 +440,7 @@
 		};
 		/**
 		 *  Obtain a specific feature from the browser
-		 *  @name    hasFeature
+		 *  @name    feature
 		 *  @type    method
 		 *  @access  public
 		 *  @param   string   feature
@@ -455,8 +456,9 @@
 		 *  @name    supports
 		 *  @type    method
 		 *  @access  public
-		 *  @param   string feature
+		 *  @param   string feature1
 		 *  @param   string ...
+		 *  @param   string featureN
 		 *  @return  boolean support
 		 *  @note    multiple features can be provided, in which case the return value indicates the support of all given features
 		 */
@@ -1268,7 +1270,7 @@
 		 *  @param   string   url the url of the stylesheet to load
 		 *  @param   function callback
 		 *  @param   bool     before all other style sheets
-		 *  @return  style node (<link...> element
+		 *  @return  style node (<link...> element)
 		 */
 		style.load = function(url, callback, before)
 		{
@@ -1414,7 +1416,13 @@
 		};
 
 		/**
-		 *
+		 *  Get the given style property from element
+		 *  @name    get
+		 *  @type    method
+		 *  @access  public
+		 *  @param   DOMElement element
+		 *  @param   string     property
+		 *  @return  string     value
 		 */
 		style.get = function(element, property)
 		{
@@ -1467,13 +1475,13 @@
 		};
 
 		/**
-		 *  Test wheter given input between the low and high values
+		 *  Test wheter given input lies between the low and high values (including the low and high values)
 		 *  @name    between
 		 *  @type    method
 		 *  @access  public
 		 *  @param   number input
 		 *  @param   number low
-		 *  @param   number hight
+		 *  @param   number high
 		 *  @return  bool between
 		 */
 		number.between = function(input, low, high)
@@ -1617,8 +1625,10 @@
 		 *  @name    trim
 		 *  @type    method
 		 *  @access  public
-		 *  @param   string to trim
-		 *  @return  trimmed string
+		 *  @param   string input
+		 *  @param   int    side [optional, one of TRIM_LEFT, TRIM_RIGHT, TRIM_BOTH (default)]
+		 *  @return  string trimmed
+		 *  @note    the side params are located in konflux.string (e.g. konflux.string.TRIM_LEFT)
 		 */
 		string.trim = function(s, side)
 		{
@@ -1637,8 +1647,8 @@
 		 *  @name    reverse
 		 *  @type    method
 		 *  @access  public
-		 *  @param   string to reverse
-		 *  @return  reversed string
+		 *  @param   string input
+		 *  @return  string reversed
 		 */
 		string.reverse = function(s)
 		{
@@ -1654,8 +1664,9 @@
 		 *  @param   string to pad
 		 *  @param   number length
 		 *  @param   string pad string [optional, default ' ']
-		 *  @param   int pad type [optional, default PAD_RIGHT]
-		 *  @return  padded string
+		 *  @param   int type [optional, one of: PAD_LEFT, PAD_RIGHT (default), PAD_BOTH]
+		 *  @return  string padded
+		 *  @note    the type params are located in konflux.string (e.g. konflux.string.PAD_LEFT)
 		 */
 		string.pad = function(s, n, c, t)
 		{
@@ -1667,8 +1678,8 @@
 		 *  @name    ucFirst
 		 *  @type    method
 		 *  @access  public
-		 *  @param   string of which to uppercase the first char
-		 *  @return  string
+		 *  @param   string input
+		 *  @return  string uppercased first character
 		 */
 		string.ucFirst = function(input)
 		{
@@ -1680,13 +1691,10 @@
 		 *  @name    hash
 		 *  @type    method
 		 *  @access  public
-		 *  @param   string source
+		 *  @param   string input
 		 *  @return  string hash
 		 */
-		string.hash = function(s)
-		{
-			return hash(s);
-		};
+		string.hash = hash;
 
 		/**
 		 *  Generate a checksum for given string
@@ -1697,6 +1705,7 @@
 		 *  @return  string checksum
 		 */
 		string.checksum = checksum;
+
 		/**
 		 *  Generate a UUID
 		 *  @name    uuid
@@ -1705,7 +1714,25 @@
 		 *  @return  string uuid
 		 */
 		string.uuid = uuid;
+
+		/**
+		 *  Return the ASCII value of given character
+		 *  @name    ord
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string character
+		 *  @return  number character code
+		 */
 		string.ord = ord;
+
+		/**
+		 *  Return the character corresponding with given ASCII value
+		 *  @name    chr
+		 *  @type    method
+		 *  @access  public
+		 *  @param   int    code
+		 *  @return  string character
+		 */
 		string.chr = chr;
 	}
 
@@ -1793,11 +1820,12 @@
 		 *  @name    contains
 		 *  @type    method
 		 *  @access  public
-		 *  @param   array haystack
-		 *  @param   mixed value
+		 *  @param   array   haystack
+		 *  @param   mixed   needle
 		 *  @return  boolean contains
 		 */
 		array.contains = contains;
+
 		/**
 		 *  Return the difference between two arrays
 		 *  @name    diff
@@ -1808,16 +1836,18 @@
 		 *  @return  array difference
 		 */
 		array.diff = diff;
+
 		/**
 		 *  Create an array with values between (including) given start and end
 		 *  @name    range
 		 *  @type    method
 		 *  @access  public
-		 *  @param   number start
-		 *  @param   number end
+		 *  @param   int start
+		 *  @param   int end
 		 *  @return  array range
 		 */
 		array.range = range;
+
 		/**
 		 *  Shuffle given array
 		 *  @name    shuffle
@@ -2362,7 +2392,9 @@
 		 *  @type    function
 		 *  @access  internal
 		 *  @param   string stack name
-		 *  @param   mixed  arg1 ... argN
+		 *  @param   mixed arg1
+		 *  @param   mixed ...
+		 *  @param   mixed argN
 		 *  @return  void
 		 */
 		function trigger(stack)
@@ -2485,7 +2517,9 @@
 		 *  @type    method
 		 *  @access  public
 		 *  @param   string stack name
-		 *  @param   mixed  arg1 ... argN
+		 *  @param   mixed  arg1
+		 *  @param   mixed  ...
+		 *  @param   mixed  argN
 		 *  @return  void
 		 */
 		observer.notify = function()
@@ -2804,8 +2838,8 @@
 		 *  @param   bool   secure [optional, default false]
 		 *  @return  void
 		 *  @note    the syntax of setCookie is compatible with that of PHP's setCookie
-		 *          this means that setting an empty value (string '' | null | false) or
-		 *          an expiry time in the past, the cookie will be removed
+		 *           this means that setting an empty value (string '' | null | false) or
+		 *           an expiry time in the past, the cookie will be removed
 		 */
 		function setCookie(key, value, expire, path, domain, secure)
 		{
@@ -2862,6 +2896,10 @@
 		 *  @param   string path   [optional, default the current path]
 		 *  @param   string domain [optional, default the current domain]
 		 *  @param   bool   secure [optional, default false]
+		 *  @note    the syntax of setCookie is compatible with that of PHP's setCookie
+		 *           this means that setting an empty value (string '' | null | false) or
+		 *           an expiry time in the past, the cookie will be removed
+		 *  @note    It is not possible to set httpOnly cookies from javascript (as this defies the purpose)
 		 *  @return  void
 		 */
 		cookie.value = function(key, value, expire, path, domain, secure)
@@ -3401,14 +3439,14 @@
 				 *  @type    method
 				 *  @access  public
 				 *  @param   image (Specifies the image, canvas, or video element to use)
-				 *  @param   sourceX (Optional. The x coordinate where to start clipping)
-				 *  @param   sourceY (Optional. The y coordinate where to start clipping)
-				 *  @param   sourceWidth (Optional. The width of the clipped image)
-				 *  @param   sourceHeight (Optional. The height of the clipped image)
-				 *  @param   targetX (The x coordinate where to place the image on the canvas)
-				 *  @param   targetY (The y coordinate where to place the image on the canvas)
-				 *  @param   targetWidth (Optional. The width of the image to use (stretch or reduce the image))
-				 *  @param   targetHeight (Optional. The height of the image to use (stretch or reduce the image))
+				 *  @param   sourceX [optional. The x coordinate where to start clipping]
+				 *  @param   sourceY [optional. The y coordinate where to start clipping]
+				 *  @param   sourceWidth [optional. The width of the clipped image]
+				 *  @param   sourceHeight [optional. The height of the clipped image]
+				 *  @param   targetX [The x coordinate where to place the image on the canvas]
+				 *  @param   targetY [The y coordinate where to place the image on the canvas]
+				 *  @param   targetWidth [optional. The width of the image to use (stretch or reduce the image)]
+				 *  @param   targetHeight [optional. The height of the image to use (stretch or reduce the image)]
 				 *  @return  object kxCanvasContext
 				 *  @note    This method is fully compatible with the native drawImage method:
 				 *           https://developer.mozilla.org/en/docs/Web/API/CanvasRenderingContext2D#drawImage()
@@ -3518,7 +3556,8 @@
 				 *  @type    method
 				 *  @access  public
 				 *  @param   mixed point (one of: kxPoint or Array of points)
-				 *  @param   mixed pointN ...
+				 *  @param   mixed ...
+				 *  @param   mixed pointN
 				 *  @return  object kxCanvasContext
 				 */
 				context.line = function()
