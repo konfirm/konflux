@@ -1123,7 +1123,7 @@
 		 *  @name    addClass
 		 *  @type    method
 		 *  @access  public
-		 *  @param   DOMNode element
+		 *  @param   DOMelement element
 		 *  @param   string classes (separated by any combination of whitespace and/or comma
 		 *  @return  string classes
 		 */
@@ -1140,7 +1140,7 @@
 		 *  @name    removeClass
 		 *  @type    method
 		 *  @access  public
-		 *  @param   DOMNode element
+		 *  @param   DOMElement element
 		 *  @param   string classes (separated by any combination of whitespace and/or comma
 		 *  @return  string classes
 		 */
@@ -1166,7 +1166,7 @@
 		 *  @name    removeClass
 		 *  @type    method
 		 *  @access  public
-		 *  @param   DOMNode element
+		 *  @param   DOMElement element
 		 *  @param   string classes (separated by any combination of whitespace and/or comma
 		 *  @return  string classes
 		 */
@@ -1330,7 +1330,7 @@
 			var rule = '',
 				find, p, pr;
 
-			//  in case the selector is not a string but a DOMNode, we go out and create a selector from it
+			//  in case the selector is not a string but a DOMElement, we go out and create a selector from it
 			if (typeof selector === 'object' && 'nodeType' in selector)
 				selector = style.selector(selector);
 
@@ -1905,7 +1905,7 @@
 		 *  @type   function
 		 *  @access internal
 		 *  @param  mixed source
-		 *  @return DOMNode structure
+		 *  @return DOMElement structure
 		 */
 		function createStructure(struct)
 		{
@@ -1972,7 +1972,7 @@
 		 *  @type   method
 		 *  @access public
 		 *  @param  mixed source
-		 *  @return DOMNode structure
+		 *  @return DOMElement structure
 		 */
 		dom.create   = createStructure;
 
