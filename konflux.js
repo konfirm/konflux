@@ -1901,15 +1901,20 @@
 
 		/**
 		 *  Determine whether element is in the ancestor element or the ancestor element itself
-		 *  @name   descendantOrSelf
+		 *  @name   contains
 		 *  @type   function
 		 *  @access internal
-		 *  @param  DOMElement element
 		 *  @param  DOMElement ancestor
-		 *  @return bool is (in) ancestor
+		 *  @param  DOMElement element
+		 *  @return bool element is (in) ancestor
 		 */
-		function descendantOrSelf(element, ancestor)
+		function contains(ancestor, element)
 		{
+			//  use the contains method if it exists
+			if (hasProperty(ancestor, 'contains'))
+				return ancestor.contains(element);
+
+			//  old school tree walker
 			while (element !== ancestor && (element = element.parentNode));
 			return !!element;
 		}
@@ -2007,14 +2012,14 @@
 
 		/**
 		 *  Determine whether element is in the ancestor element or the ancestor element itself
-		 *  @name   descendantOrSelf
+		 *  @name   contains
 		 *  @type   method
 		 *  @access public
-		 *  @param  DOMElement element
 		 *  @param  DOMElement ancestor
+		 *  @param  DOMElement element
 		 *  @return bool is (in) ancestor
 		 */
-		dom.descendantOrSelf = descendantOrSelf;
+		dom.contains = contains;
 	}
 
 
@@ -2178,7 +2183,7 @@
 					i;
 
 				for (i = 0; i < list.length; ++i)
-					if (list[i].isEqualNode(e.target) || konflux.dom.descendantOrSelf(e.target, list[i]))
+					if (konflux.dom.contains(list[i], e.target))
 						handler.apply(list[i], [unifyEvent(e)]);
 			};
 			return event.listen(target, type, delegate);
@@ -3702,7 +3707,6 @@
 	konflux.cookie     = new kxCookie();
 	konflux.storage    = new kxStorage();
 	konflux.canvas     = new kxCanvas();
-
 
 	//  make konflux available on the global (window) scope both as 'konflux' and 'kx'
 	window.konflux = window.kx = konflux;
