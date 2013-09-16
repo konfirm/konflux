@@ -3240,371 +3240,371 @@
 		{
 			var context = this;
 
-				/**
-				 *  kxCanvasContext initializer function
-				 *  @name    init
-				 *  @type    function
-				 *  @access  internal
-				 *  @return  void
-				 */
-				function init()
-				{
-					var property = combine(defaults || {}, {
-							height: null, //  readonly
-							width: null   //  readonly
-						}),
-						p;
-					context.ctx2d = canvas.getContext('2d');
+			/**
+			 *  kxCanvasContext initializer function
+			 *  @name    init
+			 *  @type    function
+			 *  @access  internal
+			 *  @return  void
+			 */
+			function init()
+			{
+				var property = combine(defaults || {}, {
+						height: null, //  readonly
+						width: null   //  readonly
+					}),
+					p;
+				context.ctx2d = canvas.getContext('2d');
 
-					//  relay all methods
-					for (p in context.ctx2d)
-						if (typeof context[p] !== 'function')
-						{
-							if (typeof context.ctx2d[p] === 'function')
-								context[p] = relayMethod(context.ctx2d[p]);
-							else if (p in context.ctx2d.canvas)
-								context[p] = relayCanvasProperty(p, p in property && property[p] === null);
-							else
-	 							context[p] = relayProperty(p, p in property && property[p] === null);
-
-	 						if (p in property && property[p] !== null)
-	 						{
-	 							console.log(p, 'we want', property[p], 'we have', context[p]());
-	 							context[p](property[p]);
-	 						}
-						}
-				}
-
-				/**
-				 *  Create a delegation function which call a context method and returns the kxCanvasContext
-				 *  instance (providing chainability)
-				 *  @name    relayMethod
-				 *  @type    function
-				 *  @access  internal
-				 *  @param   function context method
-				 *  @return  function delegate
-				 */
-				function relayMethod(f)
-				{
-					return function(){
-						f.apply(context.ctx2d, arguments);
-						return context;
-					};
-				}
-
-				/**
-				 *  Create a delegation function which gets/sets a canvas value and returns the kxCanvasContext
-				 *  instance (providing chainability)
-				 *  @name    relayCanvasProperty
-				 *  @type    function
-				 *  @access  internal
-				 *  @param   string   canvas property
-				 *  @param   bool     read only
-				 *  @return  function delegate
-				 */
-				function relayCanvasProperty(key, ro)
-				{
-					return function(value){
-						if (typeof value === undef)
-							return context.ctx2d.canvas[key];
-						if (!ro)
-							context.ctx2d.canvas[key] = value;
-						return context;
-					};
-				}
-
-				/**
-				 *  Create a delegation function which gets/sets a context value and returns the kxCanvasContext
-				 *  instance (providing chainability)
-				 *  @name    relayProperty
-				 *  @type    function
-				 *  @access  internal
-				 *  @param   string  context property
-				 *  @param   bool    read only
-				 *  @return  function delegate
-				 */
-				function relayProperty(key, ro)
-				{
-					return function(value){
-						if (typeof value === undef)
-							return context.ctx2d[key];
-						if (!ro)
-							context.ctx2d[key] = value;
-						return context;
-					};
-				}
-
-				/**
-				 *  Add a gradient fill to the canvas, adding colorstops to the the provided gradient
-				 *  @name    gradientFill
-				 *  @type    function
-				 *  @access  internal
-				 *  @param   object gradient
-				 *  @param   object color ({<position>:<color>})
-				 *  @return  object kxCanvasContext
-				 */
-				function gradientFill(gradient, color)
-				{
-					var p;
-					for (p in color)
-						gradient.addColorStop(p, color[p]);
-
-					context.fillStyle(gradient);
-					context.fill();
-
-					return context;
-				}
-
-				/**
-				 *  Resize the current canvas into a new one
-				 *  @name    resize
-				 *  @type    method
-				 *  @access  public
-				 *  @param   mixed width (one of: number, string percentage)
-				 *  @param   mixed height (one of: number, string percentage)
-				 *  @return  object kxCanvas
-				 */
-				context.resize = function(width, height)
-				{
-					var percentage = /([0-9]+)%/,
-						cnvs;
-
-					if (width > 0 && width < 1)
-						width = Math.round(canvas.width * width);
-					else if (typeof width === 'string' && percentage.test(width))
-						width = Math.round(canvas.width * (parseInt(width) / 100));
-
-					if (height > 0 && height < 1)
-						height = Math.round(canvas.height * height);
-					else if (typeof height === 'string' && percentage.test(height))
-						height = Math.round(canvas.height * (parseInt(height) / 100));
-
-					if (!width && height)
-						width = Math.round(height * (canvas.width / canvas.height));
-					else if (!height && width)
-						height = Math.round(width * (canvas.height / canvas.width));
-
-					if (width && height)
+				//  relay all methods
+				for (p in context.ctx2d)
+					if (typeof context[p] !== 'function')
 					{
-						cnvs = konflux.canvas.create(width, height);
-						cnvs.drawImage(context, 0, 0, canvas.width, canvas.height, 0, 0, width, height);
-						return cnvs;
-					}
-					return false;
-				};
-
-				/**
-				 *  Get/set the canvas' full dataURL
-				 *  @name    data
-				 *  @type    method
-				 *  @access  public
-				 *  @param   string data (one of: the full data url to apply, or the mime type to obtain)
-				 *  @param   number quality (only used when obtaining the dataURL)
-				 *  @return  mixed  result (string dataURL when obtaining, object kxCanvasContext when providing)
-				 */
-				context.data = function(data, quality)
-				{
-					var image;
-					if (data && !/^[a-z]+\/[a-z0-9\-\+\.]+/.test(data))
-					{
-						image     = new Image();
-						image.src = data;
-						context.ctx2d.clearRect(0, 0, canvas.width, canvas.height);
-						context.drawImage(image, 0, 0);
-						return context;
-					}
-					return canvas.toDataURL(data, quality || .8);
-				};
-
-				/**
-				 *  Append the canvas object associtated with the current kxCanvasContext to given DOM target
-				 *  @name    append
-				 *  @type    method
-				 *  @access  public
-				 *  @param   mixed target (one of: DOMElement or string id)
-				 *  @return  mixed result (kxCanvasContext on success, bool false otherwise)
-				 */
-				context.append = function(target)
-				{
-					if (typeof target === 'string')
-						target = document.getElementById(target);
-
-					if (typeof target === 'object')
-						return target.appendChild(canvas) ? context : false;
-
-					return false;
-				};
-
-				/**
-				 *  Shorthand method to provide shadows to the canvas
-				 *  @name    shadow
-				 *  @type    method
-				 *  @access  public
-				 *  @param   number offsetX (skipped if not a number)
-				 *  @param   number offsetY (skipped if not a number)
-				 *  @param   number blur (skipped if not a number)
-				 *  @param   mixed color (applied as provided, if provided)
-				 *  @return  object kxCanvasContext
-				 */
-				context.shadow = function(x, y, blur, color)
-				{
-					if (typeof x === 'number')
-						context.shadowOffsetX(x);
-					if (typeof y === 'number')
-						context.shadowOffsetY(y);
-					if (typeof blur === 'number')
-						context.shadowBlur(blur);
-					if (typeof color !== undef)
-						context.shadowColor(color);
-
-					return context;
-				};
-
-				/**
-				 *  Get/set the canvas' full dataURL
-				 *  @name    drawImage
-				 *  @type    method
-				 *  @access  public
-				 *  @param   image (Specifies the image, canvas, or video element to use)
-				 *  @param   sourceX [optional. The x coordinate where to start clipping]
-				 *  @param   sourceY [optional. The y coordinate where to start clipping]
-				 *  @param   sourceWidth [optional. The width of the clipped image]
-				 *  @param   sourceHeight [optional. The height of the clipped image]
-				 *  @param   targetX [The x coordinate where to place the image on the canvas]
-				 *  @param   targetY [The y coordinate where to place the image on the canvas]
-				 *  @param   targetWidth [optional. The width of the image to use (stretch or reduce the image)]
-				 *  @param   targetHeight [optional. The height of the image to use (stretch or reduce the image)]
-				 *  @return  object kxCanvasContext
-				 *  @note    This method is fully compatible with the native drawImage method:
-				 *           https://developer.mozilla.org/en/docs/Web/API/CanvasRenderingContext2D#drawImage()
-				 */
-				context.drawImage = function()
-				{
-					var arg = Array.prototype.slice.call(arguments);
-
-					//  if we have a request to draw a kxCanvasContext, we honorate it by fetching its canvas
-					if (arg[0] instanceof kxCanvasContext)
-						arg[0] = arg[0].ctx2d.canvas;
-
-					return context.ctx2d.drawImage.apply(context.ctx2d, arg);
-				};
-
-				/**
-				 *  Fill the current (closed) shape
-				 *  @name    colorFill
-				 *  @type    method
-				 *  @access  public
-				 *  @param   mixed color (applied as provided, if provided, using the default fillStyle otherwise)
-				 *  @return  object kxCanvasContext
-				 */
-				context.colorFill = function(color)
-				{
-					if (color)
-						context.fillStyle(color);
-					context.fill();
-					return context;
-				};
-
-				/**
-				 *  Set the stroke style
-				 *  @name    strokeStyle
-				 *  @type    method
-				 *  @access  public
-				 *  @param   mixed color
-				 *  @param   number width (line thickness)
-				 *  @param   string lineCap (one of: 'butt','round','square')
-				 *  @return  object kxCanvasContext
-				 */
-				context.strokeStyle = function(color, width, cap)
-				{
-					if (color)
-						context.ctx2d.strokeStyle = color;
-					if (width)
-						context.ctx2d.lineWidth = width;
-					if (cap)
-						context.ctx2d.lineCap = cap;
-
-					return context;
-				};
-
-				/**
-				 *  Apply a radial gradient fill
-				 *  @name    radialGradientFill
-				 *  @type    method
-				 *  @access  public
-				 *  @param   kxPoint centerA (instead of a kxPoint, an object {x:<num>, y:<num>} will suffice)
-				 *  @param   number radiusA
-				 *  @param   kxPoint centerB (instead of a kxPoint, an object {x:<num>, y:<num>} will suffice)
-				 *  @param   number radiusB
-				 *  @param   mixed color
-				 *  @return  object kxCanvasContext
-				 */
-				context.radialGradientFill = function(a, ar, b, br, color)
-				{
-					return gradientFill(context.ctx2d.createRadialGradient(a.x, a.y, ar, b.x, b.y, br), color);
-				};
-
-				/**
-				 *  Apply a linear gradient fill
-				 *  @name    linearGradientFill
-				 *  @type    method
-				 *  @access  public
-				 *  @param   kxPoint from (instead of a kxPoint, an object {x:<num>, y:<num>} will suffice)
-				 *  @param   kxPoint to (instead of a kxPoint, an object {x:<num>, y:<num>} will suffice)
-				 *  @param   mixed color
-				 *  @return  object kxCanvasContext
-				 */
-				context.linearGradientFill = function(a, b, color)
-				{
-					return gradientFill(context.ctx2d.createLinearGradient(a.x, a.y, b.x, b.y), color);
-				};
-
-				/**
-				 *  Draw a circle
-				 *  @name    circle
-				 *  @type    method
-				 *  @access  public
-				 *  @param   kxPoint center (instead of a kxPoint, an object {x:<num>, y:<num>} will suffice)
-				 *  @param   number  radius
-				 *  @return  object kxCanvasContext
-				 */
-				context.circle = function(p, radius)
-				{
-					context.beginPath();
-					context.arc(p.x, p.y, radius, 0, Math.PI * 2, 1);
-					context.closePath();
-
-					return context;
-				};
-
-				/**
-				 *  Draw a multitude of line segments in a fully enclosed path which get stroked
-				 *  @name    line
-				 *  @type    method
-				 *  @access  public
-				 *  @param   mixed point (one of: kxPoint or Array of points)
-				 *  @param   mixed ...
-				 *  @param   mixed pointN
-				 *  @return  object kxCanvasContext
-				 */
-				context.line = function()
-				{
-					var arg = Array.prototype.slice.call(arguments),
-						len = arguments.length,
-						i;
-
-					if (len === 1 && arg[0] instanceof Array)
-						return context.line.apply(context.line, arg[0]);
-
-					context.beginPath();
-					for (i = 0; i < len; ++i)
-						if (i === len - 1 && arguments[i].equal(arguments[0]))
-							context.closePath();
+						if (typeof context.ctx2d[p] === 'function')
+							context[p] = relayMethod(context.ctx2d[p]);
+						else if (p in context.ctx2d.canvas)
+							context[p] = relayCanvasProperty(p, p in property && property[p] === null);
 						else
-							context[i === 0 ? 'moveTo' : 'lineTo'](arguments[i].x, arguments[i].y);
-					context.stroke();
+							context[p] = relayProperty(p, p in property && property[p] === null);
+
+						if (p in property && property[p] !== null)
+						{
+							console.log(p, 'we want', property[p], 'we have', context[p]());
+							context[p](property[p]);
+						}
+					}
+			}
+
+			/**
+			 *  Create a delegation function which call a context method and returns the kxCanvasContext
+			 *  instance (providing chainability)
+			 *  @name    relayMethod
+			 *  @type    function
+			 *  @access  internal
+			 *  @param   function context method
+			 *  @return  function delegate
+			 */
+			function relayMethod(f)
+			{
+				return function(){
+					f.apply(context.ctx2d, arguments);
 					return context;
 				};
+			}
+
+			/**
+			 *  Create a delegation function which gets/sets a canvas value and returns the kxCanvasContext
+			 *  instance (providing chainability)
+			 *  @name    relayCanvasProperty
+			 *  @type    function
+			 *  @access  internal
+			 *  @param   string   canvas property
+			 *  @param   bool     read only
+			 *  @return  function delegate
+			 */
+			function relayCanvasProperty(key, ro)
+			{
+				return function(value){
+					if (typeof value === undef)
+						return context.ctx2d.canvas[key];
+					if (!ro)
+						context.ctx2d.canvas[key] = value;
+					return context;
+				};
+			}
+
+			/**
+			 *  Create a delegation function which gets/sets a context value and returns the kxCanvasContext
+			 *  instance (providing chainability)
+			 *  @name    relayProperty
+			 *  @type    function
+			 *  @access  internal
+			 *  @param   string  context property
+			 *  @param   bool    read only
+			 *  @return  function delegate
+			 */
+			function relayProperty(key, ro)
+			{
+				return function(value){
+					if (typeof value === undef)
+						return context.ctx2d[key];
+					if (!ro)
+						context.ctx2d[key] = value;
+					return context;
+				};
+			}
+
+			/**
+			 *  Add a gradient fill to the canvas, adding colorstops to the the provided gradient
+			 *  @name    gradientFill
+			 *  @type    function
+			 *  @access  internal
+			 *  @param   object gradient
+			 *  @param   object color ({<position>:<color>})
+			 *  @return  object kxCanvasContext
+			 */
+			function gradientFill(gradient, color)
+			{
+				var p;
+				for (p in color)
+					gradient.addColorStop(p, color[p]);
+
+				context.fillStyle(gradient);
+				context.fill();
+
+				return context;
+			}
+
+			/**
+			 *  Resize the current canvas into a new one
+			 *  @name    resize
+			 *  @type    method
+			 *  @access  public
+			 *  @param   mixed width (one of: number, string percentage)
+			 *  @param   mixed height (one of: number, string percentage)
+			 *  @return  object kxCanvas
+			 */
+			context.resize = function(width, height)
+			{
+				var percentage = /([0-9]+)%/,
+					cnvs;
+
+				if (width > 0 && width < 1)
+					width = Math.round(canvas.width * width);
+				else if (typeof width === 'string' && percentage.test(width))
+					width = Math.round(canvas.width * (parseInt(width) / 100));
+
+				if (height > 0 && height < 1)
+					height = Math.round(canvas.height * height);
+				else if (typeof height === 'string' && percentage.test(height))
+					height = Math.round(canvas.height * (parseInt(height) / 100));
+
+				if (!width && height)
+					width = Math.round(height * (canvas.width / canvas.height));
+				else if (!height && width)
+					height = Math.round(width * (canvas.height / canvas.width));
+
+				if (width && height)
+				{
+					cnvs = konflux.canvas.create(width, height);
+					cnvs.drawImage(context, 0, 0, canvas.width, canvas.height, 0, 0, width, height);
+					return cnvs;
+				}
+				return false;
+			};
+
+			/**
+			 *  Get/set the canvas' full dataURL
+			 *  @name    data
+			 *  @type    method
+			 *  @access  public
+			 *  @param   string data (one of: the full data url to apply, or the mime type to obtain)
+			 *  @param   number quality (only used when obtaining the dataURL)
+			 *  @return  mixed  result (string dataURL when obtaining, object kxCanvasContext when providing)
+			 */
+			context.data = function(data, quality)
+			{
+				var image;
+				if (data && !/^[a-z]+\/[a-z0-9\-\+\.]+/.test(data))
+				{
+					image     = new Image();
+					image.src = data;
+					context.ctx2d.clearRect(0, 0, canvas.width, canvas.height);
+					context.drawImage(image, 0, 0);
+					return context;
+				}
+				return canvas.toDataURL(data, quality || .8);
+			};
+
+			/**
+			 *  Append the canvas object associtated with the current kxCanvasContext to given DOM target
+			 *  @name    append
+			 *  @type    method
+			 *  @access  public
+			 *  @param   mixed target (one of: DOMElement or string id)
+			 *  @return  mixed result (kxCanvasContext on success, bool false otherwise)
+			 */
+			context.append = function(target)
+			{
+				if (typeof target === 'string')
+					target = document.getElementById(target);
+
+				if (typeof target === 'object')
+					return target.appendChild(canvas) ? context : false;
+
+				return false;
+			};
+
+			/**
+			 *  Shorthand method to provide shadows to the canvas
+			 *  @name    shadow
+			 *  @type    method
+			 *  @access  public
+			 *  @param   number offsetX (skipped if not a number)
+			 *  @param   number offsetY (skipped if not a number)
+			 *  @param   number blur (skipped if not a number)
+			 *  @param   mixed color (applied as provided, if provided)
+			 *  @return  object kxCanvasContext
+			 */
+			context.shadow = function(x, y, blur, color)
+			{
+				if (typeof x === 'number')
+					context.shadowOffsetX(x);
+				if (typeof y === 'number')
+					context.shadowOffsetY(y);
+				if (typeof blur === 'number')
+					context.shadowBlur(blur);
+				if (typeof color !== undef)
+					context.shadowColor(color);
+
+				return context;
+			};
+
+			/**
+			 *  Get/set the canvas' full dataURL
+			 *  @name    drawImage
+			 *  @type    method
+			 *  @access  public
+			 *  @param   image (Specifies the image, canvas, or video element to use)
+			 *  @param   sourceX [optional. The x coordinate where to start clipping]
+			 *  @param   sourceY [optional. The y coordinate where to start clipping]
+			 *  @param   sourceWidth [optional. The width of the clipped image]
+			 *  @param   sourceHeight [optional. The height of the clipped image]
+			 *  @param   targetX [The x coordinate where to place the image on the canvas]
+			 *  @param   targetY [The y coordinate where to place the image on the canvas]
+			 *  @param   targetWidth [optional. The width of the image to use (stretch or reduce the image)]
+			 *  @param   targetHeight [optional. The height of the image to use (stretch or reduce the image)]
+			 *  @return  object kxCanvasContext
+			 *  @note    This method is fully compatible with the native drawImage method:
+			 *           https://developer.mozilla.org/en/docs/Web/API/CanvasRenderingContext2D#drawImage()
+			 */
+			context.drawImage = function()
+			{
+				var arg = Array.prototype.slice.call(arguments);
+
+				//  if we have a request to draw a kxCanvasContext, we honorate it by fetching its canvas
+				if (arg[0] instanceof kxCanvasContext)
+					arg[0] = arg[0].ctx2d.canvas;
+
+				return context.ctx2d.drawImage.apply(context.ctx2d, arg);
+			};
+
+			/**
+			 *  Fill the current (closed) shape
+			 *  @name    colorFill
+			 *  @type    method
+			 *  @access  public
+			 *  @param   mixed color (applied as provided, if provided, using the default fillStyle otherwise)
+			 *  @return  object kxCanvasContext
+			 */
+			context.colorFill = function(color)
+			{
+				if (color)
+					context.fillStyle(color);
+				context.fill();
+				return context;
+			};
+
+			/**
+			 *  Set the stroke style
+			 *  @name    strokeStyle
+			 *  @type    method
+			 *  @access  public
+			 *  @param   mixed color
+			 *  @param   number width (line thickness)
+			 *  @param   string lineCap (one of: 'butt','round','square')
+			 *  @return  object kxCanvasContext
+			 */
+			context.strokeStyle = function(color, width, cap)
+			{
+				if (color)
+					context.ctx2d.strokeStyle = color;
+				if (width)
+					context.ctx2d.lineWidth = width;
+				if (cap)
+					context.ctx2d.lineCap = cap;
+
+				return context;
+			};
+
+			/**
+			 *  Apply a radial gradient fill
+			 *  @name    radialGradientFill
+			 *  @type    method
+			 *  @access  public
+			 *  @param   kxPoint centerA (instead of a kxPoint, an object {x:<num>, y:<num>} will suffice)
+			 *  @param   number radiusA
+			 *  @param   kxPoint centerB (instead of a kxPoint, an object {x:<num>, y:<num>} will suffice)
+			 *  @param   number radiusB
+			 *  @param   mixed color
+			 *  @return  object kxCanvasContext
+			 */
+			context.radialGradientFill = function(a, ar, b, br, color)
+			{
+				return gradientFill(context.ctx2d.createRadialGradient(a.x, a.y, ar, b.x, b.y, br), color);
+			};
+
+			/**
+			 *  Apply a linear gradient fill
+			 *  @name    linearGradientFill
+			 *  @type    method
+			 *  @access  public
+			 *  @param   kxPoint from (instead of a kxPoint, an object {x:<num>, y:<num>} will suffice)
+			 *  @param   kxPoint to (instead of a kxPoint, an object {x:<num>, y:<num>} will suffice)
+			 *  @param   mixed color
+			 *  @return  object kxCanvasContext
+			 */
+			context.linearGradientFill = function(a, b, color)
+			{
+				return gradientFill(context.ctx2d.createLinearGradient(a.x, a.y, b.x, b.y), color);
+			};
+
+			/**
+			 *  Draw a circle
+			 *  @name    circle
+			 *  @type    method
+			 *  @access  public
+			 *  @param   kxPoint center (instead of a kxPoint, an object {x:<num>, y:<num>} will suffice)
+			 *  @param   number  radius
+			 *  @return  object kxCanvasContext
+			 */
+			context.circle = function(p, radius)
+			{
+				context.beginPath();
+				context.arc(p.x, p.y, radius, 0, Math.PI * 2, 1);
+				context.closePath();
+
+				return context;
+			};
+
+			/**
+			 *  Draw a multitude of line segments in a fully enclosed path which get stroked
+			 *  @name    line
+			 *  @type    method
+			 *  @access  public
+			 *  @param   mixed point (one of: kxPoint or Array of points)
+			 *  @param   mixed ...
+			 *  @param   mixed pointN
+			 *  @return  object kxCanvasContext
+			 */
+			context.line = function()
+			{
+				var arg = Array.prototype.slice.call(arguments),
+					len = arguments.length,
+					i;
+
+				if (len === 1 && arg[0] instanceof Array)
+					return context.line.apply(context.line, arg[0]);
+
+				context.beginPath();
+				for (i = 0; i < len; ++i)
+					if (i === len - 1 && arguments[i].equal(arguments[0]))
+						context.closePath();
+					else
+						context[i === 0 ? 'moveTo' : 'lineTo'](arguments[i].x, arguments[i].y);
+				context.stroke();
+				return context;
+			};
 
 
 			init();
