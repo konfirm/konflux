@@ -35,7 +35,7 @@
 	}
 
 	/**
-	 *  Obtain the milliseconds since the UNIX Epoch (Jan 1, 1970 00:00:00)
+	 *  Obtain the milliseconds since the UNIX Epoch (Jan 1, 1970 00:00:00.000)
 	 *  @name    time
 	 *  @type    function
 	 *  @access  internal
@@ -203,7 +203,7 @@
 		};
 
 		/**
-		 *  Obtain the milliseconds since the UNIX Epoch (Jan 1, 1970 00:00:00)
+		 *  Obtain the milliseconds since the UNIX Epoch (Jan 1, 1970 00:00:00.000)
 		 *  @name    time
 		 *  @type    method
 		 *  @access  public
@@ -212,7 +212,7 @@
 		kx.time = time;
 
 		/**
-		 *  Obtain the elapsed time since Konflux started (roughly), using the format: [Nd ] hh:mm:ss.ms
+		 *  Obtain the elapsed time since Konflux started (roughly), using the format: [Nd] hh:mm:ss.ms
 		 *  @name    elapsed
 		 *  @type    method
 		 *  @access  public
@@ -232,8 +232,8 @@
 		/**
 		 *  Shorthand method for creating a combined version of several objects
 		 *  @name    combine
-		 *  @type    function
-		 *  @access  internal
+		 *  @type    method
+		 *  @access  public
 		 *  @param   object 1
 		 *  @param   object ...
 		 *  @param   object N
@@ -1162,8 +1162,8 @@
 		};
 
 		/**
-		 *  Remove one or more css classes from given element
-		 *  @name    removeClass
+		 *  Toggle one or more css classes on given element
+		 *  @name    toggleClass
 		 *  @type    method
 		 *  @access  public
 		 *  @param   DOMElement element
@@ -1900,6 +1900,21 @@
 		}
 
 		/**
+		 *  Determine whether element is in the ancestor element or the ancestor element itself
+		 *  @name   descendantOrSelf
+		 *  @type   function
+		 *  @access internal
+		 *  @param  DOMElement element
+		 *  @param  DOMElement ancestor
+		 *  @return bool is (in) ancestor
+		 */
+		function descendantOrSelf(element, ancestor)
+		{
+			while (element !== ancestor && (element = element.parentNode));
+			return !!element;
+		}
+
+		/**
 		 *  Create a dom structure from given variable
 		 *  @name   createStructure
 		 *  @type   function
@@ -1989,6 +2004,17 @@
 		{
 			return appendTo(target, typeof source === 'object' && typeof source.nodeType !== undef ? source : createStructure(source));
 		};
+
+		/**
+		 *  Determine whether element is in the ancestor element or the ancestor element itself
+		 *  @name   descendantOrSelf
+		 *  @type   method
+		 *  @access public
+		 *  @param  DOMElement element
+		 *  @param  DOMElement ancestor
+		 *  @return bool is (in) ancestor
+		 */
+		dom.descendantOrSelf = descendantOrSelf;
 	}
 
 
@@ -2046,7 +2072,7 @@
 			if (typeof evt.target === undef)
 				evt.target = typeof evt.srcElement !== undef ? evt.srcElement : null;
 
-			if (/^mouse[a-z]+|drag[a-z]+|drop$/i.test(evt.type))
+			if (/^mouse[a-z]+|drag[a-z]+|drop|click$/i.test(evt.type))
 			{
 				evt.mouse = new kxPoint(
 					evt.pageX ? evt.pageX : (evt.clientX ? evt.clientX + document.body.scrollLeft + document.documentElement.scrollLeft : 0),
@@ -2150,10 +2176,11 @@
 			var delegate = function(e){
 				var list = this.querySelectorAll(selector),
 					i;
-					for (i = 0; i < list.length; ++i)
-						if (list[i].isEqualNode(e.target))
-							handler.apply(e.target, [unifyEvent(e)]);
-				};
+
+				for (i = 0; i < list.length; ++i)
+					if (list[i].isEqualNode(e.target) || konflux.dom.descendantOrSelf(e.target, list[i]))
+						handler.apply(list[i], [unifyEvent(e)]);
+			};
 			return event.listen(target, type, delegate);
 		};
 	}
@@ -3289,7 +3316,7 @@
 				/**
 				 *  Create a delegation function which gets/sets a context value and returns the kxCanvasContext
 				 *  instance (providing chainability)
-				 *  @name    relayCanvasProperty
+				 *  @name    relayProperty
 				 *  @type    function
 				 *  @access  internal
 				 *  @param   string  context property
