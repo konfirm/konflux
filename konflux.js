@@ -3643,7 +3643,8 @@
 	 *  Logo object, creates the konflux logo on canvas
 	 *  @module  logo
 	 *  @note    available as konflux.logo / kx.logo
-	 *  @note    This module is now depricated from the konflux default package and was moved on konflux.logo.js
+	 *  @note    This module is now deprecated from the konflux default package and was moved on konflux.logo.js
+	 *  @see     addon/konflux.logo.js
 	 */
 	function kxLogo()
 	{
