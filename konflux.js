@@ -2328,6 +2328,51 @@
 			subscription = buffer('observer.subscriptions'),
 			active = buffer('observer.active');
 
+
+		/**
+		 *  Observation object, instances of this are be provided to all observer notification subscribers
+		 *  @name    kxObservation
+		 *  @type    class
+		 *  @access  internal
+		 *  @param   string type
+		 *  @param   function handle
+		 *  @param   string reference
+		 *  @return  kxObservation object
+		 */
+		function kxObservation(type, handle, reference)
+		{
+			var observation = this;
+
+			observation.type      = type;
+			observation.reference = reference;
+			observation.timeStamp = time();
+			observation.timeDelta = elapsed();
+
+			/**
+			 *  Unsubscribe from the current observer stack
+			 *  @name    unsubscribe
+			 *  @type    method
+			 *  @access  public
+			 *  @return  void
+			 */
+			observation.unsubscribe = function()
+			{
+				return disable(type, handle);
+			};
+			/**
+			 *  Stop the execution of this Observation
+			 *  @name    stop
+			 *  @type    method
+			 *  @access  public
+			 *  @return  void
+			 */
+			observation.stop = function()
+			{
+				active[reference] = false;
+			};
+		};
+
+
 		/**
 		 *  Create the subscription stack if it does not exist
 		 *  @name    ensureSubscriptionStack
@@ -2460,49 +2505,6 @@
 					break;
 			}
 			delete active[ref];
-		};
-
-		/**
-		 *  Observation object, instances of this are be provided to all observer notification subscribers
-		 *  @name    kxObservation
-		 *  @type    class
-		 *  @access  internal
-		 *  @param   string type
-		 *  @param   function handle
-		 *  @param   string reference
-		 *  @return  kxObservation object
-		 */
-		function kxObservation(type, handle, reference)
-		{
-			var observation = this;
-
-			observation.type      = type;
-			observation.reference = reference;
-			observation.timeStamp = time();
-			observation.timeDelta = elapsed();
-
-			/**
-			 *  Unsubscribe from the current observer stack
-			 *  @name    unsubscribe
-			 *  @type    method
-			 *  @access  public
-			 *  @return  void
-			 */
-			observation.unsubscribe = function()
-			{
-				return disable(type, handle);
-			};
-			/**
-			 *  Stop the execution of this Observation
-			 *  @name    stop
-			 *  @type    method
-			 *  @access  public
-			 *  @return  void
-			 */
-			observation.stop = function()
-			{
-				active[reference] = false;
-			};
 		};
 
 		/**
