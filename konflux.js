@@ -294,8 +294,22 @@
 		 */
 		kx.ready = function(handler)
 		{
-			if (event in konflux)
+			if ('event' in konflux)
 				return konflux.event.ready(handler);
+		};
+
+		/**
+		 *  Select elements matching given CSS selector
+		 *  @name   select
+		 *  @type   method
+		 *  @access public
+		 *  @param  string     selector
+		 *  @param  DOMElement parent
+		 *  @return DOMNodeList (empty Array if the dom module is not available)
+		 */
+		kx.select = function(selector, parent)
+		{
+			return 'dom' in konflux ? konflux.dom.select(selector, parent) : [];
 		};
 
 		return this;
@@ -2034,6 +2048,20 @@
 		 *  @return bool is (in) ancestor
 		 */
 		dom.contains = contains;
+
+		/**
+		 *  Select elements matching given CSS selector
+		 *  @name   select
+		 *  @type   method
+		 *  @access public
+		 *  @param  string     selector
+		 *  @param  DOMElement parent
+		 *  @return DOMNodeList
+		 */
+		dom.select = function(selector, parent)
+		{
+			return (parent || document).querySelectorAll(selector);
+		}
 	}
 
 
