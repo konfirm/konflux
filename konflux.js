@@ -284,6 +284,20 @@
 			return result;
 		};
 
+		/**
+		 *  Convenience function bridging the event.ready method
+		 *  @name    ready
+		 *  @type    method
+		 *  @access  public
+		 *  @param   function handler
+		 *  @return  void
+		 */
+		kx.ready = function(handler)
+		{
+			if (event in konflux)
+				return konflux.event.ready(handler);
+		};
+
 		return this;
 	}
 	konflux = new Konflux();
@@ -2102,7 +2116,7 @@
 
 		/**
 		 *  A custom DOMReady handler
-		 *  @name    add
+		 *  @name    ready
 		 *  @type    method
 		 *  @access  public
 		 *  @param   function handler
