@@ -8,7 +8,7 @@
 ;(function(window, undefined){
 	'use strict';
 
-	var version = '$DEV$',
+	var version = '$DEV$ - $DATE$ - $COMMIT$',
 		document = window.document,
 		undef = 'undefined',
 		//  Private properties
@@ -310,6 +310,26 @@
 		kx.select = function(selector, parent)
 		{
 			return 'dom' in konflux ? konflux.dom.select(selector, parent) : [];
+		};
+
+		/**
+		 *  Obtain the konflux version info
+		 *  @name   version
+		 *  @type   method
+		 *  @access public
+		 *  @param  bool   info (optional, default false - no build information)
+		 *  @return string version (object info if bool info is true)
+		 */
+		kx.version = function(info)
+		{
+			var match = version.split(' - '),
+				prop = ['version', 'date', 'revision', 'type'],
+				result = {};
+
+			while (prop.length && match.length)
+				result[prop.shift()] = match.shift();
+
+			return info ? result : result.version;
 		};
 
 		return this;
