@@ -235,10 +235,7 @@
 					for (p in design[name][i])
 						for (j = 0; j < design[name][i][p].length; ++j)
 							if (design[name][i][p][j] instanceof konflux.point)
-							{
-								result.x = Math.max(result.x, design[name][i][p][j].x);
-								result.y = Math.max(result.y, design[name][i][p][j].y);
-							}
+								result = result.max(design[name][i][p][j]);
 			}
 			return result;
 		}

@@ -2827,6 +2827,38 @@
 		{
 			return Math.atan2(p.x - point.x, p.y - point.y);
 		};
+
+		/**
+		 *  Create a point with the maximum coordinates of both the current and given point
+		 *  @name    max
+		 *  @type    method
+		 *  @access  public
+		 *  @param   kxPoint point
+		 *  @return  kxPoint
+		 */
+		point.max = function(p)
+		{
+			return new kxPoint(
+				Math.max(point.x, p.x),
+				Math.max(point.y, p.y)
+			);
+		};
+
+		/**
+		 *  Create a point with the minimum coordinates of both the current and given point
+		 *  @name    min
+		 *  @type    method
+		 *  @access  public
+		 *  @param   kxPoint point
+		 *  @return  kxPoint
+		 */
+		point.min = function(p)
+		{
+			return new kxPoint(
+				Math.min(point.x, p.x),
+				Math.min(point.y, p.y)
+			);
+		};
 	}
 
 
