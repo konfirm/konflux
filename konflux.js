@@ -2153,7 +2153,7 @@
 		event.ready = function(handler)
 		{
 			//  the document is ready already
-			if (document.readyState === 'complete')
+			if (/^interactive|complete$/.test(document.readyState))
 				return setTimeout(handler, 1); // make sure we run the 'event' asynchronously
 
 			//  we cannot use the event.listen method, as we need very different event listeners
