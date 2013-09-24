@@ -2895,15 +2895,24 @@
 		 *  @name    max
 		 *  @type    method
 		 *  @access  public
-		 *  @param   kxPoint point
+		 *  @param   kxPoint point 1
+		 *  @param   kxPoint ...
+		 *  @param   kxPoint point N
 		 *  @return  kxPoint
 		 */
-		point.max = function(p)
+		point.max = function()
 		{
-			return new kxPoint(
-				Math.max(point.x, p.x),
-				Math.max(point.y, p.y)
-			);
+			var x = point.x,
+				y = point.y,
+				i;
+
+			for (i = 0; i < arguments.length; ++i)
+			{
+				x = Math.max(x, arguments[i].x);
+				y = Math.max(y, arguments[i].y);
+			}
+
+			return new kxPoint(x, y);
 		};
 
 		/**
@@ -2911,15 +2920,24 @@
 		 *  @name    min
 		 *  @type    method
 		 *  @access  public
-		 *  @param   kxPoint point
+		 *  @param   kxPoint point 1
+		 *  @param   kxPoint ...
+		 *  @param   kxPoint point N
 		 *  @return  kxPoint
 		 */
-		point.min = function(p)
+		point.min = function()
 		{
-			return new kxPoint(
-				Math.min(point.x, p.x),
-				Math.min(point.y, p.y)
-			);
+			var x = point.x,
+				y = point.y,
+				i;
+
+			for (i = 0; i < arguments.length; ++i)
+			{
+				x = Math.min(x, arguments[i].x);
+				y = Math.min(y, arguments[i].y);
+			}
+
+			return new kxPoint(x, y);
 		};
 	}
 
