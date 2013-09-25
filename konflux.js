@@ -2939,6 +2939,21 @@
 
 			return new kxPoint(x, y);
 		};
+
+		/**
+		 *  Create a new point from the current mapped to isometric coordinates
+		 *  @name    iso
+		 *  @type    method
+		 *  @access  public
+		 *  @return  kxPoint
+		 */
+		point.iso = function()
+		{
+			return new kxPoint(
+				point.x - point.y,
+				(point.x + point.y) * .5
+			);
+		};
 	}
 
 
