@@ -2964,7 +2964,7 @@
 		 */
 		point.iso = function(angle)
 		{
-			angle = Math.round((angle || 30) * Math.PI * .055) * .1;
+			angle = (angle || 30) * Math.PI / 180;
 
 			return new kxPoint(
 				point.x - point.y,
