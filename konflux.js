@@ -2309,6 +2309,18 @@
 			 */
 			delay.cancel = cancel;
 
+			/**
+			 *  Obtain the associated reference
+			 *  @name    reference
+			 *  @type    method
+			 *  @access  public
+			 *  @return  string reference
+			 */
+			delay.reference = function()
+			{
+				return reference;
+			};
+
 			start();
 		}
 
@@ -2351,7 +2363,9 @@
 				remove(reference);
 			else
 				reference = handler.toString() || unique();
-			return stack[reference] = new kxDelay(handler, delay, reference);
+			stack[reference] = new kxDelay(handler, delay, reference);
+
+			return stack[reference];
 		}
 
 		//  expose
@@ -2945,13 +2959,16 @@
 		 *  @name    iso
 		 *  @type    method
 		 *  @access  public
+		 *  @param   number angle [optional, default 30 degrees]
 		 *  @return  kxPoint
 		 */
-		point.iso = function()
+		point.iso = function(angle)
 		{
+			angle = Math.round((angle || 30) * Math.PI * .055) * .1;
+
 			return new kxPoint(
 				point.x - point.y,
-				(point.x + point.y) * .5
+				(point.x + point.y) * angle
 			);
 		};
 	}
