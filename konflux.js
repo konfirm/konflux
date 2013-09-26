@@ -3637,7 +3637,8 @@
 				if (arg[0] instanceof kxCanvasContext)
 					arg[0] = arg[0].ctx2d.canvas;
 
-				return context.ctx2d.drawImage.apply(context.ctx2d, arg);
+				context.ctx2d.drawImage.apply(context.ctx2d, arg);
+				return context;
 			};
 
 			/**
@@ -3729,8 +3730,9 @@
 			};
 
 			/**
-			 *  Draw a multitude of line segments in a fully enclosed path which get stroked
-			 *  @name    line
+			 *  Draw a multitude of line segments from a list of kx.point instances (or {x:N, y:N}) in 
+			 *  a fully enclosed path
+			 *  @name    path
 			 *  @type    method
 			 *  @access  public
 			 *  @param   mixed point (one of: kxPoint or Array of points)
@@ -3738,7 +3740,7 @@
 			 *  @param   mixed pointN
 			 *  @return  object kxCanvasContext
 			 */
-			context.line = function()
+			context.path = function()
 			{
 				var arg = Array.prototype.slice.call(arguments),
 					len = arguments.length,
@@ -3753,7 +3755,24 @@
 						context.closePath();
 					else
 						context[i === 0 ? 'moveTo' : 'lineTo'](arguments[i].x, arguments[i].y);
+				return context;
+			};
+
+			/**
+			 *  Draw a stroked path
+			 *  @name    line
+			 *  @type    method
+			 *  @access  public
+			 *  @param   mixed point (one of: kxPoint or Array of points)
+			 *  @param   mixed ...
+			 *  @param   mixed pointN
+			 *  @return  object kxCanvasContext
+			 */
+			context.line = function()
+			{
+				context.path.apply(context.path, arguments);
 				context.stroke();
+
 				return context;
 			};
 
