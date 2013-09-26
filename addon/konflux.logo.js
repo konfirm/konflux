@@ -5,6 +5,8 @@
  *   \  / /    Releases under the MIT license
  *    \/_/     More information: http://konfirm.net/konflux
  */
+
+/*jshint undef: true, unused: true, curly: false, newcap: false, forin: false, maxstatements: 10, maxparams: 4 */
 ;(function(konflux){
 	'use strict';
 
@@ -183,6 +185,7 @@
 	 */
 	function kxLogo()
 	{
+		/*jshint validthis: true*/
 		var logo = this;
 
 		/**
@@ -227,7 +230,7 @@
 		{
 			var result = false,
 				p, i, j;
-			
+
 			if (name in design)
 			{
 				result = new konflux.point();
@@ -321,7 +324,8 @@
 		 */
 		logo.append = function(target, design)
 		{
-			return render(design).append(target);
+			var canvas = render(design);
+			return canvas ? canvas.append(target) : false;
 		};
 
 		/**
@@ -334,7 +338,8 @@
 		 */
 		logo.data = function(name)
 		{
-			return render(name).data();
+			var canvas = render(design);
+			return canvas ? canvas.data() : false;
 		};
 
 		/**
