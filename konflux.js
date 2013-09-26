@@ -3737,6 +3737,24 @@
 			};
 
 			/**
+			 *  Get the image data from the canvas
+			 *  @name    getImageData
+			 *  @type    method
+			 *  @access  public
+			 *  @param   number x
+			 *  @param   number y
+			 *  @param   number width
+			 *  @param   number height
+			 *  @return  ImageData data
+			 */
+			context.getImageData = function()
+			{
+				var arg = Array.prototype.slice.call(arguments);
+
+				return context.ctx2d.getImageData.apply(context.ctx2d, arg);
+			};
+
+			/**
 			 *  Fill the current (closed) shape
 			 *  @name    colorFill
 			 *  @type    method
