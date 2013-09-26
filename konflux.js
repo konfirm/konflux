@@ -1401,6 +1401,10 @@
 				{
 					sheet = sheet[0];
 				}
+				else if (sheet.length <= 0)
+				{
+					sheet = createStylesheet().sheet;
+				}
 				else
 				{
 					rule = true;
@@ -3907,3 +3911,4 @@
 	//  make konflux available on the global (window) scope both as 'konflux' and 'kx'
 	window.konflux = window.kx = konflux;
 })(window);
+
