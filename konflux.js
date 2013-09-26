@@ -5,6 +5,8 @@
  *   \  / /    Releases under the MIT license
  *    \/_/     More information: http://konfirm.net/konflux
  */
+
+/*jshint undef: true, unused: true, curly: false, newcap: false, forin: false */
 ;(function(window, undefined){
 	'use strict';
 
@@ -118,7 +120,7 @@
 				'object':  function(o){if (o instanceof Array)return o.length > 0; for (o in o)return true;return false;},
 				'boolean': function(b){return b;},
 				'number':  function(n){return n !== 0;},
-				'string':  function(s){return !/^0?$/.test(p);}
+				'string':  function(s){return !/^0?$/.test(s);}
 			};
 
 		if (typeof types[typeof p] === 'function' && types[typeof p](p))
@@ -188,6 +190,7 @@
 	 */
 	function Konflux()
 	{
+		/*jshint validthis: true*/
 		var kx = this;
 
 		/**
@@ -344,6 +347,7 @@
 	 */
 	function kxBrowser()
 	{
+		/*jshint validthis: true*/
 		var browser = this,
 			support = {
 				touch: hasProperty(window, 'ontouchstart') || hasProperty(window.navigator, 'msMaxTouchPoints')
@@ -562,6 +566,7 @@
 	 */
 	function kxAjax()
 	{
+		/*jshint validthis: true*/
 		var ajax = this,
 			stat = {},
 			header = {
@@ -570,6 +575,7 @@
 
 		function kxFormData(form)
 		{
+			/*jshint validthis: true*/
 			var formdata = this,
 				data = {};
 
@@ -837,6 +843,7 @@
 	 */
 	function kxURL()
 	{
+		/*jshint validthis: true*/
 		var url = this;
 
 		/**
@@ -904,6 +911,7 @@
 	 */
 	function kxStyle()
 	{
+		/*jshint validthis: true*/
 		var style = this;
 
 		/**
@@ -947,8 +955,6 @@
 		 */
 		function hasProperty(property)
 		{
-			var prefix;
-
 			property = scriptProperty(property);
 			if (property in document.body.style)
 				return property;
@@ -1060,8 +1066,7 @@
 		function createStylesheet(url, before, name)
 		{
 			var element = findStylesheet(url, name),
-				head = document.head || document.getElementsByTagName('head')[0],
-				i;
+				head = document.head || document.getElementsByTagName('head')[0];
 
 			if (!element)
 			{
@@ -1337,7 +1342,7 @@
 			else if (callback)
 			{
 				konflux.event.listen(style, 'load', function(e){
-					callback.apply(style, [style]);
+					callback.apply(style, [e]);
 				});
 			}
 			return style;
@@ -1497,6 +1502,7 @@
 	 */
 	function kxNumber()
 	{
+		/*jshint validthis: true*/
 		var number = this;
 
 
@@ -1550,6 +1556,7 @@
 	 */
 	function kxString()
 	{
+		/*jshint validthis: true*/
 		var string = this;
 
 		/**
@@ -1580,8 +1587,7 @@
 		{
 			var p = 16,
 				pad = ('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ' + s).substr(-(Math.ceil((s.length || 1) / p) * p)),
-				r = 0,
-				c;
+				r = 0;
 
 			while (pad.length)
 			{
@@ -1796,7 +1802,9 @@
 	 */
 	function kxArray()
 	{
+		/*jshint validthis: true*/
 		var array = this;
+
 		/**
 		 *  Determine whether given value (needle) is in the array (haystack)
 		 *  @name    contains
@@ -1919,6 +1927,7 @@
 	 */
 	function kxDOM()
 	{
+		/*jshint validthis: true*/
 		var dom = this;
 
 		/**
@@ -2085,7 +2094,7 @@
 		dom.select = function(selector, parent)
 		{
 			return (parent || document).querySelectorAll(selector);
-		}
+		};
 	}
 
 
@@ -2096,6 +2105,7 @@
 	 */
 	function kxEvent()
 	{
+		/*jshint validthis: true*/
 		var event = this,
 			queue = buffer('event.queue'),
 			touch = konflux.browser.supports('touch');
@@ -2214,7 +2224,9 @@
 		 */
 		event.listen = function(target, type, handler)
 		{
-			var delegate = function(e){handler.apply(target, [unifyEvent(e)])},
+			var delegate = function(e){
+					handler.apply(target, [unifyEvent(e)]);
+				},
 				list = typeof type === 'string' ? type.split(',') : type,
 				i;
 
@@ -2245,6 +2257,7 @@
 		event.live = function(target, type, selector, handler)
 		{
 			var delegate = function(e){
+				/*jshint validthis: true*/
 				var list = this.querySelectorAll(selector),
 					i;
 
@@ -2276,6 +2289,7 @@
 		 */
 		function kxDelay(handler, timeout, reference)
 		{
+			/*jshint validthis: true*/
 			var delay = this,
 				timer = null;
 
@@ -2329,6 +2343,7 @@
 		}
 
 
+		/*jshint validthis: true*/
 		var timing = this,
 			stack = buffer('timing.delay');
 
@@ -2381,7 +2396,7 @@
 		 *  @param   string reference
 		 *  @return  void
 		 */
- 		timing.remove = remove;
+		timing.remove = remove;
 
 		/**
 		 *  Create a timer object to call given handler after given delay and store it with given reference
@@ -2393,7 +2408,7 @@
 		 *  @param   string   reference
 		 *  @return  kxDelay  object
 		 */
- 		timing.create = create;
+		timing.create = create;
 	}
 
 
@@ -2404,6 +2419,7 @@
 	 */
 	function kxObserver()
 	{
+		/*jshint validthis: true*/
 		var observer = this,
 			subscription = buffer('observer.subscriptions'),
 			active = buffer('observer.active');
@@ -2421,6 +2437,7 @@
 		 */
 		function kxObservation(type, handle, reference)
 		{
+			/*jshint validthis: true*/
 			var observation = this;
 
 			observation.type      = type;
@@ -2450,7 +2467,7 @@
 			{
 				active[reference] = false;
 			};
-		};
+		}
 
 
 		/**
@@ -2512,15 +2529,15 @@
 		 */
 		function remove(stack, handle)
 		{
-			var remove = [],
-				maintain = [],
+			var out = [],
+				keep = [],
 				i;
 
 			ensureSubscriptionStack(stack);
 			for (i = 0; i < subscription[stack].length; ++i)
-				(!subscription[stack][i] || subscription[stack][i] === handle ? remove : maintain).push(subscription[stack][i]);
-			subscription[stack] = n;
-			return remove;
+				(!subscription[stack][i] || subscription[stack][i] === handle ? out : keep).push(subscription[stack][i]);
+			subscription[stack] = keep;
+			return out;
 		}
 
 		/**
@@ -2533,14 +2550,14 @@
 		 */
 		function flush(stack)
 		{
-			var remove = false;
+			var out = false;
 
 			if (typeof subscription[stack] !== undef)
 			{
-				remove = subscription[stack];
+				out = subscription[stack];
 				delete subscription[stack];
 			}
-			return remove;
+			return out;
 		}
 
 		/**
@@ -2585,7 +2602,7 @@
 					break;
 			}
 			delete active[ref];
-		};
+		}
 
 		/**
 		 *  Subscribe a handler to an observer stack
@@ -2601,8 +2618,10 @@
 			var list = stack.split(','),
 				result = true,
 				i;
+
 			for (i = 0; i < list.length; ++i)
 				result = (add(list[i], handle) ? true : false) && result;
+
 			return result;
 		};
 
@@ -2651,6 +2670,7 @@
 	 */
 	function kxBreakpoint()
 	{
+		/*jshint validthis: true*/
 		var breakpoint = this,
 			dimensionStack = buffer('breakpoint.dimension'),
 			ratioStack = buffer('breakpoint.ratio'),
@@ -2727,7 +2747,7 @@
 
 			if (typeof ratioStack[ratio] !== undef)
 				ratioStack[ratio].element.className = konflux.string.trim(ratioStack[ratio].element.className) + ' ' + ratioStack[ratio].className;
-		};
+		}
 
 		//  expose
 		/**
@@ -2751,7 +2771,9 @@
 				className: className,
 				element: target
 			};
-			timer = setTimeout(function(){resize()}, 1);
+			timer = setTimeout(function(){
+				resize();
+			}, 1);
 			return breakpoint;
 		};
 
@@ -2774,7 +2796,9 @@
 				className: className,
 				element: target || document.body
 			};
-			ratioTimer = setTimeout(function(){pixelRatio()}, 1);
+			ratioTimer = setTimeout(function(){
+				pixelRatio();
+			}, 1);
 			return breakpoint;
 		};
 
@@ -2790,6 +2814,7 @@
 	 */
 	function kxPoint(x, y)
 	{
+		/*jshint validthis: true*/
 		var point = this;
 
 		point.x = x || 0;
@@ -3019,6 +3044,7 @@
 	 */
 	function kxCookie()
 	{
+		/*jshint validthis: true*/
 		var cookie = this,
 			jar = {};
 
@@ -3128,7 +3154,7 @@
 				setCookie(key, value, expire, path, domain, secure);
 
 			return getCookie(key);
-		}
+		};
 
 		init();
 	}
@@ -3141,6 +3167,7 @@
 	 */
 	function kxStorage()
 	{
+		/*jshint validthis: true*/
 		var ls = this,
 			maxSize = 2048,
 			storage = typeof window.localStorage !== undef ? window.localStorage : false,
@@ -3193,7 +3220,7 @@
 		{
 			var variable = '__' + name,
 				fragment = Math.ceil(data.length / maxSize),
-				i, start = time();
+				i;
 
 			for (i = 0; i < fragment; ++i)
 				storage.setItem(variable + i, data.substring(i * maxSize, Math.min((i + 1) * maxSize, data.length)));
@@ -3413,6 +3440,7 @@
 	 */
 	function kxCanvas()
 	{
+		/*jshint validthis: true*/
 		var canvas = this;
 
 		/**
@@ -3427,6 +3455,7 @@
 		 */
 		function kxCanvasContext(canvas, defaults)
 		{
+			/*jshint validthis: true*/
 			var context = this;
 
 			/**
@@ -3457,10 +3486,7 @@
 							context[p] = relayProperty(p, p in property && property[p] === null);
 
 						if (p in property && property[p] !== null)
-						{
-							console.log(p, 'we want', property[p], 'we have', context[p]());
 							context[p](property[p]);
-						}
 					}
 			}
 
@@ -3572,7 +3598,7 @@
 						context[i === 0 ? 'moveTo' : 'lineTo'](arguments[i].x, arguments[i].y);
 
 				return context;
-			};
+			}
 
 
 			/**
