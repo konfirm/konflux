@@ -3517,7 +3517,7 @@
 			 *  @param   mixed pointN
 			 *  @return  object kxCanvasContext
 			 */
-			path = function()
+			function path()
 			{
 				var arg = Array.prototype.slice.call(arguments),
 					len = arguments.length,
