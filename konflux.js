@@ -2791,6 +2791,40 @@
 		point.x = x || 0;
 		point.y = y || 0;
 
+
+		/**
+		 *  Move the point to a specific position
+		 *  @name    to
+		 *  @type    method
+		 *  @access  public
+		 *  @param   number x
+		 *  @param   number y
+		 *  @return  kxPoint  point
+		 */
+		point.to = function(x, y)
+		{
+			point.x = x;
+			point.y = y;
+
+			return point;
+		};
+
+		/**
+		 *  Move the point to a specific position
+		 *  @name    to
+		 *  @type    method
+		 *  @access  public
+		 *  @param   number grid [optional, default 1 - round the position x and y]
+		 *  @return  kxPoint  point
+		 */
+		point.snap = function(grid)
+		{
+			point.x = grid ? Math.round(point.x / grid) * grid : Math.round(point.x);
+			point.y = grid ? Math.round(point.y / grid) * grid : Math.round(point.y);
+
+			return point;
+		};
+
 		/**
 		 *  Create a new point based on the current
 		 *  @name    clone
@@ -2810,7 +2844,7 @@
 		 *  @access  public
 		 *  @param   number x
 		 *  @param   number y
-		 *  @return  void
+		 *  @return  kxPoint  point
 		 */
 		point.move = function(x, y)
 		{
@@ -2827,7 +2861,7 @@
 		 *  @access  public
 		 *  @param   kxPoint point
 		 *  @param   bool    round
-		 *  @return  void
+		 *  @return  bool    equal
 		 */
 		point.equal = function(p, round)
 		{
