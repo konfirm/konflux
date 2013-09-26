@@ -3507,6 +3507,37 @@
 			}
 
 			/**
+			 *  Draw a multitude of line segments from a list of kx.point instances (or {x:N, y:N}) in
+			 *  a fully enclosed path
+			 *  @name    path
+			 *  @type    function
+			 *  @access  internal
+			 *  @param   mixed point (one of: kxPoint or Array of points)
+			 *  @param   mixed ...
+			 *  @param   mixed pointN
+			 *  @return  object kxCanvasContext
+			 */
+			path = function()
+			{
+				var arg = Array.prototype.slice.call(arguments),
+					len = arguments.length,
+					i;
+
+				if (len === 1 && arg[0] instanceof Array)
+					return context.line.apply(context.line, arg[0]);
+
+				context.beginPath();
+				for (i = 0; i < len; ++i)
+					if (i === len - 1 && arguments[i].equal(arguments[0]))
+						context.closePath();
+					else
+						context[i === 0 ? 'moveTo' : 'lineTo'](arguments[i].x, arguments[i].y);
+
+				return context;
+			};
+
+
+			/**
 			 *  Resize the current canvas into a new one
 			 *  @name    resize
 			 *  @type    method
@@ -3730,7 +3761,7 @@
 			};
 
 			/**
-			 *  Draw a multitude of line segments from a list of kx.point instances (or {x:N, y:N}) in 
+			 *  Draw a multitude of line segments from a list of kx.point instances (or {x:N, y:N}) in
 			 *  a fully enclosed path
 			 *  @name    path
 			 *  @type    method
@@ -3740,23 +3771,7 @@
 			 *  @param   mixed pointN
 			 *  @return  object kxCanvasContext
 			 */
-			context.path = function()
-			{
-				var arg = Array.prototype.slice.call(arguments),
-					len = arguments.length,
-					i;
-
-				if (len === 1 && arg[0] instanceof Array)
-					return context.line.apply(context.line, arg[0]);
-
-				context.beginPath();
-				for (i = 0; i < len; ++i)
-					if (i === len - 1 && arguments[i].equal(arguments[0]))
-						context.closePath();
-					else
-						context[i === 0 ? 'moveTo' : 'lineTo'](arguments[i].x, arguments[i].y);
-				return context;
-			};
+			context.path = path;
 
 			/**
 			 *  Draw a stroked path
@@ -3770,10 +3785,9 @@
 			 */
 			context.line = function()
 			{
-				context.path.apply(context.path, arguments);
-				context.stroke();
-
-				return context;
+				return context
+					.path.apply(context.path, arguments)
+					.stroke();
 			};
 
 
@@ -3836,25 +3850,8 @@
 	}
 
 
-	/**
-	 *  Logo object, creates the konflux logo on canvas
-	 *  @module  logo
-	 *  @note    available as konflux.logo / kx.logo
-	 *  @note    This module is now deprecated from the konflux default package and was moved on konflux.logo.js
-	 *  @see     addon/konflux.logo.js
-	 */
-	function kxLogo()
-	{
-		//  0.2.8 - added depricated warning, still had the module
-		//  0.2.9 - moved module to its own file, maintain deprecation message during this version
-		deprecate('kxLogo is now depricated from the konflux default package and was moved on konflux.logo.js');
-	}
-
-
-
 	//  expose object references
 	konflux.point = kxPoint;
-	konflux.logo  = kxLogo;
 
 	//  expose object instances
 	konflux.observer   = new kxObserver();
