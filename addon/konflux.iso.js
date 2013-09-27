@@ -10,8 +10,8 @@
 ;(function(konflux){
     "use strict";
 
-    var version = '$DEV$',
-			
+    var version = '$DEV$';
+
 
 	/**
 	 *  Isometric shapes based on konflux.polygon
