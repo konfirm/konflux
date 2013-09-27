@@ -6,10 +6,12 @@
  *    \/_/     More information: http://konfirm.net/konflux
  */
 
-/*jshint undef: true, unused: true, curly: false, newcap: false, forin: false, maxstatements: 10, maxparams: 4 */
+/*jshint undef: true, unused: true, curly: false, newcap: false, forin: false, maxstatements: 10, maxparams: 4, browser: true */
 ;(function(konflux){
-	"use strict";
+    "use strict";
 
+    var version = '$DEV$',
+			
 
 	/**
 	 *  Isometric shapes based on konflux.polygon
@@ -19,6 +21,7 @@
 	 */
 	function kxISO()
 	{
+		/*jshint validthis: true*/
 		var iso = this,
 			arg = Array.prototype.slice.call(arguments),
 			poly = arg[0] instanceof konflux.polygon ? arg[0] : new konflux.polygon(arg);
@@ -99,7 +102,7 @@
 				length = points.length,
 				i, j;
 
-			height = height ? height : (iso ? Math.min(iso * .2, 16) : false);
+			height = height ? height : (iso ? Math.min(iso * 0.2, 16) : false);
 
 			if (height)
 			{

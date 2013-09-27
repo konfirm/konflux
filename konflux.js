@@ -6,12 +6,14 @@
  *    \/_/     More information: http://konfirm.net/konflux
  */
 
-/*jshint undef: true, unused: true, curly: false, newcap: false, forin: false */
+/*jshint browser: true, undef: true, unused: true, curly: false, newcap: false, forin: false, devel: true */
+/*global File, FileList, FormData */
 ;(function(window, undefined){
 	'use strict';
 
 	var version = '$DEV$ - $DATE$ - $COMMIT$',
 		document = window.document,
+        navigator = window.navigator,
 		undef = 'undefined',
 		//  Private properties
 		_buffer  = {}, //  singleton-like container, providing 'static' objects
@@ -350,7 +352,7 @@
 		/*jshint validthis: true*/
 		var browser = this,
 			support = {
-				touch: hasProperty(window, 'ontouchstart') || hasProperty(window.navigator, 'msMaxTouchPoints')
+				touch: hasProperty(window, 'ontouchstart') || hasProperty(navigator, 'msMaxTouchPoints')
 			},
 			prefix,
 			ieVersion;
@@ -377,7 +379,7 @@
 			//  loop itself has no body (as it is closed off by a semi-colon right after declaration)
 			while (node.innerHTML = '<!--[if gt IE ' + (++version) + ']><i></i><![endif]-->', check.length && version < 10);
 			//  Added IE's @cc_on trickery for browser which do not support conditional comments (such as IE10)
-			return version > 4 ? version : Function('/*@cc_on return document.documentMode@*/return false')();
+			return version > 4 ? version : /*jshint evil: true */Function('/*@cc_on return document.documentMode@*/return false')()/*jshint evil: false */;
 		}
 
 		/**
@@ -554,7 +556,7 @@
 			vendor = method.match(new RegExp('^' + vendor)) ? vendor : null;
 			vendor = (vendor || (document[method] ? 'cancel' : 'request')) + konflux.string.ucFirst((vendor ? (document[method] ? 'cancel' : 'request') : '') + konflux.string.ucFirst(check[0]));
 
-			(document[method] ? document : target)[vendor](Element.ALLOW_KEYBOARD_INPUT || null);
+			(document[method] ? document : target)[vendor](target.ALLOW_KEYBOARD_INPUT || null);
 		};
 	}
 
@@ -573,7 +575,7 @@
 				'X-Konflux': 'konflux/' + version
 			};
 
-		function kxFormData(form)
+		function kxFormData()
 		{
 			/*jshint validthis: true*/
 			var formdata = this,
@@ -720,7 +722,7 @@
 		 */
 		function prepareData(data, name, formData)
 		{
-			var r = formData || new (typeof FormData !== undef ? FormData : kxFormData)(),
+			var r = formData || (typeof FormData !== undef ? new FormData() : new kxFormData()),
 				p;
 
 			if (typeof File !== undef && data instanceof File)
@@ -1153,7 +1155,8 @@
 				value = value.replace(pattern[p], p);
 
 			//  most browsers will recalculate hex color notation to rgb, so we do the same
-			if (pattern = value.match(/#([0-9a-f]+)/))
+            pattern = value.match(/#([0-9a-f]+)/);
+			if (pattern && pattern.length > 0)
 			{
 				pattern = pattern[1];
 				if (pattern.length % 3 !== 0)
@@ -1238,7 +1241,8 @@
 					current.push(classList[i]);
 			}
 
-			return element.className = current.join(' ');
+            element.className = current.join(' ');
+			return element.className;
 		};
 
 		/**
@@ -1869,7 +1873,7 @@
 		 */
 		function shuffle(a)
 		{
-			for (var j, x, i = a.length; i; j = parseInt(Math.random() * i), x = a[--i], a[i] = a[j], a[j] = x);
+			for (var j, x, i = a.length; i; j = (Math.random() * i) | 0, x = a[--i], a[i] = a[j], a[j] = x);
 			return a;
 		}
 
@@ -2277,7 +2281,12 @@
 	 */
 	function kxTiming()
 	{
-		/**
+		/*jshint validthis: true*/
+		var timing = this,
+			stack = buffer('timing.delay');
+
+        
+        /**
 		 *  Delay object, instances of this are be provided for all kxTimings
 		 *  @name    kxDelay
 		 *  @type    class
@@ -2342,11 +2351,7 @@
 			start();
 		}
 
-
-		/*jshint validthis: true*/
-		var timing = this,
-			stack = buffer('timing.delay');
-
+        
 		/**
 		 *  Remove timer object by their reference
 		 *  @name    remove
@@ -2704,7 +2709,7 @@
 
 			//  set the given class on the element
 			dimension.element.className = konflux.string.trim(dimension.element.className + ' ' + dimension.className);
-			konflux.observer.notify('breakpoint.change', dimension.className);
+			konflux.observer.notify('breakpoint.change', dimension.className, e);
 
 			current = dimension;
 		}
@@ -2894,9 +2899,7 @@
 		 */
 		point.equal = function(p, round)
 		{
-			return round
-				? Math.round(point.x) === Math.round(p.x) && Math.round(point.y) === Math.round(p.y)
-				: point.x === p.x && point.y === p.y;
+			return round ? Math.round(point.x) === Math.round(p.x) && Math.round(point.y) === Math.round(p.y) : point.x === p.x && point.y === p.y;
 		};
 
 		/**
@@ -3187,8 +3190,8 @@
 
 			if (data && (match = data.match(fragmentPattern)))
 			{
-				fragment = parseInt(match[1]);
-				length   = parseInt(match[2]);
+				fragment = parseInt(match[1], 10);
+				length   = parseInt(match[2], 10);
 				variable = match[3];
 				data     = '';
 
@@ -3239,7 +3242,7 @@
 		 */
 		function dropFragments(match)
 		{
-			var fragment = parseInt(match[1]),
+			var fragment = parseInt(match[1], 10),
 				variable = match[3],
 				i;
 
@@ -3618,12 +3621,12 @@
 				if (width > 0 && width < 1)
 					width = Math.round(canvas.width * width);
 				else if (typeof width === 'string' && percentage.test(width))
-					width = Math.round(canvas.width * (parseInt(width) / 100));
+					width = Math.round(canvas.width * (parseInt(width, 10) / 100));
 
 				if (height > 0 && height < 1)
 					height = Math.round(canvas.height * height);
 				else if (typeof height === 'string' && percentage.test(height))
-					height = Math.round(canvas.height * (parseInt(height) / 100));
+					height = Math.round(canvas.height * (parseInt(height, 10) / 100));
 
 				if (!width && height)
 					width = Math.round(height * (canvas.width / canvas.height));
@@ -3659,7 +3662,7 @@
 					context.drawImage(image, 0, 0);
 					return context;
 				}
-				return canvas.toDataURL(data, quality || .8);
+				return canvas.toDataURL(data, quality || 0.8);
 			};
 
 			/**

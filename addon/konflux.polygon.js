@@ -6,9 +6,11 @@
  *    \/_/     More information: http://konfirm.net/konflux
  */
 
-/*jshint undef: true, unused: true, curly: false, newcap: false, forin: false, maxstatements: 10, maxparams: 4 */
+/*jshint undef: true, unused: true, curly: false, newcap: false, forin: false, maxstatements: 10, maxparams: 4, browser: true */
 ;(function(konflux){
 	"use strict";
+
+    var version = '$DEV$';
 
 
 	/**
@@ -19,6 +21,7 @@
 	 */
 	function kxPolygon()
 	{
+		/*jshint validthis: true*/
 		var polygon = this,
 			points = arguments.length && arguments[0] instanceof Array ? arguments[0] : Array.prototype.slice.call(arguments);
 

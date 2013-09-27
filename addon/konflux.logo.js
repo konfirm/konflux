@@ -6,7 +6,7 @@
  *    \/_/     More information: http://konfirm.net/konflux
  */
 
-/*jshint undef: true, unused: true, curly: false, newcap: false, forin: false, maxstatements: 10, maxparams: 4 */
+/*jshint undef: true, unused: true, curly: false, newcap: false, forin: false, maxstatements: 10, maxparams: 4, browser: true */
 ;(function(konflux){
 	'use strict';
 
@@ -161,7 +161,7 @@
 				},
 				//  the opaque darker overlay
 				{
-					globalAlpha:[.2],
+					globalAlpha:[0.2],
 					line:[
 						new konflux.point(0, 50),
 						new konflux.point(4, 70),
@@ -338,7 +338,7 @@
 		 */
 		logo.data = function(name)
 		{
-			var canvas = render(design);
+			var canvas = render(name);
 			return canvas ? canvas.data() : false;
 		};
 
