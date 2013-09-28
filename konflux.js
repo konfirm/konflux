@@ -13,7 +13,7 @@
 
 	var version = '$DEV$ - $DATE$ - $COMMIT$',
 		document = window.document,
-        navigator = window.navigator,
+		navigator = window.navigator,
 		undef = 'undefined',
 		//  Private properties
 		_buffer  = {}, //  singleton-like container, providing 'static' objects
@@ -82,11 +82,14 @@
 	 */
 	function elapsed()
 	{
-		var delta = Math.abs((new Date()).getTime() - _timestamp),
-			days = Math.floor(delta / 86400000),
-			hours = Math.floor((delta -= days * 86400000) / 3600000),
-			minutes = Math.floor((delta -= hours * 3600000) / 60000),
-			seconds = Math.floor((delta -= minutes * 60000) / 1000),
+		var day = 86400000,
+			hour = 3600000,
+			minute = 60000,
+			delta = Math.abs((new Date()).getTime() - _timestamp),
+			days = Math.floor(delta / day),
+			hours = Math.floor((delta -= days * day) / hour),
+			minutes = Math.floor((delta -= hours * hour) / min),
+			seconds = Math.floor((delta -= minutes * min) / 1000),
 			ms = Math.floor(delta -= seconds * 1000);
 
 		return (days > 0 ? days + 'd ' : '') +
@@ -2285,7 +2288,7 @@
 		var timing = this,
 			stack = buffer('timing.delay');
 
-        
+
         /**
 		 *  Delay object, instances of this are be provided for all kxTimings
 		 *  @name    kxDelay
@@ -2351,7 +2354,7 @@
 			start();
 		}
 
-        
+
 		/**
 		 *  Remove timer object by their reference
 		 *  @name    remove
