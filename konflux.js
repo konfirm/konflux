@@ -88,8 +88,8 @@
 			delta = Math.abs((new Date()).getTime() - _timestamp),
 			days = Math.floor(delta / day),
 			hours = Math.floor((delta -= days * day) / hour),
-			minutes = Math.floor((delta -= hours * hour) / min),
-			seconds = Math.floor((delta -= minutes * min) / 1000),
+			minutes = Math.floor((delta -= hours * hour) / minute),
+			seconds = Math.floor((delta -= minutes * minute) / 1000),
 			ms = Math.floor(delta -= seconds * 1000);
 
 		return (days > 0 ? days + 'd ' : '') +
@@ -109,6 +109,35 @@
 	function unique()
 	{
 		return (++_count + time() % 86400000).toString(36);
+	}
+
+	/**
+	 *  Get the unique reference for given DOM element, adds it if it does not yet exist
+	 *  @name    elementReference
+	 *  @type    function
+	 *  @access  internal
+	 *  @param   DOMElement element
+	 *  @param   bool       hidden [optional, default false]
+	 *  @return  string unique reference
+	 *  @note    this function adds an attribute 'data-kxref' to the element if the reference is not hidden
+	 *           (the hidden option is not considered to be best practise)
+	 */
+	function elementReference(element, hidden)
+	{
+		var name = 'kxref',
+			reference = hidden ? (name in element ? element[name] : null) : element.getAttribute('data-' + name);
+
+		//  if no reference was set yet, do so now
+		if (!reference)
+		{
+			reference = unique();
+			if (hidden)
+				element[name] = reference;
+			else
+				element.setAttribute('data-' + name, reference);
+		}
+
+		return reference;
 	}
 
 	/**
@@ -2102,6 +2131,20 @@
 		{
 			return (parent || document).querySelectorAll(selector);
 		};
+
+		/**
+		 *  Get the unique reference for given DOM element, adds it if it does not yet exist
+		 *  @name    reference
+		 *  @type    method
+		 *  @access  public
+		 *  @param   DOMElement element
+		 *  @return  string unique reference
+		 *  @note    this function adds an attribute 'data-kxref' to the element
+		 */
+		dom.reference = function(element)
+		{
+			return elementReference(element);
+		};
 	}
 
 
@@ -3961,4 +4004,3 @@
 	//  make konflux available on the global (window) scope both as 'konflux' and 'kx'
 	window.konflux = window.kx = konflux;
 })(window);
-
