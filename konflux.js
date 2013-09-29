@@ -2723,41 +2723,106 @@
 	{
 		/*jshint validthis: true*/
 		var breakpoint = this,
-			dimensionStack = buffer('breakpoint.dimension'),
-			ratioStack = buffer('breakpoint.ratio'),
-			current = null,
-			timer = null,
-			ratioTimer = null;
+			stack = buffer('breakpoint.stack'),
+			tick = false,
+			pixelRatio, timeout;
 
 		/**
-		 *  Handle browser window resize events, matching the most appropriate size
-		 *  @name    resize
+		 *  Simple monitor function which calls the update function at a convenient interval
+		 *  @name    monitor
 		 *  @type    function
 		 *  @access  internal
-		 *  @param   event
 		 *  @return  void
 		 */
-		function resize(e)
+		function monitor()
 		{
-			var dimension = match(window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth);
+			var now = time();
 
-			//  if we don't have any valid dimension or the dimension is equal to the current one, stop
-			if (!dimension || current === dimension)
-				return false;
+			clearTimeout(timeout);
 
-			//  is there a current set, remove it
-			if (current)
-				current.element.className = current.element.className.replace(current.expression, '');
+			if (!tick || now - tick > 100)
+			{
+				tick = now;
+				update();
+			}
 
-			//  do we have an element to manipulate
-			if (!dimension.element)
-				dimension.element = document.body;
+			//  attempt to ease up on the load
+			timeout = setTimeout(function(){
+				var timer = konflux.browser.feature('requestAnimationFrame') || function(handle){
+					setTimeout(handle, 100);
+				};
 
-			//  set the given class on the element
-			dimension.element.className = konflux.string.trim(dimension.element.className + ' ' + dimension.className);
-			konflux.observer.notify('breakpoint.change', dimension.className, e);
+				timer(monitor);
+			}, 50);
+		}
 
-			current = dimension;
+		/**
+		 *  Loop through all element stacks and determine if anything needs updates
+		 *  @name    update
+		 *  @type    function
+		 *  @access  internal
+		 *  @return  void
+		 */
+		function update()
+		{
+			var bounds, matched, className, p;
+
+			for (p in stack)
+			{
+				bounds = stack[p].element.getBoundingClientRect();
+
+				if (stack[p].width !== bounds.width)
+				{
+					stack[p].width = bounds.width;
+					className = stack[p].current;
+					matched = match(stack[p], stack[p].width);
+
+					if (matched !== stack[p].match)
+					{
+						className = null;
+
+						className = stack[p].config[matched].join(' ');
+						if (matched && parseInt(matched, 10) <= stack[p].width && hasProperty(stack[p].config, matched))
+							stack[p].match = matched;
+					}
+
+					if (className !== stack[p].current)
+					{
+						if (!empty(stack[p].current))
+							konflux.style.removeClass(stack[p].element, stack[p].current);
+
+						if (!empty(className))
+							kx.style.addClass(stack[p].element, className);
+
+						stack[p].current = className;
+						konflux.observer.notify('breakpoint.change', stack[p].current, stack[p].element);
+					}
+				}
+			}
+		}
+
+		/**
+		 *  Obtain the settings stack for the given element
+		 *  @name    getStack
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   DOMElement target
+		 *  @return  object     config
+		 */
+		function getStack(target)
+		{
+			var ref = elementReference(target);
+
+			if (!hasProperty(stack, ref))
+				stack[ref] = {
+					match: null,
+					width: null,
+					current: null,
+					element: target,
+					config: {}
+				};
+
+			return stack[ref];
 		}
 
 		/**
@@ -2765,96 +2830,108 @@
 		 *  @name    match
 		 *  @type    function
 		 *  @access  internal
-		 *  @param   int browser width
+		 *  @param   object stack reference
+		 *  @param   int    browser width
 		 *  @return  object config
 		 */
-		function match(width)
+		function match(refStack, width)
 		{
 			var found, delta, min, p;
 
-			for (p in dimensionStack)
+			if (hasProperty(refStack, 'config'))
 			{
-				min = !min ? p : Math.min(min, p);
-				if (p < width && (!delta || width - p < delta))
+				width = Math.round(width);
+				for (p in refStack.config)
 				{
-					found = p;
-					delta = width - p;
+					p = parseInt(p, 10);
+					min = !min ? p : Math.min(min, p);
+					if (p <= width && (!delta || width - p <= delta))
+					{
+						found = p;
+						delta = width - p;
+					}
 				}
 			}
 
-			return dimensionStack[found] || dimensionStack[min] || false;
+			return found >= 0 ? found : min || false;
 		}
 
 		/**
-		 *  Determine the best matching pixel ratio and set the defined classes
-		 *  @name    pixelRatio
+		 *  Add a breakpoint which sets given className if element (or the document body) becomes at
+		 *  least the given width wide and there is no setting matching better
+		 *  @name    add
 		 *  @type    function
 		 *  @access  internal
+		 *  @param   DOMElement target
+		 *  @param   number     width
+		 *  @param   string     class(es)
 		 *  @return  void
 		 */
-		function pixelRatio()
+		function add(target, width, className)
 		{
-			var ratio = typeof window.devicePixelRatio !== undef ? window.devicePixelRatio : 1;
+			var refStack = getStack(target);
 
-			if (typeof ratioStack[ratio] !== undef)
-				ratioStack[ratio].element.className = konflux.string.trim(ratioStack[ratio].element.className) + ' ' + ratioStack[ratio].className;
+			clearTimeout(timeout);
+
+			if (!hasProperty(refStack.config, width))
+				refStack.config[width] = [];
+
+			refStack.config[width].push(className);
+
+			timeout = setTimeout(function(){
+				monitor();
+			}, 5);
 		}
 
-		//  expose
+		function remove()
+		{
+			var test;
+		}
+
 		/**
-		 *  Add breakpoint configuration
+		 *  Add a breakpoint which sets given className if element (or the document body) becomes at
+		 *  least the given width wide and there is no setting matching better
 		 *  @name    add
 		 *  @type    method
 		 *  @access  public
-		 *  @param   int width
-		 *  @param   string classname
-		 *  @param   DOMElement target (defaults to 'body')
-		 *  @return  object breakpoint
-		 *  @note    when a breakpoint is added, the internal resize handler will be triggered with a slight delay,
-		 *           so if a suitable breakpoint is added it will be used immediately but _resize will occur only once.
-		 *           This ought to prevent FOUC
+		 *  @param   number     width
+		 *  @param   string     class(es)
+		 *  @param   DOMElement target [optional, default document.body]
+		 *  @return  kxBreakpoint object
 		 */
 		breakpoint.add = function(width, className, target)
 		{
-			clearTimeout(timer);
-			dimensionStack[width] = {
-				expression: new RegExp('\s*' + className + '\s*', 'g'),
-				className: className,
-				element: target
-			};
-			timer = setTimeout(function(){
-				resize();
-			}, 1);
+			add(target || document.body, width, className);
 			return breakpoint;
+		};
+
+		breakpoint.remove = function()
+		{
+			//  to be implemented
 		};
 
 		/**
-		 *  Add pixel ratio configuration
+		 *  Assign className to the body element when a configuration for given pixelRatio matches
 		 *  @name    ratio
 		 *  @type    method
 		 *  @access  public
-		 *  @param   int ratio
-		 *  @param   string classname
-		 *  @param   DOMElement target (defaults to 'body')
-		 *  @return  object breakpoint
-		 *  @note    as the ratio does not change, the best matching ratio will be added once
+		 *  @param   number pixelRatio
+		 *  @param   string className
+		 *  @param   bool   allow to round the ratio to get to a matching ratio
+		 *  @param   return bool matched
 		 */
-		breakpoint.ratio = function(ratio, className, target)
+		breakpoint.ratio = function(ratio, className, round)
 		{
-			clearTimeout(ratioTimer);
-			ratioStack[ratio] = {
-				expression: new RegExp('\s*' + className + '\s*', 'g'),
-				className: className,
-				element: target || document.body
-			};
-			ratioTimer = setTimeout(function(){
-				pixelRatio();
-			}, 1);
-			return breakpoint;
-		};
+			if (!pixelRatio)
+				pixelRatio = konflux.browser.feature('devicePixelRatio') || 1;
 
-		//  listen to the resize event
-		konflux.event.listen(window, 'resize', resize);
+			if (ratio === pixelRatio || (round && Math.round(ratio) === pixelRatio))
+			{
+				konflux.style.addClass(document.body, className);
+				return true;
+			}
+			return false;
+		};
 	}
 
 
