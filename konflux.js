@@ -2967,8 +2967,8 @@
 		};
 
 		/**
-		 *  Move the point to a specific position
-		 *  @name    to
+		 *  Snap the point to a grid
+		 *  @name    snap
 		 *  @type    method
 		 *  @access  public
 		 *  @param   number grid [optional, default 1 - round the position x and y]
