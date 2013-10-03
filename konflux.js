@@ -29,7 +29,7 @@
 	 *  @type    function
 	 *  @access  internal
 	 *  @param   string object name
-	 *  @return  object
+	 *  @return  object buffer
 	 */
 	function buffer(key)
 	{
@@ -55,9 +55,9 @@
 	 *  @name    combine
 	 *  @type    function
 	 *  @access  internal
-	 *  @param   object 1
+	 *  @param   object variable1
 	 *  @param   object ...
-	 *  @param   object N
+	 *  @param   object variableN
 	 *  @return  function constructor
 	 */
 	function combine()
@@ -146,6 +146,7 @@
 	 *  @type    function
 	 *  @access  internal
 	 *  @param   mixed variable to check
+	 *  @return  bool  empty
 	 *  @note    The function follows PHP's empty function; null, undefined, 0, '', '0' and false are all considered empty
 	 */
 	function empty(p)
@@ -219,7 +220,7 @@
 	 *  @name    Konflux
 	 *  @type    constructor function
 	 *  @access  internal
-	 *  @return  Konflux instance
+	 *  @return  object   konflux
 	 *  @note    konflux is available both as (window.)konflux and (window.)kx
 	 */
 	function Konflux()
@@ -271,9 +272,9 @@
 		 *  @name    combine
 		 *  @type    method
 		 *  @access  public
-		 *  @param   object 1
+		 *  @param   object variable1
 		 *  @param   object ...
-		 *  @param   object N
+		 *  @param   object variableN
 		 *  @return  function constructor
 		 */
 		kx.combine = combine;
@@ -303,7 +304,7 @@
 		 *  @type    method
 		 *  @access  public
 		 *  @param   mixed  variable
-		 *  @param   bool   object types
+		 *  @param   bool   object names
 		 *  @return  string type
 		 */
 		kx.type = function(variable, objectTypes)
@@ -354,7 +355,7 @@
 		 *  @name   version
 		 *  @type   method
 		 *  @access public
-		 *  @param  bool   info (optional, default false - no build information)
+		 *  @param  bool   info [optional, default false - no build information]
 		 *  @return string version (object info if bool info is true)
 		 */
 		kx.version = function(info)
@@ -429,7 +430,7 @@
 
 		/**
 		 *  Obtain a specific feature from the browser, be it the native property or the vendor prefixed property
-		 *  @name    hasFeature
+		 *  @name    getFeature
 		 *  @type    function
 		 *  @access  internal
 		 *  @param   string   feature
@@ -565,7 +566,7 @@
 		 *  @name    fullscreen
 		 *  @type    method
 		 *  @access  public
-		 *  @param   DOMNode target
+		 *  @param   DOMNode target [optional, default document.documentElement]
 		 *  @return  bool    success
 		 *  @note    this method is highly experimental
 		 */
@@ -1025,8 +1026,8 @@
 		 *  @name    getStylesheet
 		 *  @type    function
 		 *  @access  internal
-		 *  @param   string name [optional, default 'all'. Possible values 'first', 'last', 'all' or string filename]
-		 *  @param   bool   includeOffset [optional, default false, local stylesheets only]
+		 *  @param   string name [optional, default 'all' - all stylesheets. Possible values 'first', 'last', 'all' or string filename]
+		 *  @param   bool   includeOffset [optional, default false - local stylesheets only]
 		 *  @return  array stylesheets
 		 */
 		function getStylesheet(name, includeOffsite)
@@ -1320,8 +1321,8 @@
 		 *  @name    sheet
 		 *  @type    method
 		 *  @access  public
-		 *  @param   string target [optional, default 'all'. Possible values 'first', 'last', 'all' or string filename]
-		 *  @param   bool   editable [optional, default true]
+		 *  @param   string target [optional, default 'all' - all stylesheets. Possible values 'first', 'last', 'all' or string filename]
+		 *  @param   bool   editable [optional, default true - only editable stylesheets]
 		 *  @return  array  stylesheets
 		 */
 		style.sheet = function(target, editable)
@@ -1720,7 +1721,7 @@
 		 *  @type    method
 		 *  @access  public
 		 *  @param   string input
-		 *  @param   int    side [optional, one of TRIM_LEFT, TRIM_RIGHT, TRIM_BOTH (default)]
+		 *  @param   int    side [optional, default TRIM_BOTH - trim both sides. One of: TRIM_LEFT, TRIM_RIGHT, TRIM_BOTH (default)]
 		 *  @return  string trimmed
 		 *  @note    the side params are located in konflux.string (e.g. konflux.string.TRIM_LEFT)
 		 */
@@ -1757,8 +1758,8 @@
 		 *  @access  public
 		 *  @param   string to pad
 		 *  @param   number length
-		 *  @param   string pad string [optional, default ' ']
-		 *  @param   int type [optional, one of: PAD_LEFT, PAD_RIGHT (default), PAD_BOTH]
+		 *  @param   string pad string [optional, default ' ' - a space]
+		 *  @param   int type [optional, default PAD_RIGHT - add padding to the right. One of: PAD_LEFT, PAD_RIGHT (default), PAD_BOTH]
 		 *  @return  string padded
 		 *  @note    the type params are located in konflux.string (e.g. konflux.string.PAD_LEFT)
 		 */
@@ -2575,7 +2576,7 @@
 		 *  @type    function
 		 *  @access  internal
 		 *  @param   string stack name
-		 *  @param   function handler [optional]
+		 *  @param   function handler [optional, default null - remove the entire stack]
 		 *  @return  array removed handlers
 		 */
 		function remove(stack, handle)
@@ -2617,9 +2618,9 @@
 		 *  @type    function
 		 *  @access  internal
 		 *  @param   string stack name
-		 *  @param   mixed arg1
+		 *  @param   mixed variable1
 		 *  @param   mixed ...
-		 *  @param   mixed argN
+		 *  @param   mixed variableN
 		 *  @return  void
 		 */
 		function trigger(stack)
@@ -2701,9 +2702,9 @@
 		 *  @type    method
 		 *  @access  public
 		 *  @param   string stack name
-		 *  @param   mixed  arg1
+		 *  @param   mixed  variable1
 		 *  @param   mixed  ...
-		 *  @param   mixed  argN
+		 *  @param   mixed  variableN
 		 *  @return  void
 		 */
 		observer.notify = function()
@@ -3098,9 +3099,9 @@
 		 *  @name    max
 		 *  @type    method
 		 *  @access  public
-		 *  @param   kxPoint point 1
+		 *  @param   kxPoint point1
 		 *  @param   kxPoint ...
-		 *  @param   kxPoint point N
+		 *  @param   kxPoint pointN
 		 *  @return  kxPoint
 		 */
 		point.max = function()
@@ -3123,9 +3124,9 @@
 		 *  @name    min
 		 *  @type    method
 		 *  @access  public
-		 *  @param   kxPoint point 1
+		 *  @param   kxPoint point1
 		 *  @param   kxPoint ...
-		 *  @param   kxPoint point N
+		 *  @param   kxPoint pointN
 		 *  @return  kxPoint
 		 */
 		point.min = function()
@@ -3200,10 +3201,10 @@
 		 *  @access  internal
 		 *  @param   string key
 		 *  @param   string value
-		 *  @param   int    expire [optional, default expire at the end of the session]
-		 *  @param   string path   [optional, default the current path]
-		 *  @param   string domain [optional, default the current domain]
-		 *  @param   bool   secure [optional, default false]
+		 *  @param   int    expire [optional, default null - expire at the end of the session]
+		 *  @param   string path   [optional, default null - the current path]
+		 *  @param   string domain [optional, default null - the current domain]
+		 *  @param   bool   secure [optional, default false - not secure]
 		 *  @return  void
 		 *  @note    the syntax of setCookie is compatible with that of PHP's setCookie
 		 *           this means that setting an empty value (string '' | null | false) or
@@ -3258,12 +3259,12 @@
 		 *  @name    value
 		 *  @type    method
 		 *  @access  public
-		 *  @param   string key    [optional, an object containing all cookies is returned if omitted]
-		 *  @param   string value  [optional, if no value is given the current value will be returned]
-		 *  @param   int    expire [optional, default expire at the end of the session]
-		 *  @param   string path   [optional, default the current path]
-		 *  @param   string domain [optional, default the current domain]
-		 *  @param   bool   secure [optional, default false]
+		 *  @param   string key    [optional, default null - return all cookies]
+		 *  @param   string value  [optional, default null - return current value]
+		 *  @param   int    expire [optional, default null - expire at the end of the session]
+		 *  @param   string path   [optional, default null - the current path]
+		 *  @param   string domain [optional, default null - the current domain]
+		 *  @param   bool   secure [optional, default false - not secure]
 		 *  @note    the syntax of setCookie is compatible with that of PHP's setCookie
 		 *           this means that setting an empty value (string '' | null | false) or
 		 *           an expiry time in the past, the cookie will be removed
@@ -3470,7 +3471,7 @@
 		 *  @name    get
 		 *  @type    method
 		 *  @access  public
-		 *  @param   string name [optional, omit to get all stored entries]
+		 *  @param   string name [optional, default null - get all stored entries]
 		 *  @return  mixed  data
 		 */
 		ls.get = function(name)
@@ -3837,16 +3838,16 @@
 			 *  @name    drawImage
 			 *  @type    method
 			 *  @access  public
-			 *  @param   image (Specifies the image, canvas, or video element to use)
-			 *  @param   sourceX [optional. The x coordinate where to start clipping]
-			 *  @param   sourceY [optional. The y coordinate where to start clipping]
-			 *  @param   sourceWidth [optional. The width of the clipped image]
-			 *  @param   sourceHeight [optional. The height of the clipped image]
-			 *  @param   targetX [The x coordinate where to place the image on the canvas]
-			 *  @param   targetY [The y coordinate where to place the image on the canvas]
-			 *  @param   targetWidth [optional. The width of the image to use (stretch or reduce the image)]
-			 *  @param   targetHeight [optional. The height of the image to use (stretch or reduce the image)]
-			 *  @return  object kxCanvasContext
+			 *  @param   DOMElement image (Specifies the image, canvas, or video element to use)
+			 *  @param   number     sourceX [optional. The x coordinate where to start clipping]
+			 *  @param   number     sourceY [optional. The y coordinate where to start clipping]
+			 *  @param   number     sourceWidth [optional. The width of the clipped image]
+			 *  @param   number     sourceHeight [optional. The height of the clipped image]
+			 *  @param   number     targetX [The x coordinate where to place the image on the canvas]
+			 *  @param   number     targetY [The y coordinate where to place the image on the canvas]
+			 *  @param   number     targetWidth [optional, default null - sourceWidth]
+			 *  @param   number     targetHeight [optional, default null - sourceHeight]
+			 *  @return  object     kxCanvasContext
 			 *  @note    This method is fully compatible with the native drawImage method:
 			 *           https://developer.mozilla.org/en/docs/Web/API/CanvasRenderingContext2D#drawImage()
 			 */
