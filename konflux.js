@@ -3843,8 +3843,8 @@
 			 *  @param   number     sourceY [optional. The y coordinate where to start clipping]
 			 *  @param   number     sourceWidth [optional. The width of the clipped image]
 			 *  @param   number     sourceHeight [optional. The height of the clipped image]
-			 *  @param   number     targetX [The x coordinate where to place the image on the canvas]
-			 *  @param   number     targetY [The y coordinate where to place the image on the canvas]
+			 *  @param   number     targetX
+			 *  @param   number     targetY
 			 *  @param   number     targetWidth [optional, default null - sourceWidth]
 			 *  @param   number     targetHeight [optional, default null - sourceHeight]
 			 *  @return  object     kxCanvasContext
