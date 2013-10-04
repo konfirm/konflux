@@ -347,7 +347,7 @@
 		 */
 		kx.select = function(selector, parent)
 		{
-			return 'dom' in konflux ? konflux.dom.select(selector, parent) : [];
+			return 'dom' in konflux ? konflux.dom.select(selector, parent) : new kxIterator([]);
 		};
 
 		/**
@@ -370,9 +370,242 @@
 			return info ? result : result.version;
 		};
 
+		/**
+		 *  Create a kxPoint instance
+		 *  @name   point
+		 *  @type   method
+		 *  @access public
+		 *  @param  number x position
+		 *  @param  number y position
+		 *  @return kxPoint point
+		 *  @note   As of konflux version 0.3.2 the points are created without the new keyword
+		 *          ('new konflux.point(X, Y)' can now be 'konflux.point(X, Y)')
+		 */
+		kx.point = function(x, y)
+		{
+			return new kxPoint(x, y);
+		};
+
+		/**
+		 *  Create a kxIterator instance
+		 *  @name   iterator
+		 *  @type   method
+		 *  @access public
+		 *  @param  mixed collection
+		 *  @return kxIterator iterator
+		 */
+		kx.iterator = function(collection)
+		{
+			return new kxIterator(collection);
+		};
+
 		return this;
 	}
 	konflux = new Konflux();
+
+
+	/**
+	 *  Iterator object, providing a uniform mechanism to traverse collections (Array, Object, DOMNodeList, etc)
+	 *  @module  iterator
+	 *  @param   mixed collection
+	 *  @note    available as konflux.iterator / kx.iterator
+	 */
+	function kxIterator(collection)
+	{
+		/*jshint validthis: true*/
+		var iterator = this,
+			keys, current;
+
+		/**
+		 *  Create relayed access to a collection member
+		 *  @name    relay
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string member name
+		 *  @return  function relay
+		 */
+		function relay(member)
+		{
+			if (typeof collection[member] === 'function')
+				return function(){
+					return collection[member].apply(collection, Array.prototype.slice.call(arguments));
+				};
+			else if (type(member) === 'number' || /^[0-9]+$/.test(member))
+				return collection[member];
+
+			return function(){
+				if (arguments.length > 0)
+					collection[member] = arguments[0];
+				return collection[member];
+			};
+		}
+
+		/**
+		 *  Try to create a getter for the given property, copy the value if a getter is not possible
+		 *  @name    property
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string name
+		 *  @return  mixed  result (the property value if it was copied, kxIterator otherwise)
+		 */
+		function property(name)
+		{
+			if (!('defineProperty' in Object))
+				return iterator[name] = collection[name];
+
+			return Object.defineProperty(iterator, name, {
+				get: function(){
+					return collection[name];
+				}
+			});
+		}
+
+		/**
+		 *  Initialize the iterator object
+		 *  @name    init
+		 *  @type    function
+		 *  @access  internal
+		 *  @return  void
+		 */
+		function init()
+		{
+			var p;
+
+			//  create a magic property for the length
+			if ('length' in collection)
+				property('length');
+
+			//  decorate the iterator with the various collection members
+			for (p in collection)
+				if (!(p in iterator))
+					iterator[p] = relay(p);
+
+			keys = iterator.keys();
+		}
+
+		/**
+		 *  Obtain the raw underlying collection
+		 *  @name    collection
+		 *  @type    method
+		 *  @access  public
+		 *  @return  mixed collection
+		 */
+		iterator.collection = function()
+		{
+			return collection;
+		};
+
+		/**
+		 *  Obtain a member from the underlying collection
+		 *  @name    item
+		 *  @type    method
+		 *  @access  public
+		 *  @param   mixed index
+		 *  @return  mixed value
+		 */
+		iterator.item = function(index)
+		{
+			if ('item' in collection && typeof collection.item === 'function')
+				return collection.item(index);
+
+			return ('length' in collection && (index >= 0 || index < collection.length)) || index in collection ? collection[index] : null;
+		};
+
+		/**
+		 *  Obtain the current value, whithout shifting the cursor
+		 *  @name    current
+		 *  @type    method
+		 *  @access  public
+		 *  @return  mixed value
+		 */
+		iterator.current = function()
+		{
+			if (!current)
+				current = 0;
+
+			return iterator.item(keys[current]) || false;
+		};
+
+		/**
+		 *  Obtain an array which contains all the keys for the underlying collection
+		 *  @name    keys
+		 *  @type    method
+		 *  @access  public
+		 *  @return  Array keys
+		 */
+		iterator.keys = function()
+		{
+			var result = [];
+
+			iterator.each(function(key){
+				result.push(key);
+			});
+
+			return result;
+		};
+
+		/**
+		 *  Obtain the previous value, shifting the cursor to the previous position
+		 *  @name    previous
+		 *  @type    method
+		 *  @access  public
+		 *  @return  mixed value
+		 */
+		iterator.previous = function()
+		{
+			current = Math.max(typeof current !== 'undefined' ? current - 1 : 0, -1);
+			return iterator.current();
+		};
+
+		/**
+		 *  Obtain the previous value, shifting the cursor back
+		 *  @name    prev
+		 *  @type    method
+		 *  @access  public
+		 *  @return  mixed value
+		 *  @alias   iterator.previous
+		 */
+		iterator.prev = iterator.previous;
+
+		/**
+		 *  Obtain the next value, shifting the cursor to the next position
+		 *  @name    previous
+		 *  @type    method
+		 *  @access  public
+		 *  @return  mixed value
+		 */
+		iterator.next = function()
+		{
+			current = Math.min(typeof current !== 'undefined' ? current + 1 : 0, keys.length);
+			return iterator.current();
+		};
+
+		/**
+		 *  Traverse the underlying collection and call given handle on every item in the collection
+		 *  @name    each
+		 *  @type    method
+		 *  @access  public
+		 *  @param   function   handle
+		 *  @return  kxIterator instance
+		 *  @note    the handle will be called with the collection item as scope ('this' inside the handle)
+		 *           and will receive its key as first argument
+		 */
+		iterator.each = function(handle)
+		{
+			var p;
+
+			if ('length' in collection)
+				for (p = 0; p < collection.length; ++p)
+					handle.apply(collection[p], [p]);
+			else
+				for (p in collection)
+					handle.apply(collection[p], [p]);
+
+			return iterator;
+		};
+
+		init();
+	}
 
 
 	/**
@@ -605,7 +838,7 @@
 		var ajax = this,
 			stat = {},
 			header = {
-				'X-Konflux': 'konflux/' + version
+				'X-Konflux': 'konflux/' + konflux.version()
 			};
 
 		function kxFormData()
@@ -1597,7 +1830,7 @@
 		var string = this;
 
 		/**
-		 *  Javascript port of Java’s String.hashCode()
+		 *  Javascript port of Java's String.hashCode()
 		 *  (Based on http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/)
 		 *  @name    hashCode
 		 *  @type    function
@@ -2126,11 +2359,11 @@
 		 *  @access public
 		 *  @param  string     selector
 		 *  @param  DOMElement parent
-		 *  @return DOMNodeList
+		 *  @return kxIterator nodeList
 		 */
 		dom.select = function(selector, parent)
 		{
-			return (parent || document).querySelectorAll(selector);
+			return new kxIterator((parent || document).querySelectorAll(selector));
 		};
 
 		/**
@@ -2939,6 +3172,8 @@
 	/**
 	 *  Point object, handling the (heavy) lifting of working with points
 	 *  @module  point
+	 *  @param   number x position
+	 *  @param   number y position
 	 *  @note    available as konflux.point / kx.point
 	 */
 	function kxPoint(x, y)
@@ -4058,9 +4293,6 @@
 		};
 	}
 
-
-	//  expose object references
-	konflux.point = kxPoint;
 
 	//  expose object instances
 	konflux.observer   = new kxObserver();
