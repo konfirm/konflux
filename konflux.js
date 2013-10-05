@@ -291,7 +291,7 @@
 		 */
 		kx.empty = function()
 		{
-			var arg = Array.prototype.slice.call(arguments);
+			var arg = konflux.array.cast(arguments);
 			while (arg.length)
 				if (!empty(arg.shift()))
 					return false;
@@ -417,6 +417,29 @@
 			keys, current;
 
 		/**
+		 *  Initialize the iterator object
+		 *  @name    init
+		 *  @type    function
+		 *  @access  internal
+		 *  @return  void
+		 */
+		function init()
+		{
+			var p;
+
+			//  create a magic property for the length
+			if ('length' in collection)
+				property('length');
+
+			//  decorate the iterator with the various collection members
+			for (p in collection)
+				if (!(p in iterator))
+					iterator[p] = relay(p);
+
+			keys = iterator.keys();
+		}
+
+		/**
 		 *  Create relayed access to a collection member
 		 *  @name    relay
 		 *  @type    function
@@ -428,7 +451,7 @@
 		{
 			if (typeof collection[member] === 'function')
 				return function(){
-					return collection[member].apply(collection, Array.prototype.slice.call(arguments));
+					return collection[member].apply(collection, konflux.array.cast(arguments));
 				};
 			else if (type(member) === 'number' || /^[0-9]+$/.test(member))
 				return collection[member];
@@ -461,26 +484,39 @@
 		}
 
 		/**
-		 *  Initialize the iterator object
-		 *  @name    init
+		 *  Expand the underlying collection with another
+		 *  @name    add
 		 *  @type    function
 		 *  @access  internal
+		 *  @param   mixed  append
 		 *  @return  void
 		 */
-		function init()
+		function add(append)
 		{
-			var p;
+			//  for now we only support index based objects to handle expansion
+			if (!('length' in collection))
+				return false;
 
-			//  create a magic property for the length
-			if ('length' in collection)
-				property('length');
+			//  we enforce the underlying collection to become an array
+			if (!(collection instanceof Array))
+				collection = konflux.array.cast(collection);
 
-			//  decorate the iterator with the various collection members
-			for (p in collection)
-				if (!(p in iterator))
-					iterator[p] = relay(p);
+			//  if we are trying to append a kxIterator instance, we want the underlying collection
+			if (append instanceof kxIterator)
+				append = append.collection();
 
-			keys = iterator.keys();
+			//  and ensure it'll be an array
+			if (!(append instanceof Array))
+				append = konflux.array.cast(append);
+
+			//  if the appending variable holds an array, we concatenate it into the collection
+			if (append instanceof Array)
+			{
+				collection = collection.concat(append);
+				keys       = iterator.keys();
+				return true;
+			}
+			return false;
 		}
 
 		/**
@@ -600,6 +636,29 @@
 			else
 				for (p in collection)
 					handle.apply(collection[p], [p]);
+
+			return iterator;
+		};
+
+		/**
+		 *  Add items to the collection
+		 *  @name    add
+		 *  @type    method
+		 *  @access  public
+		 *  @param   mixed argument1
+		 *  @param   mixed ...
+		 *  @param   mixed argumentN
+		 *  @return  kxIterator instance
+		 *  @note    Adding items to the collection will destroy the original collection and turn it into an array
+		 *  @note    Any scalar variable type (String, Number, Boolean and NULL) will added as is, any
+		 *           Array or Object will be disected and treated as array (if possible)
+		 */
+		iterator.add = function()
+		{
+			var i;
+
+			for (i = 0; i < arguments.length; ++i)
+				concat(arguments[i]);
 
 			return iterator;
 		};
@@ -2143,6 +2202,44 @@
 			return a;
 		}
 
+		/**
+		 *  Cast given value to an array
+		 *  @name    cast
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   mixed source
+		 *  @return  array source (bool false if the cast could not be done)
+		 *  @note    any scalar value will become an array holding that value (e.g. 'my string' becomes ['my string'])
+		 */
+		function cast(mixed)
+		{
+			var result = false,
+				len, i;
+
+			switch (typeof mixed)
+			{
+				case 'object':
+					if (!('length' in mixed))
+						break;
+
+					try
+					{
+						result = Array.prototype.slice.call(mixed);
+					}
+					catch(e)
+					{
+						for (result = [], len = obj.length, i = 0; i < len; ++i)
+							result.push(mixed[i]);
+					}
+					break;
+
+				default:
+					result = [mixed];
+					break;
+			}
+
+			return result;
+		}
 
 		//  expose
 		/**
@@ -2187,6 +2284,17 @@
 		 *  @return  array shuffled
 		 */
 		array.shuffle = shuffle;
+
+		/**
+		 *  Cast given value to an array
+		 *  @name    cast
+		 *  @type    method
+		 *  @access  public
+		 *  @param   mixed source
+		 *  @return  array source (bool false if the cast could not be done)
+		 *  @note    any scalar value will become an array holding that value (e.g. 'my string' becomes ['my string'])
+		 */
+		array.cast = cast;
 	}
 
 
@@ -2439,7 +2547,7 @@
 
 			if (/^mouse[a-z]+|drag[a-z]+|drop|click$/i.test(evt.type))
 			{
-				evt.mouse = new kxPoint(
+				evt.mouse = konflux.point(
 					evt.pageX ? evt.pageX : (evt.clientX ? evt.clientX + document.body.scrollLeft + document.documentElement.scrollLeft : 0),
 					evt.pageY ? evt.pageY : (evt.clientY ? evt.clientY + document.body.scrollTop + document.documentElement.scrollTop : 0)
 				);
@@ -2858,7 +2966,7 @@
 		 */
 		function trigger(stack)
 		{
-			var arg = Array.prototype.slice.call(arguments),
+			var arg = konflux.array.cast(arguments),
 				ref = unique(),
 				part = stack.split('.'),
 				wildcard = false,
@@ -3945,7 +4053,7 @@
 			 */
 			function path()
 			{
-				var arg = Array.prototype.slice.call(arguments),
+				var arg = konflux.array.cast(arguments),
 					len = arguments.length,
 					i;
 
@@ -4088,7 +4196,7 @@
 			 */
 			context.drawImage = function()
 			{
-				var arg = Array.prototype.slice.call(arguments);
+				var arg = konflux.array.cast(arguments);
 
 				//  if we have a request to draw a kxCanvasContext, we honorate it by fetching its canvas
 				if (arg[0] instanceof kxCanvasContext)
@@ -4111,7 +4219,7 @@
 			 */
 			context.getImageData = function()
 			{
-				var arg = Array.prototype.slice.call(arguments);
+				var arg = konflux.array.cast(arguments);
 
 				return context.ctx2d.getImageData.apply(context.ctx2d, arg);
 			};
