@@ -125,6 +125,12 @@
 	function elementReference(element, hidden)
 	{
 		var name = 'kxref',
+			reference;
+
+		//  we don't ever contaminate the body element
+		if (element === document.body)
+			reference = 'body';
+		else
 			reference = hidden ? (name in element ? element[name] : null) : element.getAttribute('data-' + name);
 
 		//  if no reference was set yet, do so now
