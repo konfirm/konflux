@@ -407,6 +407,7 @@
 	/**
 	 *  Iterator object, providing a uniform mechanism to traverse collections (Array, Object, DOMNodeList, etc)
 	 *  @module  iterator
+	 *  @factory konflux.iterator
 	 *  @param   mixed collection
 	 *  @note    available as konflux.iterator / kx.iterator
 	 */
@@ -3280,6 +3281,7 @@
 	/**
 	 *  Point object, handling the (heavy) lifting of working with points
 	 *  @module  point
+	 *  @factory konflux.point
 	 *  @param   number x position
 	 *  @param   number y position
 	 *  @note    available as konflux.point / kx.point
