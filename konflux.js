@@ -480,14 +480,20 @@
 		 */
 		function property(name)
 		{
-			if (!('defineProperty' in Object))
+			//  Unfortunatly we have to fall back onto a try catch block, as the IE8 implementation does not
+			//  accept defined properties on any object other than DOMElements
+			try
+			{
+				return Object.defineProperty(iterator, name, {
+					get: function(){
+						return collection[name];
+					}
+				});
+			}
+			catch (e)
+			{
 				return iterator[name] = collection[name];
-
-			return Object.defineProperty(iterator, name, {
-				get: function(){
-					return collection[name];
-				}
-			});
+			}
 		}
 
 		/**
