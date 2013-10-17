@@ -1834,6 +1834,26 @@
 
 			return value;
 		};
+
+		/**
+		 *  Calculate the specificity of a selector
+		 *  @name    specificity
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string selector
+		 *  @return  string specificity ('0.0.0.0')
+		 */
+		style.specificity = function(selector)
+		{
+			var result = [0,0,0,0],
+				match = konflux.string.trim(selector.replace(/([#\.\:\[]+)/g, ' $1')).split(/[^a-z0-9\.\[\]'":\*\.#=_-]+/),
+				i;
+
+			for (i = 0; i < match.length; ++i)
+				++result[/^#/.test(match[i]) ? 1 : (/^(?:\.|\[|:[^:])/.test(match[i]) ? 2 : 3)];
+
+			return result.join('.');
+		};
 	}
 
 
@@ -2321,6 +2341,15 @@
 		/*jshint validthis: true*/
 		var dom = this;
 
+		//  constants
+		dom.STACK_NEGATIVE   = 1;
+		dom.STACK_BLOCK      = dom.STACK_NEGATIVE << 1;
+		dom.STACK_FLOAT      = dom.STACK_BLOCK << 1;
+		dom.STACK_INLINE     = dom.STACK_FLOAT << 1;
+		dom.STACK_POSITIONED = dom.STACK_INLINE << 1;
+		dom.STACK_POSITIVE   = dom.STACK_POSITIONED << 1;
+		dom.STACK_GLOBAL     = dom.STACK_POSITIVE << 1;
+
 		/**
 		 *  Append given source element or structure to the target element
 		 *  @name   appendTo
@@ -2439,6 +2468,57 @@
 		}
 
 		/**
+		 *  Obtain the stacking order index
+		 *  @name   stackOrderIndex
+		 *  @type   function
+		 *  @access internal
+		 *  @param  DOMElement node
+		 *  @return object stack order (format: {type:<int>, index:<int>})
+		 *  @note   the dom constants: STACK_NEGATIVE, STACK_BLOCK, STACK_FLOAT
+		 *          STACK_INLINE, STACK_POSITIONED, STACK_POSITIVE, STACK_GLOBAL
+		 *          with the type number to determine the matching type.
+		 *          e.g. type & konflux.dom.STACK_POSITIONED !== 0 is a positioned element
+		 *  @see    spec:  http://www.w3.org/TR/CSS2/zindex.html#painting-order
+		 *  @see    human: http://philipwalton.com/articles/what-no-one-told-you-about-z-index/
+
+		 */
+		function stackOrderIndex(node)
+		{
+			var zIndex = konflux.style.get(node, 'z-index'),
+				opacity = parseFloat(konflux.style.get(node, 'opacity')),
+				position = konflux.style.get(node, 'position'),
+				display = konflux.style.get(node, 'display'),
+				floatValue = konflux.style.get(node, 'float'),
+				context = (position !== 'static' && zIndex !== 'auto') || opacity < 1,
+				hidden = /^(?:none)$/.test(display),
+				//  https://developer.mozilla.org/en-US/docs/Web/CSS/display
+				blockType = /^(?:(?:inline\-)?block|list\-item|table(?:\-(?:cell|caption|column|row))?|table\-(?:column|footer|header|row)\-group|flex|grid)$/.test(display),
+				type = parseInt([
+					//  fixed positioning, a world in its own
+					position === 'fixed' ? 1 : 0,
+					//  positive stacking context: 0/1
+					context && (zIndex === 'auto' || zIndex >= 0) ? 1 : 0,
+					//  positioned (and not stacking context)
+					position !== 'static' && !context ? 1 : 0,
+					//  inline level elements (natural position order)
+					floatValue === 'none' && position === 'static' && !blockType ? 1 : 0,
+					//  floating elements are between natural positioned inline and block level elements
+					floatValue !== 'none' && !context && position === 'static' ? 1 : 0,
+					//  block level element (natural position order)
+					floatValue === 'none' && position === 'static' && blockType ? 1 : 0,
+					//  negative stacking context
+					context && zIndex < 0 ? 1 : 0
+				].join(''), 2);
+
+			return {
+				type: type,
+				index: position !== 'static' || !zIndex || zIndex === 'auto' ? 0 : zIndex,
+				context: (dom.STACK_NEGATIVE & type || dom.STACK_POSITIONED & type || dom.STACK_POSITIVE & type || dom.STACK_GLOBAL & type) !== 0
+			};
+		}
+
+
+		/**
 		 *  Create a dom structure from given variable
 		 *  @name   create
 		 *  @type   method
@@ -2500,6 +2580,16 @@
 		{
 			return elementReference(element);
 		};
+
+		/**
+		 *  Obtain the stacking order level
+		 *  @name   stackLevel
+		 *  @type   method
+		 *  @access public
+		 *  @param  DOMElement node
+		 *  @return object stack order (format: {type:<int>, index:<int>})
+		 */
+		dom.stackLevel = stackOrderIndex;
 	}
 
 
@@ -4355,7 +4445,6 @@
 					.path.apply(context.path, arguments)
 					.stroke();
 			};
-
 
 			init();
 		}
