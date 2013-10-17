@@ -1908,6 +1908,41 @@
 		{
 			return input >= low && input <= high;
 		};
+
+		/**
+		 *  Format a number with a given set of decimal length, decimals separator and/or thousands separator
+		 *  @name    format
+		 *  @type    method
+		 *  @access  public
+		 *  @param   number input
+		 *  @param   number decimals
+		 *  @param   string decimals separator (optional, default '.')
+		 *  @param   string thousands separator (optional, default ',')
+		 *  @return  string formatted number
+		 *  @note    this method is compatible with PHP's number_format function, it either accepts 2 or 4 arguments
+		 */
+		number.format = function(input, decimals, separator, thousands)
+		{
+			var multiplier = Math.pow(10, decimals),
+				source = ('' + (Math.round(input * multiplier) / multiplier)).replace(/,\.+/g, '.').split('.'),
+				output = source[0] + (decimals > 0 ? (separator || '.') + ((source[1] || '') + new Array(decimals).join('0')).substr(0, decimals) : ''),
+				i;
+
+			if (!thousands && arguments.length >= 3)
+				thousands = ',';
+
+			if (thousands && thousands !== '')
+			{
+				source  = output;
+				output = [];
+				i = source.indexOf(separator || '.');
+
+				for (i = i > 0 ? i : source.length; i > 0; output.unshift(source.substr(i -= Math.min(source.length, 3))), source = source.substring(0, i));
+				output = output.join(thousands);
+			}
+
+			return output;
+		};
 	}
 
 
