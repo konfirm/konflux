@@ -625,7 +625,7 @@
 
 		/**
 		 *  Obtain the next value, shifting the cursor to the next position
-		 *  @name    previous
+		 *  @name    next
 		 *  @type    method
 		 *  @access  public
 		 *  @return  mixed value
