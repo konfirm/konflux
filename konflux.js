@@ -1885,7 +1885,7 @@
 		 */
 		number.even = function(input)
 		{
-			return input % 2 === 0;
+			return (input | 0) === input && input % 2 === 0;
 		};
 
 		/**
@@ -1898,7 +1898,7 @@
 		 */
 		number.odd = function(input)
 		{
-			return !number.even(input);
+			return (input | 0) === input && !number.even(input);
 		};
 
 		/**
