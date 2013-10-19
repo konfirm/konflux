@@ -1916,8 +1916,8 @@
 		 *  @access  public
 		 *  @param   number input
 		 *  @param   number decimals
-		 *  @param   string decimals separator (optional, default '.')
-		 *  @param   string thousands separator (optional, default ',')
+		 *  @param   string decimals separator [optional, default '.']
+		 *  @param   string thousands separator [optional, default ',']
 		 *  @return  string formatted number
 		 *  @note    this method is compatible with PHP's number_format function, it either accepts 2 or 4 arguments
 		 */
@@ -1939,10 +1939,7 @@
 
 			//  apply thousands separator, if applicable (number length exceeds 3 and we have a non-empty separator)
 			if (input[0].length > 3 && separator && separator !== '')
-			{
-				for (multiplier = [], i = input[0].length; i > 0; multiplier.unshift(input[0].substr(i -= Math.min(input[0].length, 3))), input[0] = input[0].substring(0, i));
-				input[0] = multiplier.join(separator);
-			}
+				input[0] = konflux.string.chunk(input[0], 3, konflux.string.CHUNK_END).join(separator);
 
 			return input[0] + (precision > 0 ? point + konflux.string.pad(input[1] || '', precision, '0', konflux.string.PAD_RIGHT) : '');
 		};
@@ -2070,13 +2067,45 @@
 			});
 		}
 
+		/**
+		 *  Split given string into chunks of given size
+		 *  @name    chunk
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string input
+		 *  @param   int    size [optional, default 1]
+		 *  @param   bool   end [optional, default false - start from the beginning of the input string]
+		 *  @return  array chunks
+		 *  @note    the last chunk is provided as is, there for it can be of a length less than given size
+		 */
+		function chunk(input, size, end)
+		{
+			var source = '' + input,
+				output = [],
+				i;
+
+			if (!size || size === 1)
+				output = source.split('');
+			else if (input.length < size)
+				output.push(input);
+			else if (end)
+				for (i = source.length; i > 0; output.unshift(source.substr(i -= Math.min(source.length, size))), source = source.substring(0, i));
+			else
+				while (source.length > 0, output.push(source.substring(0, size)), source = source.substr(size));
+
+			return output;
+		}
+
+
 		//  'constants'
-		string.PAD_LEFT   = 1;
-		string.PAD_BOTH   = 2;
-		string.PAD_RIGHT  = 3;
-		string.TRIM_LEFT  = 1;
-		string.TRIM_BOTH  = 2;
-		string.TRIM_RIGHT = 3;
+		string.PAD_LEFT    = 1;
+		string.PAD_BOTH    = 2;
+		string.PAD_RIGHT   = 3;
+		string.TRIM_LEFT   = 1;
+		string.TRIM_BOTH   = 2;
+		string.TRIM_RIGHT  = 3;
+		string.CHUNK_START = 1;
+		string.CHUNK_END   = 2;
 
 		/**
 		 *  Trim string from leading/trailing whitespace
@@ -2192,6 +2221,22 @@
 		 *  @return  string character
 		 */
 		string.chr = chr;
+
+		/**
+		 *  Divide the given input string into chunks of certain size
+		 *  @name    chunk
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string input
+		 *  @param   int    size [optional, default 1]
+		 *  @param   int    direction [optional, default CHUNK_START - start the chunks from the start, one of: CHUNK_START, CHUNK_END]
+		 *  @return  array chunks
+		 *  @note    the last (or first, depending on direction) chunk is provided as is, therefor it can be of a length less than given size
+		 */
+		string.chunk = function(input, size, start)
+		{
+			return chunk(input, size || 1, start === string.CHUNK_END);
+		};
 	}
 
 
