@@ -506,6 +506,8 @@
 		 */
 		function add(append)
 		{
+			var length, i;
+
 			//  for now we only support index based objects to handle expansion
 			if (!('length' in collection))
 				return false;
@@ -525,8 +527,13 @@
 			//  if the appending variable holds an array, we concatenate it into the collection
 			if (append instanceof Array)
 			{
+				length     = collection.length;
 				collection = collection.concat(append);
 				keys       = iterator.keys();
+
+				for (i = length; i < collection.length; ++i)
+					property(i);
+
 				return true;
 			}
 			return false;
@@ -671,7 +678,7 @@
 			var i;
 
 			for (i = 0; i < arguments.length; ++i)
-				concat(arguments[i]);
+				add(arguments[i]);
 
 			return iterator;
 		};
@@ -2231,7 +2238,7 @@
 		 *  @param   int    size [optional, default 1]
 		 *  @param   int    direction [optional, default CHUNK_START - start the chunks from the start, one of: CHUNK_START, CHUNK_END]
 		 *  @return  array chunks
-		 *  @note    the last (or first, depending on direction) chunk is provided as is, therefor it can be of a length less than given size
+		 *  @note    the last chunk is provided as is, there for it can be of a length less than given size
 		 */
 		string.chunk = function(input, size, start)
 		{
