@@ -1921,27 +1921,30 @@
 		 *  @return  string formatted number
 		 *  @note    this method is compatible with PHP's number_format function, it either accepts 2 or 4 arguments
 		 */
-		number.format = function(input, decimals, separator, thousands)
+		number.format = function(input, precision, point, separator)
 		{
-			var multiplier = Math.pow(10, decimals),
-				source = ('' + (Math.round(input * multiplier) / multiplier)).replace(/,\.+/g, '.').split('.'),
-				output = source[0] + (decimals > 0 ? (separator || '.') + ((source[1] || '') + new Array(decimals).join('0')).substr(0, decimals) : ''),
+			var multiplier = precision ? Math.pow(10, precision) : 0,
 				i;
 
-			if (!thousands && arguments.length >= 3)
-				thousands = ',';
+			//  check whether default values need to be assigned
+			point     = point || '.';
+			separator = separator || arguments.length < 3 ? separator : ',';
 
-			if (thousands && thousands !== '')
+			//  format the number
+			input = ('' + (+input)).replace(/[,\. ]+/g, '.');
+			//  round the last desired decimal
+			input = multiplier > 0 ? Math.round(+input * multiplier) / multiplier : input;
+			//  split input into int value and decimal value
+			input = ('' + (!isFinite(input) ? 0 : +input)).split('.');
+
+			//  apply thousands separator, if applicable (number length exceeds 3 and we have a non-empty separator)
+			if (input[0].length > 3 && separator && separator !== '')
 			{
-				source  = output;
-				output = [];
-				i = source.indexOf(separator || '.');
-
-				for (i = i > 0 ? i : source.length; i > 0; output.unshift(source.substr(i -= Math.min(source.length, 3))), source = source.substring(0, i));
-				output = output.join(thousands);
+				for (multiplier = [], i = input[0].length; i > 0; multiplier.unshift(input[0].substr(i -= Math.min(input[0].length, 3))), input[0] = input[0].substring(0, i));
+				input[0] = multiplier.join(separator);
 			}
 
-			return output;
+			return input[0] + (precision > 0 ? point + konflux.string.pad(input[1] || '', precision, '0', konflux.string.PAD_RIGHT) : '');
 		};
 	}
 
