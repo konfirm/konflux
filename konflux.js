@@ -1955,8 +1955,8 @@
 				i;
 
 			//  check whether default values need to be assigned
-			point     = point || '.';
-			separator = separator || arguments.length < 3 ? separator : ',';
+			point     = konflux.type(point) !== undef ? point : '.';
+			separator = konflux.type(separator) !== undef || arguments.length < 3 ? separator : ',';
 
 			//  format the number
 			input = ('' + input).replace(/[,\. ]+/g, '.');
