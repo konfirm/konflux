@@ -552,6 +552,22 @@
 		};
 
 		/**
+		 *  Get or set the cursor position, if an non-existant position is given, the cursor does not budge
+		 *  @name    cursor
+		 *  @type    method
+		 *  @access  public
+		 *  @param   mixed index [optional, default null - don't update the cursor]
+		 *  @return  mixed value
+		 */
+		iterator.cursor = function(index)
+		{
+			if (index && index in keys)
+				current = index;
+			return current;
+		};
+
+
+		/**
 		 *  Obtain a member from the underlying collection
 		 *  @name    item
 		 *  @type    method
