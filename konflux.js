@@ -1943,7 +1943,7 @@
 		 *  @type    method
 		 *  @access  public
 		 *  @param   number input
-		 *  @param   number decimals
+		 *  @param   number decimals [optional, default 0 - no precision]
 		 *  @param   string decimals separator [optional, default '.']
 		 *  @param   string thousands separator [optional, default ',']
 		 *  @return  string formatted number
@@ -1959,7 +1959,7 @@
 			separator = separator || arguments.length < 3 ? separator : ',';
 
 			//  format the number
-			input = ('' + (+input)).replace(/[,\. ]+/g, '.');
+			input = ('' + input).replace(/[,\. ]+/g, '.');
 			//  round the last desired decimal
 			input = multiplier > 0 ? Math.round(+input * multiplier) / multiplier : input;
 			//  split input into int value and decimal value
