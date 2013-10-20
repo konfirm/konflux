@@ -563,7 +563,8 @@
 		{
 			if (index && index in keys)
 				current = index;
-			return current;
+
+			return current || 0;
 		};
 
 
@@ -1957,11 +1958,10 @@
 			//  check whether default values need to be assigned
 			point     = konflux.type(point) !== undef ? point : '.';
 			separator = konflux.type(separator) !== undef || arguments.length < 3 ? separator : ',';
-
 			//  format the number
-			input = ('' + input).replace(/[,\. ]+/g, '.');
+			input = +(('' + input).replace(/[,\.]+/, '.'));
 			//  round the last desired decimal
-			input = multiplier > 0 ? Math.round(+input * multiplier) / multiplier : input;
+			input = multiplier > 0 ? Math.round(input * multiplier) / multiplier : input;
 			//  split input into int value and decimal value
 			input = ('' + (!isFinite(input) ? 0 : +input)).split('.');
 
