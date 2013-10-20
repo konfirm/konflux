@@ -1901,6 +1901,7 @@
 		 */
 		number.even = function(input)
 		{
+			input = +input;
 			return (input | 0) === input && input % 2 === 0;
 		};
 
@@ -1914,6 +1915,7 @@
 		 */
 		number.odd = function(input)
 		{
+			input = +input;
 			return (input | 0) === input && !number.even(input);
 		};
 
@@ -1923,13 +1925,16 @@
 		 *  @type    method
 		 *  @access  public
 		 *  @param   number input
-		 *  @param   number low
-		 *  @param   number high
+		 *  @param   number a
+		 *  @param   number b
 		 *  @return  bool between
 		 */
-		number.between = function(input, low, high)
+		number.between = function(input, a, b)
 		{
-			return input >= low && input <= high;
+			input = +input;
+			a     = +a;
+			b     = +b;
+			return input >= Math.min(a, b) && input <= Math.max(a, b);
 		};
 
 		/**
