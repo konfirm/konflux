@@ -460,14 +460,7 @@
 				return function(){
 					return collection[member].apply(collection, konflux.array.cast(arguments));
 				};
-			else if (type(member) === 'number' || /^[0-9]+$/.test(member))
-				return collection[member];
-
-			return function(){
-				if (arguments.length > 0)
-					collection[member] = arguments[0];
-				return collection[member];
-			};
+			return collection[member];
 		}
 
 		/**
@@ -561,10 +554,24 @@
 		 */
 		iterator.cursor = function(index)
 		{
-			if (index && index in keys)
-				current = index;
+			var result;
+			if (index)
+			{
+				if (collection instanceof Array && index in keys)
+				{
+					current = index;
+				}
+				else if (!(collection instanceof Array))
+				{
+					result = konflux.array.contains(keys, index);
+					if (result)
+						current = result;
+				}
+			}
 
-			return current || 0;
+
+			result = current || 0;
+			return collection instanceof Array ? result : keys[result];
 		};
 
 
@@ -1956,8 +1963,8 @@
 				i;
 
 			//  check whether default values need to be assigned
-			point     = konflux.type(point) !== undef ? point : '.';
-			separator = konflux.type(separator) !== undef || arguments.length < 3 ? separator : ',';
+			point     = type(point) !== undef ? point : '.';
+			separator = type(separator) !== undef || arguments.length < 3 ? separator : ',';
 			//  format the number
 			input = +(('' + input).replace(/[,\.]+/, '.'));
 			//  round the last desired decimal
