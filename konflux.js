@@ -4548,6 +4548,20 @@
 			context.path = path;
 
 			/**
+			 *  Create a pattern from an image, canvas or video
+			 *  @name    path
+			 *  @type    method
+			 *  @access  public
+			 *  @param   object source (one of: image-, canvas-, video element)
+			 *  @param   string repeat (one of: repeat (default), no-repeat, repeat-x, repeat-y)
+			 *  @return  object CanvasPattern
+			 */
+			context.createPattern = function(source, repeat)
+			{
+				return context.ctx2d.createPattern(source, repeat || 'repeat');
+			};
+
+			/**
 			 *  Draw a stroked path
 			 *  @name    line
 			 *  @type    method
