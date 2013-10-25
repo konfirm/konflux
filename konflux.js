@@ -4549,7 +4549,7 @@
 
 			/**
 			 *  Create a pattern from an image, canvas or video
-			 *  @name    path
+			 *  @name    createPattern
 			 *  @type    method
 			 *  @access  public
 			 *  @param   object source (one of: image-, canvas-, video element)
