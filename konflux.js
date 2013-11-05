@@ -4527,11 +4527,11 @@
 			 */
 			context.circle = function(p, radius)
 			{
-				context.beginPath();
-				context.arc(p.x, p.y, radius, 0, Math.PI * 2, 1);
-				context.closePath();
-
-				return context;
+				return context
+					.beginPath()
+					.arc(p.x, p.y, radius, 0, Math.PI * 2, 1)
+					.closePath()
+				;
 			};
 
 			/**
@@ -4559,6 +4559,33 @@
 			context.createPattern = function(source, repeat)
 			{
 				return context.ctx2d.createPattern(source, repeat || 'repeat');
+			};
+
+			/**
+			 *  Create a rectangle shape with a radius for the corners
+			 *  @name    roundedRect
+			 *  @type    method
+			 *  @access  public
+			 *  @param   object kxPoint (top left corner)
+			 *  @param   object kxPoint (bottom right corner)
+			 *  @param   number radius
+			 *  @return  object kxCanvasContext
+			 */
+			context.roundedRect = function(a, b, radius)
+			{
+				return context
+					.beginPath()
+					.moveTo(a.x + radius, a.y)
+					.lineTo(a.x + b.x - radius, a.y)
+					.quadraticCurveTo(a.x + b.x, a.y, a.x + b.x, a.y + radius)
+					.lineTo(a.x + b.x, a.y + b.y - radius)
+					.quadraticCurveTo(a.x + b.x, a.y + b.y, a.x + b.x - radius, a.y + b.y)
+					.lineTo(a.x + radius, a.y + b.y)
+					.quadraticCurveTo(a.x, a.y + b.y, a.x, a.y + b.y - radius)
+					.lineTo(a.x, a.y + radius)
+					.quadraticCurveTo(a.x, a.y, a.x + radius, a.y)
+					.closePath()
+				;
 			};
 
 			/**
