@@ -2,7 +2,7 @@
  *       __    Konflux (version $DEV$ - $DATE$) - a javascript helper library
  *      /\_\
  *   /\/ / /   Copyright 2012-2013, Konfirm (Rogier Spieker)
- *   \  / /    Releases under the MIT license
+ *   \  / /    Released under the MIT license
  *    \/_/     More information: http://konfirm.net/konflux
  */
 
@@ -941,7 +941,7 @@
 		var ajax = this,
 			stat = {},
 			header = {
-				'X-Konflux': 'konflux/' + konflux.version()
+				'X-Konflux': 'konflux/' + konflux.string.ascii(konflux.version())
 			};
 
 		function kxFormData()
@@ -1003,7 +1003,7 @@
 				xhr   = getXMLHTTPRequest(),
 				p;
 
-			if (type !== 'POST')
+			if (!/^(POST|PUT)$/.test(type))
 			{
 				url += data !== '' ? '?' + data : '';
 				data = null;
@@ -1297,6 +1297,10 @@
 		function scriptProperty(property)
 		{
 			var n = 0;
+
+			if (property === 'float')
+				return 'cssFloat';
+
 			while ((n = property.indexOf('-', n)) >= 0)
 				property = property.substr(0, n) + property.charAt(++n).toUpperCase() + property.substring(n + 1);
 			return property;
@@ -1313,6 +1317,9 @@
 		 */
 		function cssProperty(property)
 		{
+			if (property === 'cssFloat')
+				property = 'float';
+
 			return property.replace(/([A-Z])/g, '-$1').toLowerCase();
 		}
 
@@ -1637,9 +1644,10 @@
 		 *  @type    method
 		 *  @access  public
 		 *  @param   DOMElement target
+		 *  @param   bool       skipNode [optional, default false - include node name]
 		 *  @return  string selector
 		 */
-		style.selector = function(target)
+		style.selector = function(target, skipNode)
 		{
 			var node = target.nodeName.toLowerCase(),
 				id = target.hasAttribute('id') ? '#' + target.getAttribute('id') : null,
@@ -1647,7 +1655,7 @@
 				select = '';
 
 			if (arguments.length === 1 || id || classes)
-				select = node + (id || classes || '');
+				select = (skipNode ? '' : node) + (id || classes || '');
 
 			return konflux.string.trim((!id && target.parentNode && target !== document.body ? style.selector(target.parentNode, true) + ' ' : '') + select);
 		};
@@ -1749,16 +1757,17 @@
 		 *  @param   string selector
 		 *  @param   mixed  rules (one of; object {property: value} or string 'property: value')
 		 *  @param   mixed  sheet (either a sheet object or named reference, like 'first', 'last' or file name)
+		 *  @param   bool   skipNode [optional, default false - include node name]
 		 *  @return  int    index at which the rule was added
 		 */
-		style.add = function(selector, rules, sheet)
+		style.add = function(selector, rules, sheet, skipNode)
 		{
 			var rule = '',
 				find, p, pr;
 
 			//  in case the selector is not a string but a DOMElement, we go out and create a selector from it
 			if (typeof selector === 'object' && 'nodeType' in selector)
-				selector = style.selector(selector);
+				selector = style.selector(selector, skipNode);
 
 			//  make the rules into an object
 			if (typeof rules === 'string')
@@ -2131,6 +2140,35 @@
 			return output;
 		}
 
+		/**
+		 *  Convert characters based on their ascii value
+		 *  @name    ascii
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string input
+		 *  @param   object conversion (syntax: {replacement: [ascii value, ascii value, ...]})
+		 *  @return  string converted
+		 */
+		function ascii(input, convert)
+		{
+			var result = [],
+				i, p, s;
+
+			for (i = 0; i < input.length; ++i)
+			{
+				s = input.substr(i, 1);
+				for (p in convert)
+					if (konflux.array.contains(convert[p], s.charCodeAt(0)) !== false)
+					{
+						s = p;
+						break;
+					}
+
+				result.push(s);
+			}
+
+			return result.join('');
+		}
 
 		//  'constants'
 		string.PAD_LEFT    = 1;
@@ -2141,6 +2179,40 @@
 		string.TRIM_RIGHT  = 3;
 		string.CHUNK_START = 1;
 		string.CHUNK_END   = 2;
+
+		/**
+		 *  Convert characters based on their ascii value
+		 *  @name    ascii
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string input
+		 *  @param   object conversion (syntax: {replacement: [ascii value, ascii value, ...]} - optional, default high ASCII characters)
+		 *  @return  string converted
+		 */
+		string.ascii = function(input, user)
+		{
+			return ascii(input, user || {
+					A: [192,193,194,195,196,197],
+					C: [199],
+					E: [200,201,202,203],
+					I: [204,205,206,207],
+					D: [208],
+					N: [209],
+					O: [210,211,212,213,214,216],
+					U: [217,218,219,220],
+					Y: [221],
+					ss: [223],
+					a: [224,225,226,227,228,229],
+					beta: [946],
+					c: [231],
+					e: [232,233,234,235],
+					i: [236,237,238,239],
+					n: [241],
+					o: [240,242,243,244,245,246],
+					u: [249,250,251,252],
+					y: [253]
+				});
+			}
 
 		/**
 		 *  Trim string from leading/trailing whitespace
