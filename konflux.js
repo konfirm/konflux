@@ -940,9 +940,7 @@
 		/*jshint validthis: true*/
 		var ajax = this,
 			stat = {},
-			header = {
-				'X-Konflux': 'konflux/' + konflux.string.ascii(konflux.version())
-			};
+			header = false;
 
 		function kxFormData()
 		{
@@ -972,6 +970,23 @@
 		};
 
 		/**
+		 *  Obtain the default headers
+		 *  @name    getHeader
+		 *  @type    function
+		 *  @access  internal
+		 *  @return  object headers
+		 */
+		function getHeader()
+		{
+			if (!header)
+				header = {
+					'X-Konflux': 'konflux/' + konflux.string.ascii(konflux.version())
+				};
+
+			return header;
+		}
+
+		/**
 		 *  Obtain a new XHR object
 		 *  @name    getXMLHTTPRequest
 		 *  @type    function
@@ -999,7 +1014,7 @@
 				type  = 'type' in config ? config.type.toUpperCase() : 'GET',
 				data  = 'data' in config ? prepareData(config.data) : '',
 				async = 'async' in config ? config.async : true,
-				headers = 'header' in config ? combine(config.header, header) : false,
+				headers = 'header' in config ? combine(config.header, getHeader()) : false,
 				xhr   = getXMLHTTPRequest(),
 				p;
 
@@ -2141,12 +2156,12 @@
 		}
 
 		/**
-		 *  Convert characters based on their ascii value
+		 *  Convert characters based on their ASCII value
 		 *  @name    ascii
 		 *  @type    function
 		 *  @access  internal
 		 *  @param   string input
-		 *  @param   object conversion (syntax: {replacement: [ascii value, ascii value, ...]})
+		 *  @param   object conversion (syntax: {replacement: [ASCII value, ASCII value, ...]})
 		 *  @return  string converted
 		 */
 		function ascii(input, convert)
@@ -2181,38 +2196,38 @@
 		string.CHUNK_END   = 2;
 
 		/**
-		 *  Convert characters based on their ascii value
+		 *  Convert characters based on their ASCII value
 		 *  @name    ascii
 		 *  @type    method
 		 *  @access  public
 		 *  @param   string input
-		 *  @param   object conversion (syntax: {replacement: [ascii value, ascii value, ...]} - optional, default high ASCII characters)
+		 *  @param   object conversion (syntax: {replacement: [ASCII value, ASCII value, ...]} - optional, default high ASCII characters)
 		 *  @return  string converted
 		 */
 		string.ascii = function(input, user)
 		{
 			return ascii(input, user || {
-					A: [192,193,194,195,196,197],
-					C: [199],
-					E: [200,201,202,203],
-					I: [204,205,206,207],
-					D: [208],
-					N: [209],
-					O: [210,211,212,213,214,216],
-					U: [217,218,219,220],
-					Y: [221],
-					ss: [223],
-					a: [224,225,226,227,228,229],
-					beta: [946],
-					c: [231],
-					e: [232,233,234,235],
-					i: [236,237,238,239],
-					n: [241],
-					o: [240,242,243,244,245,246],
-					u: [249,250,251,252],
-					y: [253]
-				});
-			}
+				A: [192,193,194,195,196,197],
+				C: [199],
+				E: [200,201,202,203],
+				I: [204,205,206,207],
+				D: [208],
+				N: [209],
+				O: [210,211,212,213,214,216],
+				U: [217,218,219,220],
+				Y: [221],
+				ss: [223],
+				a: [224,225,226,227,228,229],
+				beta: [946],
+				c: [231],
+				e: [232,233,234,235],
+				i: [236,237,238,239],
+				n: [241],
+				o: [240,242,243,244,245,246],
+				u: [249,250,251,252],
+				y: [253]
+			});
+		};
 
 		/**
 		 *  Trim string from leading/trailing whitespace
