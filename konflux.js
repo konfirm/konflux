@@ -334,12 +334,11 @@
 		 *  @type    method
 		 *  @access  public
 		 *  @param   function handler
-		 *  @return  void
+		 *  @return  bool     is ready
 		 */
 		kx.ready = function(handler)
 		{
-			if ('event' in konflux)
-				return konflux.event.ready(handler);
+			return 'event' in konflux ? konflux.event.ready(handler) : false;
 		};
 
 		/**
@@ -1647,10 +1646,14 @@
 		 */
 		style.inline = function(target, rules)
 		{
-			var p;
+			var p, q;
 
 			for (p in rules)
-				target.style[scriptProperty(p)] = rules[p];
+			{
+				q = hasProperty(p);
+				if (q)
+					target.style[q] = rules[p];
+			}
 		};
 
 		/**
@@ -1882,10 +1885,14 @@
 		{
 			var value;
 
-			if (element.currentStyle)
-				value = element.currentStyle(scriptProperty(property));
-			else if (window.getComputedStyle)
-				value = document.defaultView.getComputedStyle(element, null).getPropertyValue(cssProperty(property));
+			property = hasProperty(property);
+			if (property)
+			{
+				if (element.currentStyle)
+					value = element.currentStyle(scriptProperty(property));
+				else if (window.getComputedStyle)
+					value = document.defaultView.getComputedStyle(element, null).getPropertyValue(cssProperty(property));
+			}
 
 			return value;
 		};
@@ -2882,13 +2889,16 @@
 		 *  @type    method
 		 *  @access  public
 		 *  @param   function handler
-		 *  @return  void
+		 *  @return  bool     is ready
 		 */
 		event.ready = function(handler)
 		{
 			//  the document is ready already
 			if (/^interactive|complete$/.test(document.readyState))
-				return setTimeout(handler, 1); // make sure we run the 'event' asynchronously
+			{
+				setTimeout(handler, 1); // make sure we run the 'event' asynchronously
+				return true;
+			}
 
 			//  we cannot use the event.listen method, as we need very different event listeners
 			if (typeof queue.ready === undef)
@@ -2909,7 +2919,8 @@
 					window.attachEvent('onload', ready);
 				}
 			}
-			queue.ready.push(handler);
+
+			return false;
 		};
 
 		/**
