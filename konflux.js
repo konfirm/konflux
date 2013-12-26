@@ -775,11 +775,13 @@
 		{
 			var vendor = vendorPrefix(),
 				uc     = konflux.string.ucFirst(feature),
+				//  the objects to search for the feature
 				object = [
 					window,
 					document,
 					navigator
 				],
+				//  the features to search for in various notations
 				search = [
 					feature,
 					vendor + uc,
@@ -812,6 +814,7 @@
 				script = document.createElement('script'),
 				p;
 
+			//  try to find any vendor prefixed style property on our script node
 			for (p in script.style)
 				if (regex.test(p))
 				{
@@ -819,6 +822,7 @@
 					break;
 				}
 
+			//  as a last resort, try to see if the <pre>Opacity property exists
 			while (!prefix && vendor.length)
 			{
 				p = vendor.pop();
