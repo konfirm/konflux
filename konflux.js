@@ -127,6 +127,9 @@
 		var name = 'kxref',
 			reference;
 
+		if (!element || !('nodeType' in element) || element.nodeType !== 1)
+			return false;
+
 		//  we don't ever contaminate the body element
 		if (element === document.body)
 			reference = 'body';
@@ -401,7 +404,7 @@
 		 */
 		kx.iterator = function(collection)
 		{
-			return new kxIterator(collection);
+			return collection instanceof kxIterator ? collection : new kxIterator(collection);
 		};
 
 		return this;
