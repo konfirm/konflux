@@ -436,6 +436,8 @@
 		{
 			var p;
 
+			collection = collection || [];
+
 			//  create a magic property for the length
 			if ('length' in collection)
 				property('length');
@@ -2372,6 +2374,24 @@
 		string.chunk = function(input, size, start)
 		{
 			return chunk(input, size || 1, start === string.CHUNK_END);
+		};
+
+		/**
+		 *  Prepare given input string for use in a regular expression
+		 *  @name    escapeRegExp
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string input
+		 *  @param   string delimiter [optional, default null - no delimeter to consider]
+		 *  @return  string escaped
+		 */
+		string.escapeRegExp = function(input, delimeter)
+		{
+			var chars = '.\\+*?[^]$(){}=!<>|:-'.split(''),
+				pattern = new RegExp('[' + chars.concat(delimeter ? [delimeter] : []).join('\\') + ']', 'g');
+
+			console.log(chars, pattern, input.replace(pattern, '\\$&'));
+			return input.replace(pattern, '\\$&');
 		};
 	}
 
