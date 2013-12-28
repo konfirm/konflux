@@ -753,7 +753,7 @@
 			//  loop itself has no body (as it is closed off by a semi-colon right after declaration)
 			while (node.innerHTML = '<!--[if gt IE ' + (++version) + ']><i></i><![endif]-->', check.length && version < 10);
 			//  Added IE's @cc_on trickery for browser which do not support conditional comments (such as IE10)
-			version = version > 4 ? version : /*jshint evil: true */Function('/*@cc_on return document.documentMode@*/return false')()/*jshint evil: false */;
+			version = version > 4 ? version : /*jshint evil: true */Function('/*@cc_on return document.documentMode;@*/return false')()/*jshint evil: false */;
 			//  IE11 removed the @cc_on syntax, so we need to go deeper
 			return version ? version : ('-ms-ime-align' in document.documentElement.style ? 11 : false)
 		}
