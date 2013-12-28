@@ -1060,11 +1060,11 @@
 			};
 
 			if ('progress' in config && typeof config.progress === 'function')
-				konflux.event.listen(xhr.upload, 'progress', config.progress);
+				konflux.event.add(xhr.upload, 'progress', config.progress);
 			if ('error' in config && typeof config.error === 'function')
-				konflux.event.listen(xhr, 'error', config.error);
+				konflux.event.add(xhr, 'error', config.error);
 			if ('abort' in config && typeof config.abort === 'function')
-				konflux.event.listen(xhr, 'abort', config.abort);
+				konflux.event.add(xhr, 'abort', config.abort);
 
 			xhr.open(type, url, async);
 			if (headers)
@@ -1750,7 +1750,7 @@
 			}
 			else if (callback)
 			{
-				konflux.event.listen(style, 'load', function(e){
+				konflux.event.add(style, 'load', function(e){
 					callback.apply(style, [e]);
 				});
 			}
@@ -3557,9 +3557,11 @@
 		 */
 		event.add = function(targets, events, filter, handler, capture)
 		{
-			return listen.apply(event, [targets, events].concat(
-				typeof filter === 'function' ? [null, filter, handler] : [filter, handler, capture]
-			));
+			setTimeout(function(){
+				listen.apply(event, [targets, events].concat(
+					typeof filter === 'function' ? [null, filter, handler] : [filter, handler, capture]
+				));
+			}, 1);
 		};
 
 		/*
