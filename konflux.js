@@ -3487,7 +3487,7 @@
 
 			option = option || {};
 
-			if (support)
+			if (support && !konflux.browser.ie())
 			{
 				trigger = new support(name, {
 					detail: option,
