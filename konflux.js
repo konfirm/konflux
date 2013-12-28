@@ -2856,6 +2856,14 @@
 				separator = '!',
 				store = buffer('event.store');
 
+			/**
+			 *  Unify the event type into an object alway containing the name and the namespace
+			 *  @name    namespace
+			 *  @type    function
+			 *  @access  internal
+			 *  @param   string event type
+			 *  @return  object namespace ({name: * | type, namespace: * || namespace})
+			 */
 			function namespace(type)
 			{
 				type = (type || '').split(/\./);
@@ -2865,16 +2873,45 @@
 				};
 			}
 
+			/**
+			 *  Obtain a proper key value for given target DOMElement
+			 *  @name    targetKey
+			 *  @type    function
+			 *  @access  internal
+			 *  @param   DOMElement target
+			 *  @return  string     key
+			 */
 			function targetKey(target)
 			{
 				return konflux.dom.reference(target);
 			}
 
+			/**
+			 *  Remove whitespace and comments from given input, making nearly every string usable as key
+			 *  @name    strip
+			 *  @type    function
+			 *  @access  internal
+			 *  @param   string input
+			 *  @return  string stripped
+			 */
 			function strip(input)
 			{
 				return (input + '').replace(/\s+|\/\*.*?\*\//g, '');
 			}
 
+			/**
+			 *  Create a delegate function for the given combination of arguments, or return the previously created one
+			 *  @name    create
+			 *  @type    function
+			 *  @access  internal
+			 *  @param   DOMElement target
+			 *  @param   string event namespace
+			 *  @param   string event name
+			 *  @param   string filter
+			 *  @param   function handler
+			 *  @param   bool capture
+			 *  @return  object delegate ({target, namespace, type, filter, capture, delegate})
+			 */
 			function create(target, ns, type, filter, handler, capture)
 			{
 				var key = [
@@ -2894,7 +2931,6 @@
 						type: type,
 						filter: filter,
 						capture: capture || false,
-						handle: strip(handler),
 						delegate: function(e){
 							var evt = e || window.event,
 								result;
@@ -2927,12 +2963,32 @@
 				return store[key];
 			}
 
+			/**
+			 *  Remove given key from the store
+			 *  @name    remove
+			 *  @type    function
+			 *  @access  internal
+			 *  @param   string key
+			 *  @return  void
+			 */
 			function remove(key)
 			{
 				if (key in store)
 					delete store[key];
 			}
 
+			/**
+			 *  Find all delegates that match given arguments
+			 *  @name    find
+			 *  @type    function
+			 *  @access  internal
+			 *  @param   DOMElement target
+			 *  @param   string event namespace
+			 *  @param   string event name
+			 *  @param   string filter
+			 *  @param   function handler
+			 *  @return  Array matches
+			 */
 			function find(target, ns, type, filter, handler)
 			{
 				var wildcard = '.*?',
@@ -2955,6 +3011,18 @@
 			};
 
 
+			/**
+			 *  Find all delegates that match given arguments
+			 *  @name    find
+			 *  @type    method
+			 *  @access  public
+			 *  @param   DOMElement target
+			 *  @param   string event namespace
+			 *  @param   string event name
+			 *  @param   string filter
+			 *  @param   function handler
+			 *  @return  Array matches
+			 */
 			delegation.find = function(target, type, filter, handler)
 			{
 				var type = namespace(type),
@@ -2968,6 +3036,18 @@
 				return result;
 			};
 
+			/**
+			 *  Remove all delegates that match given arguments, and return all of the removed delegates
+			 *  @name    find
+			 *  @type    method
+			 *  @access  public
+			 *  @param   DOMElement target
+			 *  @param   string event namespace
+			 *  @param   string event name
+			 *  @param   string filter
+			 *  @param   function handler
+			 *  @return  Array matches
+			 */
 			delegation.remove = function(target, type, filter, handler)
 			{
 				var type = namespace(type),
@@ -2983,6 +3063,18 @@
 				return result;
 			};
 
+			/**
+			 *  Create a delegate function for the given combination of arguments, or return the previously created one
+			 *  @name    create
+			 *  @type    method
+			 *  @access  public
+			 *  @param   DOMElement target
+			 *  @param   string event
+			 *  @param   string filter
+			 *  @param   function handler
+			 *  @param   bool capture
+			 *  @return  object delegate ({target, namespace, type, filter, capture, delegate})
+			 */
 			delegation.create = function(target, type, filter, handler, capture)
 			{
 				var type = namespace(type);
@@ -3524,7 +3616,7 @@
 		 */
 		event.listen = function(targets, events, handler)
 		{
-//			deprecate('konflux.event.listen will be deprecated, use konflux.event.add instead(which is a drop-in replacement)');
+			deprecate('konflux.event.listen will be deprecated, use konflux.event.add instead(which is a drop-in replacement)');
 			return event.add(targets, events, handler);
 		};
 
@@ -3542,7 +3634,7 @@
 		 */
 		event.live = function(targets, events, filter, handler)
 		{
-//			deprecate('konflux.event.live will be deprecated, use konflux.event.add instead(which is a drop-in replacement)');
+			deprecate('konflux.event.live will be deprecated, use konflux.event.add instead(which is a drop-in replacement)');
 			return event.add(targets, events, filter, handler);
 		};
 
