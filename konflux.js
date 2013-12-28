@@ -211,6 +211,7 @@
 	{
 		var method = ['info', 'warn', 'log'],
 			i;
+
 		for (i = 0 ; i < method.length; ++i)
 			if (typeof console[method[i]] === 'function')
 			{
@@ -2846,11 +2847,11 @@
 
 		/**
 		 *  Delegate manager object, keep track of all delegates created for DOMElement/Event combinations
-		 *  @name    Delegation
+		 *  @name    kxEventDelegate
 		 *  @type    module
 		 *  @access  internal
 		 */
-		function Delegation(unifier)
+		function kxEventDelegate(unifier)
 		{
 			var delegation = this,
 				separator = '!',
@@ -3239,7 +3240,7 @@
 		function listen(targets, events, filter, handler, capture)
 		{
 			if (!delegate)
-				delegate = new Delegation(unifyEvent);
+				delegate = new kxEventDelegate(unifyEvent);
 
 			events = prepareEventIterator(events);
 			prepareTargetIterator(targets).each(function(){
@@ -3509,6 +3510,41 @@
 				arg = [targets, events, null, filter];
 
 			return remove.apply(event, arg);
+		};
+
+		/**
+		 *  Add event listeners to target
+		 *  @name    listen
+		 *  @type    method
+		 *  @access  public
+		 *  @param   DOMElement target
+		 *  @param   string event type
+		 *  @param   function handler
+		 *  @return  function delegate handler
+		 *  @alias   event.add
+		 */
+		event.listen = function(targets, events, handler)
+		{
+//			deprecate('konflux.event.listen will be deprecated, use konflux.event.add instead(which is a drop-in replacement)');
+			return event.add(targets, events, handler);
+		};
+
+		/**
+		 *  Listen for events on a parent element and only trigger it if the given selector applies
+		 *  @name    live
+		 *  @type    method
+		 *  @access  public
+		 *  @param   target element
+		 *  @param   string event type(s)
+		 *  @param   string filter
+		 *  @param   function handler
+		 *  @return  bool success
+		 *  @alias   event.add
+		 */
+		event.live = function(targets, events, filter, handler)
+		{
+//			deprecate('konflux.event.live will be deprecated, use konflux.event.add instead(which is a drop-in replacement)');
+			return event.add(targets, events, filter, handler);
 		};
 
 		/**
