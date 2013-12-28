@@ -2390,7 +2390,6 @@
 			var chars = '.\\+*?[^]$(){}=!<>|:-'.split(''),
 				pattern = new RegExp('[' + chars.concat(delimeter ? [delimeter] : []).join('\\') + ']', 'g');
 
-			console.log(chars, pattern, input.replace(pattern, '\\$&'));
 			return input.replace(pattern, '\\$&');
 		};
 	}
