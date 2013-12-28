@@ -1641,7 +1641,7 @@
 					current.push(classList[i]);
 			}
 
-            element.className = current.join(' ');
+			element.className = current.join(' ');
 			return element.className;
 		};
 
