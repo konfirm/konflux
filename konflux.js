@@ -2840,8 +2840,7 @@
 	{
 		/*jshint validthis: true*/
 		var event = this,
-			queue = {},//buffer('event.queue'),
-			cache = {},//buffer('event.cache'),
+			queue = buffer('event.queue'),
 			delegate, touch;
 
 
@@ -2855,7 +2854,7 @@
 		{
 			var delegation = this,
 				separator = '!',
-				store = {};
+				store = buffer('event.store');
 
 			function namespace(type)
 			{
