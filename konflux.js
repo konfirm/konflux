@@ -215,7 +215,7 @@
 		for (i = 0 ; i < method.length; ++i)
 			if (typeof console[method[i]] === 'function')
 			{
-				console[method[i]].apply(null, [elapsed() + ' DEPRECATED: ' + message]);
+				console[method[i]].call(elapsed() + ' DEPRECATED: ' + message);
 				break;
 			}
 	}
