@@ -2830,7 +2830,6 @@
 		dom.stackLevel = stackOrderIndex;
 	}
 
-
 	/**
 	 *  Event attachment handler
 	 *  @module  event
@@ -2840,37 +2839,351 @@
 	{
 		/*jshint validthis: true*/
 		var event = this,
-			queue = buffer('event.queue'),
-			touch = konflux.browser.supports('touch');
+			queue = {},//buffer('event.queue'),
+			cache = {},//buffer('event.cache'),
+			delegate, touch;
+
+
+		/**
+		 *  Delegate manager object, keep track of all delegates created for DOMElement/Event combinations
+		 *  @name    Delegation
+		 *  @type    module
+		 *  @access  internal
+		 */
+		function Delegation(unifier)
+		{
+			var delegation = this,
+				separator = '!',
+				store = {};
+
+			function namespace(type)
+			{
+				type = (type || '').split(/\./);
+				return {
+					name: type.shift() || '*',
+					namespace: type.shift() || '*'
+				};
+			}
+
+			function targetKey(target)
+			{
+				return konflux.dom.reference(target);
+			}
+
+			function strip(input)
+			{
+				return (input + '').replace(/\s+|\/\*.*?\*\//g, '');
+			}
+
+			function create(target, ns, type, filter, handler, capture)
+			{
+				var key = [
+						targetKey(target),
+						ns,
+						type,
+						filter ? strip(filter) : false,
+						capture || false,
+						strip(handler)
+					].join(separator);
+
+				//  if the key does not yet exist in the store, we create it
+				if (!(key in store))
+					store[key] = {
+						target: target,
+						namespace: ns,
+						type: type,
+						filter: filter,
+						capture: capture || false,
+						handle: strip(handler),
+						delegate: function(e){
+							var evt = e || window.event,
+								result;
+
+							if (filter)
+							{
+								konflux.select(filter, target).each(function(){
+									if (evt.target === this)
+									{
+										evt.delegate = target;
+										result = handler.apply(this, [unifier(evt)])
+									}
+								});
+							}
+							else
+							{
+								result = handler.apply(target, [unifier(evt)]);
+							}
+
+							if (result === false)
+							{
+								if (evt.stopPropagation)
+									evt.stopPropagation();
+								else if (evt.cancelBubble)
+									evt.cancelBubble = true;
+							}
+						}
+					};
+
+				return store[key];
+			}
+
+			function remove(key)
+			{
+				if (key in store)
+					delete store[key];
+			}
+
+			function find(target, ns, type, filter, handler)
+			{
+				var wildcard = '.*?',
+					pattern = new RegExp([
+						'^' + (target ? kx.string.escapeRegExp(targetKey(target)) : wildcard),
+						ns && ns !== '*' ? kx.string.escapeRegExp(ns) : wildcard,
+						type && type !== '*' ? kx.string.escapeRegExp(type) : wildcard,
+						filter ? kx.string.escapeRegExp(strip(filter)) : wildcard,
+						wildcard,
+						(handler ? kx.string.escapeRegExp(strip(handler)) : wildcard) + '$',
+					].join(separator)),
+					result = {},
+					p;
+
+				for (p in store)
+					if (pattern.test(p))
+						result[p] = store[p];
+
+				return result;
+			};
+
+
+			delegation.find = function(target, type, filter, handler)
+			{
+				var type = namespace(type),
+					finds = find(target, type.namespace, type.name, filter, handler),
+					result = [],
+					p;
+
+				for (p in finds)
+					result.push(finds[p]);
+
+				return result;
+			};
+
+			delegation.remove = function(target, type, filter, handler)
+			{
+				var type = namespace(type),
+					finds = find(target, type.namespace, type.name, filter, handler),
+					p;
+
+				for (p in finds)
+				{
+					result.push(finds[p]);
+					remove(p);
+				}
+
+				return result;
+			};
+
+			delegation.create = function(target, type, filter, handler, capture)
+			{
+				var type = namespace(type);
+
+				return create(target, type.namespace, type.name, filter, handler, capture || false);
+			};
+		}
+
+
+
 
 		/**
 		 *  Ready state handler, removes all relevant triggers and executes any handler that is set
-		 *  @name    ready
+		 *  @name    handleReadyState
 		 *  @type    function
 		 *  @access  internal
 		 *  @return  void
 		 */
-		function ready(e)
+		function handleReadyState(e)
 		{
 			var run = false,
 				p;
 
 			if (document.removeEventListener)
 			{
-				document.removeEventListener('DOMContentLoaded', ready, false);
-				window.removeEventListener('load', ready, false);
+				document.removeEventListener('DOMContentLoaded', handleReadyState, false);
+				window.removeEventListener('load', handleReadyState, false);
 				run = true;
 			}
 			else if (document.readyState === 'complete')
 			{
-				document.detachEvent('onreadystate', ready);
-				window.detachEvent('onload', ready);
+				document.detachEvent('onreadystate', handleReadyState);
+				window.detachEvent('onload', handleReadyState);
 				run = true;
 			}
 
 			if (run && queue.ready)
 				for (p in queue.ready)
 					queue.ready[p].call(e);
+		}
+
+		/**
+		 *  Get the proper event type for given event trigger
+		 *  @name    getEventType
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string name
+		 *  @return  string type
+		 */
+		function getEventType(name)
+		{
+			var list = '!afterprint!beforeprint!canplay!canplaythrough!change!domcontentloaded!durationchange!emptied!ended!input!invalid!loadeddata!loadedmetadata!offline!online!pause!play!playing!ratechange!readystatechange!reset!seeked!seeking!stalled!submit!suspend!timeupdate!volumechange!waiting!abort!domactivate!error!load!resize!scroll!select!unload!animationend!animationiteration!animationstart!beforeunload!blur!domfocusin!domfocusout!focus!focusin!focusout!click!contextmenu!dblclick!mousedown!mouseenter!mouseleave!mousemove!mouseout!mouseover!mouseup!show!compositionend!compositionstart!compositionupdate!copy!cut!paste!drag!dragend!dragenter!dragleave!dragover!dragstart!drop!hashchange!keydown!keypress!keyup!pagehide!pageshow!popstate!touchcancel!touchend!touchmove!touchstart!wheel!',
+				position = list.indexOf('!' + name.toLowerCase() + '!'),
+				result;
+
+			if (position < 0)
+				result = 'Custom'; //  Use a Custom event for anything we don't know
+
+			//  'afterprint'         (HTML5) The associated document has started printing or the print preview has been closed.
+			//  'beforeprint'        (HTML5) The associated document is about to be printed or previewed for printing.
+			//  'canplay'            (HTML5 media) The user agent can play the media, but estimates that not enough data has been loaded to play the media up to its end without having to stop for further buffering of content.
+			//  'canplaythrough'     (HTML5 media) The user agent can play the media, and estimates that enough data has been loaded to play the media up to its end without having to stop for further buffering of content.
+			//  'change'             (DOM L2, HTML5) An element loses focus and its value changed since gaining focus.
+			//  'DOMContentLoaded'   (HTML5) The document has finished loading (but not its dependent resources).
+			//  'durationchange'     (HTML5 media) The duration attribute has been updated.
+			//  'emptied'            (HTML5 media) The media has become empty; for example, this event is sent if the media has already been loaded (or partially loaded), and the load() method is called to reload it.
+			//  'ended'              (HTML5 media) Playback has stopped because the end of the media was reached.
+			//  'input'              (HTML5) The value of an element changes or the content of an element with the attribute contenteditable is modified.
+			//  'invalid'            (HTML5) A submittable element has been checked and doesn't satisfy its constraints.
+			//  'loadeddata'         (HTML5 media) The first frame of the media has finished loading.
+			//  'loadedmetadata'     (HTML5 media) The metadata has been loaded.
+			//  'offline'            (HTML5 offline) The browser has lost access to the network.
+			//  'online'             (HTML5 offline) The browser has gained access to the network (but particular websites might be unreachable).
+			//  'pause'              (HTML5 media) Playback has been paused.
+			//  'play'               (HTML5 media) Playback has begun.
+			//  'playing'            (HTML5 media) Playback is ready to start after having been paused or delayed due to lack of data.
+			//  'ratechange'         (HTML5 media) The playback rate has changed.
+			//  'readystatechange'   (HTML5 and XMLHttpRequest) The readyState attribute of a document has changed.
+			//  'reset'              (DOM L2, HTML5) A form is reset.
+			//  'seeked'             (HTML5 media) A seek operation completed.
+			//  'seeking'            (HTML5 media) A seek operation began.
+			//  'stalled'            (HTML5 media) The user agent is trying to fetch media data, but data is unexpectedly not forthcoming.
+			//  'submit'             (DOM L2, HTML5) A form is submitted.
+			//  'suspend'            (HTML5 media) Media data loading has been suspended.
+			//  'timeupdate'         (HTML5 media) The time indicated by the currentTime attribute has been updated.
+			//  'volumechange'       (HTML5 media) The volume has changed.
+			//  'waiting'            (HTML5 media) Playback has stopped because of a temporary lack of data.
+			else if (position < 277)
+				result = 'HTML';  //  HTMLEvent
+
+			//  'abort'              (DOM L3) The loading of a resource has been aborted.
+			//  'DOMActivate'        (DOM L3) A button, link or state changing element is activated (use click instead).
+			//  'error'              (DOM L3) A resource failed to load.
+			//  'load'               (DOM L3) A resource and its dependent resources have finished loading.
+			//  'resize'             (DOM L3) The document view has been resized.
+			//  'scroll'             (DOM L3) The document view or an element has been scrolled.
+			//  'select'             (DOM L3) Some text is being selected.
+			//  'unload'             (DOM L3) The document or a dependent resource is being unloaded.
+			else if (position < 334)
+				result = 'UI';  //  UIEvent
+
+			//  'animationend'       (CSS Animations) A CSS animation has completed.
+			//  'animationiteration' (CSS Animations) A CSS animation is repeated.
+			//  'animationstart'     (CSS Animations) A CSS animation has started.
+			else if (position < 381)
+				result = 'Animation';  //  AnimationEvent
+
+			//  'beforeunload'       (HTML5)
+			else if (position < 394)
+				result = 'BeforeUnload';  //  BeforeUnloadEvent
+
+			//  'blur'               (DOM L3) An element has lost focus (does not bubble).
+			//  'DOMFocusIn'         (DOM L3) An element has received focus (use focus or focusin instead).
+			//  'DOMFocusOut'        (DOM L3) An element has lost focus (use blur or focusout instead).
+			//  'focus'              (DOM L3) An element has received focus (does not bubble).
+			//  'focusin'            (DOM L3) An element is about to receive focus (bubbles).
+			//  'focusout'           (DOM L3) An element is about to lose focus (bubbles).
+			else if (position < 445)
+				result = 'Focus';  //  FocusEvent
+
+			//  'click'              (DOM L3) A pointing device button has been pressed and released on an element.
+			//  'contextmenu'        (HTML5) The right button of the mouse is clicked (before the context menu is displayed).
+			//  'dblclick'           (DOM L3) A pointing device button is clicked twice on an element.
+			//  'mousedown'          (DOM L3) A pointing device button (usually a mouse) is pressed on an element.
+			//  'mouseenter'         (DOM L3) A pointing device is moved onto the element that has the listener attached.
+			//  'mouseleave'         (DOM L3) A pointing device is moved off the element that has the listener attached.
+			//  'mousemove'          (DOM L3) A pointing device is moved over an element.
+			//  'mouseout'           (DOM L3) A pointing device is moved off the element that has the listener attached or off one of its children.
+			//  'mouseover'          (DOM L3) A pointing device is moved onto the element that has the listener attached or onto one of its children.
+			//  'mouseup'            (DOM L3) A pointing device button is released over an element.
+			//  'show'               (HTML5) A contextmenu event was fired on/bubbled to an element that has a contextmenu attribute
+			else if (position < 546)
+				result = 'Mouse';  //  MouseEvent
+
+			//  'compositionend'     (DOM L3) The composition of a passage of text has been completed or canceled.
+			//  'compositionstart'   (DOM L3) The composition of a passage of text is prepared (similar to keydown for a keyboard input, but works with other inputs such as speech recognition).
+			//  'compositionupdate'  (DOM L3) A character is added to a passage of text being composed.
+			else if (position < 596)
+				result = 'Composition';  //  CompositionEvent
+
+			//  'copy'               (Clipboard) The text selection has been added to the clipboard.
+			//  'cut'                (Clipboard) The text selection has been removed from the document and added to the clipboard.
+			//  'paste'              (Clipboard) Data has been transfered from the system clipboard to the document.
+			else if (position < 611)
+				result = 'Clipboard';  //  ClipboardEvent
+
+			//  'drag'               (HTML5) An element or text selection is being dragged (every 350ms).
+			//  'dragend'            (HTML5) A drag operation is being ended (by releasing a mouse button or hitting the escape key).
+			//  'dragenter'          (HTML5) A dragged element or text selection enters a valid drop target.
+			//  'dragleave'          (HTML5) A dragged element or text selection enters a valid drop target.
+			//  'dragover'           (HTML5) An element or text selection is being dragged over a valid drop target (every 350ms).
+			//  'dragstart'          (HTML5) The user starts dragging an element or text selection.
+			//  'drop'               (HTML5) An element is dropped on a valid drop target.
+			else if (position < 668)
+				result = 'Drag';  //  DragEvent
+
+			//  'hashchange'         (HTML5) The fragment identifier of the URL has changed (the part of the URL after the #).
+			else if (position < 679)
+				result = 'HashChange';  //  HashChangeEvent
+
+			//  'keydown'            (DOM L3) A key is pressed down.
+			//  'keypress'           (DOM L3) A key is pressed down and that key normally produces a character value (use input instead).
+			//  'keyup'              (DOM L3) A key is released.
+			else if (position < 702)
+				result = 'Keyboard';  //  KeyboardEvent
+
+			//  'pagehide'           (HTML5) A session history entry is being traversed from.
+			//  'pageshow'           (HTML5) A session history entry is being traversed to.
+			else if (position < 720)
+				result = 'PageTransition';  //  PageTransitionEvent
+
+			//  'popstate'           (HTML5) A session history entry is being navigated to (in certain cases).
+			else if (position < 729)
+				result = 'PopState';  //  PopStateEvent
+
+			//  'touchcancel'        (Touch Events) A touch point has been disrupted in an implementation-specific manners (too many touch points for example).
+			//  'touchend'           (Touch Events) A touch point is removed from the touch surface.
+			//  'touchmove'          (Touch Events) A touch point is moved along the touch surface.
+			//  'touchstart'         (Touch Events) A touch point is placed on the touch surface.
+			else if (position < 771)
+				result = 'Touch';  //  TouchEvent
+
+			//  'wheel'              (DOM L3) A wheel button of a pointing device is rotated in any direction.
+			else if (position < 777)
+				result = 'Wheel';  //  WheelEvent
+
+			return result + 'Event';
+		}
+
+		/**
+		 *  Get a property name unique per event type/dom element
+		 *  @name    getEventProperty
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   DOMElement target
+		 *  @param   string     type
+		 *  @return  string name
+		 */
+		function getEventProperty(target, type)
+		{
+			return '__kxEvent_' + name + '_' + konflux.dom.reference(target);
 		}
 
 		/**
@@ -2883,10 +3196,13 @@
 		function unifyEvent(e)
 		{
 			var evt = e || window.event;
-			if (typeof evt.target === undef)
-				evt.target = typeof evt.srcElement !== undef ? evt.srcElement : null;
 
-			if (/^mouse[a-z]+|drag[a-z]+|drop|click$/i.test(evt.type))
+			if (typeof evt.target === 'undefined')
+				evt.target = typeof evt.srcElement !== 'undefined' ? evt.srcElement : null;
+
+			evt.family = getEventType(e.type || e.eventType);
+
+			if (/^(mouse[a-z]+|drag(?:[a-z]+)?|drop|(?:dbl)?click)$/i.test(evt.type))
 			{
 				evt.mouse = konflux.point(
 					evt.pageX ? evt.pageX : (evt.clientX ? evt.clientX + document.body.scrollLeft + document.documentElement.scrollLeft : 0),
@@ -2896,7 +3212,319 @@
 			return evt;
 		}
 
-		//  expose
+		function prepareTargetIterator(targets)
+		{
+			if (!targets)
+				targets = [];
+
+			if (typeof targets === 'string')
+				targets = document.querySelectorAll(targets);
+
+			if (typeof targets.length !== 'number')
+				targets = [targets];
+
+			return konflux.iterator(targets);
+		}
+
+		function prepareEventIterator(events)
+		{
+			if (typeof events === 'string')
+				events = events.replace(/\*/g, '').split(/[\s*,]+/);
+			else if (!events)
+				events = [];
+
+			return konflux.iterator(events);
+		}
+
+		function listen(targets, events, filter, handler, capture)
+		{
+			if (!delegate)
+				delegate = new Delegation(unifyEvent);
+
+			events = prepareEventIterator(events);
+			prepareTargetIterator(targets).each(function(){
+				var target = this;
+
+				events.each(function(){
+					var setting = delegate.create(target, this, filter, handler, capture || filter ? true : false);
+
+					attach(setting.target, setting.type, setting.delegate, setting.capture);
+				});
+			});
+		}
+
+		function remove(targets, events, filter, handler)
+		{
+			var result = [],
+				i;
+
+			if (delegate)
+			{
+				if (!targets)
+				{
+					result = result.concat(delegate.find(null, null, null, handler));
+				}
+				else
+				{
+					prepareTargetIterator(targets).each(function(){
+						if (!events)
+						{
+							result = result.concat(delegate.find(this, null, null, handler));
+						}
+						else
+						{
+							var target = this;
+
+							prepareEventIterator(events).each(function(){
+								result = result.concat(delegate.find(target, this, filter, handler));
+							});
+						}
+					});
+				}
+
+				if (result.length > 0)
+				{
+					for (i = 0; i < result.length; ++i)
+						detach(result[i].target, result[i].type, result[i].delegate, result[i].capture);
+
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		function attach(target, type, handler, capture)
+		{
+			if (target.addEventListener)
+			{
+				target.addEventListener(type, handler, capture);
+			}
+			else if (target.attachEvent)
+			{
+				if (capture && 'setCapture' in target)
+					target.setCapture(true);
+
+				switch (getEventType(type))
+				{
+					case 'CustomEvent':
+						i = getEventProperty(target, type);
+						if (!(i in target))
+							Object.defineProperty(target, i, {
+								configurable: true, //  allow us to meddle with the defined property later on (e.g. remove it)
+								enumerable: false,  //  prevent this property from showing up in a for .. in loop
+								get: function(){
+									return type;
+								},
+								set: function(callback){
+									var name = 'on' + type,
+										i;
+
+									if (!(name in this))
+										this[name] = [];
+
+									if (typeof callback === 'function')
+									{
+										this[name].push(callback);
+										return;
+									}
+
+									callback.returnValue = true;
+									callback.srcElement  = this;
+
+									for (i = 0; i < this[name].length; ++i)
+									{
+										this[name][i].apply(this, [callback]);
+										if (!callback.returnValue)
+											break;
+									}
+								}
+							});
+						break;
+
+					default:
+						target.attachEvent('on' + type, handler);
+						break;
+				}
+			}
+		}
+
+		function detach(target, type, handler, capture)
+		{
+			if (target.removeEventListener)
+			{
+				target.removeEventListener(type, handler, capture);
+			}
+			else if (target.attachEvent)
+			{
+				switch (getEventType(type))
+				{
+					case 'CustomEvent':
+						delete target[getEventProperty(target, type)];
+						break;
+
+					default:
+						target.detachEvent('on' + type, handler);
+						break;
+				}
+			}
+		}
+
+
+		//  Custom events
+
+		/**
+		 *  Create an event object and fire it for any given target
+		 *  @name    dispatch
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   mixed  target [one of: string CSSSelector, DOMElement, DOMNodeList, Array DOMElement, kxIterator DOMElement]
+		 *  @param   string type
+		 *  @param   object options
+		 *  @return  void
+		 */
+		function dispatch(targets, name, option)
+		{
+			var type = getEventType(name) || 'CustomEvent',
+				support = kx.browser.feature(type),
+				trigger = false,
+				hit = 0,
+				p;
+
+			option = option || {};
+
+			if (support)
+			{
+				trigger = new support(name, {
+					detail: option,
+					cancelable: true
+				});
+			}
+			else if ('createEvent' in document)
+			{
+				trigger = document.createEvent(type);
+				trigger.initEvent(name, false, true);
+				trigger.detail = option;
+			}
+			else if ('createEventObject' in document)
+			{
+				trigger = document.createEventObject();
+				trigger.eventType = name;
+				trigger.detail    = option;
+			}
+
+
+			if (trigger)
+			{
+				prepareTargetIterator(targets).each(function(){
+					if ('dispatchEvent' in this)
+					{
+						this.dispatchEvent(trigger);
+					}
+					else if ('fireEvent' in this)
+					{
+						if (type === 'CustomEvent')
+						{
+							p = getEventProperty(this, name);
+							//  simply set the event property as we've already set up an setter function on it
+							if (typeof this[p] !== 'undefined')
+								this[p] = trigger;
+						}
+						else
+						{
+							this.fireEvent('on' + name, trigger);
+						}
+					}
+
+				});
+
+				return true;
+			}
+
+			return false;
+		}
+
+
+
+		//  expose public API
+
+
+		/*
+		 *  Attach event handler(s) to elements
+		 *  @name    add
+		 *  @type    method
+		 *  @access  public
+		 *  @param   mixed target [one of: string CSSSelector, DOMElement, DOMNodeList, Array DOMElement, kxIterator DOMElement]
+		 *  @param   mixed event [one of: string events, Array events, kxIterator events]
+		 *  @param   mixed [one of: function handler or string CSSSelector]
+		 *  @param   mixed [one of: function handler or bool capture]
+		 *  @param   mixed [one of: bool capture or null]
+		 *
+		 *  @note    event.add(target, event, handler [,capture]) - add event handler(s) to target(s)
+		 *  @note    event.add(target, event, filter, handler [,capture]) - add event handler(s) to a selection of elements in target(s) matching given filter
+		 */
+		event.add = function(targets, events, filter, handler, capture)
+		{
+			return listen.apply(event, [targets, events].concat(
+				typeof filter === 'function' ? [null, filter, handler] : [filter, handler, capture]
+			));
+		};
+
+		/*
+		 *  Remove event handlers from elements
+		 *  @name    remove
+		 *  @type    method
+		 *  @access  public
+		 *  @param   mixed [one of: string CSSSelector, DOMElement, DOMNodeList, Array DOMElement, kxIterator DOMElement, function handler]
+		 *  @param   mixed [one of: string events, Array events, kxIterator events, function handler, null]
+		 *  @param   mixed [one of: string CSSSelector, function handler, null]
+		 *  @param   mixed [one of: function handler, null]
+		 *  @return  void
+		 *
+		 *  @note    event.remove(target)  - remove all event handling from given target(s)
+		 *  @note    event.remove(handler) - remove any event handling using given handler from any target
+		 *  @note    event.remove(target, event)   - remove given event(s) from given target(s)
+		 *  @note    event.remove(target, handler) - remove any event handling using given handler from given target(s)
+		 *  @note    event.remove(target, event, filter)  - remove given event(s) using given selector from given target(s)
+		 *  @note    event.remove(target, event, handler) - remove given event(s) using given handler from given target(s)
+		 *  @note    event.remove(target, event, filter, handler) - remove given event(s) matching given filter using given handler from given target(s)
+		 */
+		event.remove = function(targets, events, filter, handler)
+		{
+			var arg = [targets, events, filter, handler];
+
+			//  if the first argument is a function, we assume it is a handler
+			//  and remove the events using it from all elements
+			if (typeof targets === 'function')
+				arg = [null, null, null, targets];
+
+			//  if the second argument is a function, we assume the first argument
+			//  to be the target(s) and remove all events using this handler from
+			//  given target(s)
+			else if (typeof events === 'function')
+				arg = [targets, null, null, events];
+
+			//  if the third argument is a function, we know it is not a filter
+			else if (typeof filter === 'function')
+				arg = [targets, events, null, filter];
+
+			return remove.apply(event, arg);
+		};
+
+		/**
+		 *  Trigger a custom event
+		 *  @name    trigger
+		 *  @type    method
+		 *  @access  public
+		 *  @param   DOMElement target
+		 *  @param   string     name
+		 *  @return  void
+		 */
+		event.trigger = function(target, name, option)
+		{
+			return dispatch(target, name, option);
+		};
+
 		/**
 		 *  Is the browser capable of touch events
 		 *  @name    hasTouch
@@ -2906,16 +3534,18 @@
 		 */
 		event.hasTouch = function()
 		{
+			if (typeof touch !== 'boolean')
+				touch = konflux.browser.supports('touch');
 			return touch;
 		};
 
 		/**
-		 *  A custom DOMReady handler
+		 *  Register handlers which get triggered when the DOM is ready for interactions
 		 *  @name    ready
 		 *  @type    method
 		 *  @access  public
 		 *  @param   function handler
-		 *  @return  bool     is ready
+		 *  @return  void
 		 */
 		event.ready = function(handler)
 		{
@@ -2927,85 +3557,29 @@
 			}
 
 			//  we cannot use the event.listen method, as we need very different event listeners
-			if (typeof queue.ready === undef)
+			if (typeof queue.ready === 'undefined')
 			{
 				queue.ready = [];
 				if (document.addEventListener)
 				{
 					//  prefer the 'DOM ready' event
-					document.addEventListener('DOMContentLoaded', ready, false);
+					document.addEventListener('DOMContentLoaded', handleReadyState, false);
 					//  failsafe to window.onload
-					window.addEventListener('load', ready, false);
+					window.addEventListener('load', handleReadyState, false);
 				}
 				else
 				{
 					//  the closest we can get to 'DOMContentLoaded' in IE, this is still prior to onload
-					document.attachEvent('onreadystatechange', ready);
+					document.attachEvent('onreadystatechange', handleReadyState);
 					//  again the failsafe, now IE style
-					window.attachEvent('onload', ready);
+					window.attachEvent('onload', handleReadyState);
 				}
 			}
 
+			queue.ready.push(handler);
 			return false;
 		};
-
-		/**
-		 *  Add event listeners to target
-		 *  @name    listen
-		 *  @type    method
-		 *  @access  public
-		 *  @param   DOMElement target
-		 *  @param   string event type
-		 *  @param   function handler
-		 *  @return  function delegate handler
-		 */
-		event.listen = function(target, type, handler)
-		{
-			var delegate = function(e){
-					handler.apply(target, [unifyEvent(e)]);
-				},
-				list = typeof type === 'string' ? type.split(',') : type,
-				i;
-
-			for (i = 0; i < list.length; ++i)
-			{
-				if (target.addEventListener)
-					target.addEventListener(list[i], delegate, false);
-				else if (target.attachEvent)
-					target.attachEvent('on' + list[i], delegate);
-				else
-					target['on' + list[i]] = delegate;
-			}
-
-			return delegate;
-		};
-
-		/**
-		 *  Listen for events on a parent element and only trigger it if the given selector applies
-		 *  @name    live
-		 *  @type    method
-		 *  @access  public
-		 *  @param   target element
-		 *  @param   string event type(s)
-		 *  @param   string selector
-		 *  @param   function handler
-		 *  @return  bool success
-		 */
-		event.live = function(target, type, selector, handler)
-		{
-			var delegate = function(e){
-				/*jshint validthis: true*/
-				var list = this.querySelectorAll(selector),
-					i;
-
-				for (i = 0; i < list.length; ++i)
-					if (konflux.dom.contains(list[i], e.target))
-						handler.apply(list[i], [unifyEvent(e)]);
-			};
-			return event.listen(target, type, delegate);
-		};
 	}
-
 
 	/**
 	 *  Timing utils
