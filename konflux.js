@@ -490,7 +490,7 @@
 			}
 			catch (e)
 			{
-				return iterator[name] = collection[name];
+				return (iterator[name] = collection[name]);
 			}
 		}
 
@@ -755,7 +755,7 @@
 			//  Added IE's @cc_on trickery for browser which do not support conditional comments (such as IE10)
 			version = version > 4 ? version : /*jshint evil: true */Function('/*@cc_on return document.documentMode;@*/return false')()/*jshint evil: false */;
 			//  IE11 removed the @cc_on syntax, so we need to go deeper
-			return version ? version : ('-ms-ime-align' in document.documentElement.style ? 11 : false)
+			return version ? version : ('-ms-ime-align' in document.documentElement.style ? 11 : false);
 		}
 
 		/**
@@ -2003,8 +2003,7 @@
 		 */
 		number.format = function(input, precision, point, separator)
 		{
-			var multiplier = precision ? Math.pow(10, precision) : 0,
-				i;
+			var multiplier = precision ? Math.pow(10, precision) : 0;
 
 			//  check whether default values need to be assigned
 			point     = type(point) !== undef ? point : '.';
@@ -2170,7 +2169,7 @@
 			else if (end)
 				for (i = source.length; i > 0; output.unshift(source.substr(i -= Math.min(source.length, size))), source = source.substring(0, i));
 			else
-				while (source.length > 0, output.push(source.substring(0, size)), source = source.substr(size));
+				while (source.length > 0, output.push(source.substring(0, size)), (source = source.substr(size)));
 
 			return output;
 		}
@@ -2503,7 +2502,7 @@
 					}
 					catch(e)
 					{
-						for (result = [], len = obj.length, i = 0; i < len; ++i)
+						for (result = [], len = mixed.length, i = 0; i < len; ++i)
 							result.push(mixed[i]);
 					}
 					break;
@@ -2699,8 +2698,7 @@
 
 				case 'boolean':
 					struct = struct ? 'true' : 'false';
-					//  no break, fall through;
-
+					/* falls through */
 				default:
 					element = document.createTextNode(struct);
 					break;
@@ -2732,7 +2730,6 @@
 				display = konflux.style.get(node, 'display'),
 				floatValue = konflux.style.get(node, 'float'),
 				context = (position !== 'static' && zIndex !== 'auto') || opacity < 1,
-				hidden = /^(?:none)$/.test(display),
 				//  https://developer.mozilla.org/en-US/docs/Web/CSS/display
 				blockType = /^(?:(?:inline\-)?block|list\-item|table(?:\-(?:cell|caption|column|row))?|table\-(?:column|footer|header|row)\-group|flex|grid)$/.test(display),
 				type = parseInt([
@@ -2844,7 +2841,6 @@
 		/*jshint validthis: true*/
 		var event = this,
 			queue = {},//buffer('event.queue'),
-			cache = {},//buffer('event.cache'),
 			delegate, touch;
 
 
@@ -2909,7 +2905,7 @@
 									if (evt.target === this)
 									{
 										evt.delegate = target;
-										result = handler.apply(this, [unifier(evt)])
+										result = handler.apply(this, [unifier(evt)]);
 									}
 								});
 							}
@@ -2941,12 +2937,12 @@
 			{
 				var wildcard = '.*?',
 					pattern = new RegExp([
-						'^' + (target ? kx.string.escapeRegExp(targetKey(target)) : wildcard),
-						ns && ns !== '*' ? kx.string.escapeRegExp(ns) : wildcard,
-						type && type !== '*' ? kx.string.escapeRegExp(type) : wildcard,
-						filter ? kx.string.escapeRegExp(strip(filter)) : wildcard,
+						'^' + (target ? konflux.string.escapeRegExp(targetKey(target)) : wildcard),
+						ns && ns !== '*' ? konflux.string.escapeRegExp(ns) : wildcard,
+						type && type !== '*' ? konflux.string.escapeRegExp(type) : wildcard,
+						filter ? konflux.string.escapeRegExp(strip(filter)) : wildcard,
 						wildcard,
-						(handler ? kx.string.escapeRegExp(strip(handler)) : wildcard) + '$',
+						(handler ? konflux.string.escapeRegExp(strip(handler)) : wildcard) + '$',
 					].join(separator)),
 					result = {},
 					p;
@@ -2956,12 +2952,12 @@
 						result[p] = store[p];
 
 				return result;
-			};
+			}
 
 
-			delegation.find = function(target, type, filter, handler)
+			delegation.find = function(target, name, filter, handler)
 			{
-				var type = namespace(type),
+				var type = namespace(name),
 					finds = find(target, type.namespace, type.name, filter, handler),
 					result = [],
 					p;
@@ -2972,10 +2968,11 @@
 				return result;
 			};
 
-			delegation.remove = function(target, type, filter, handler)
+			delegation.remove = function(target, name, filter, handler)
 			{
-				var type = namespace(type),
+				var type = namespace(name),
 					finds = find(target, type.namespace, type.name, filter, handler),
+					result = [],
 					p;
 
 				for (p in finds)
@@ -2987,9 +2984,9 @@
 				return result;
 			};
 
-			delegation.create = function(target, type, filter, handler, capture)
+			delegation.create = function(target, name, filter, handler, capture)
 			{
-				var type = namespace(type);
+				var type = namespace(name);
 
 				return create(target, type.namespace, type.name, filter, handler, capture || false);
 			};
@@ -3187,7 +3184,7 @@
 		 */
 		function getEventProperty(target, type)
 		{
-			return '__kxEvent_' + name + '_' + konflux.dom.reference(target);
+			return '__kxEvent_' + type + '_' + konflux.dom.reference(target);
 		}
 
 		/**
@@ -3300,6 +3297,8 @@
 
 		function attach(target, type, handler, capture)
 		{
+			var prop;
+
 			if (target.addEventListener)
 			{
 				target.addEventListener(type, handler, capture);
@@ -3312,9 +3311,9 @@
 				switch (getEventType(type))
 				{
 					case 'CustomEvent':
-						i = getEventProperty(target, type);
-						if (!(i in target))
-							Object.defineProperty(target, i, {
+						prop = getEventProperty(target, type);
+						if (!(prop in target))
+							Object.defineProperty(target, prop, {
 								configurable: true, //  allow us to meddle with the defined property later on (e.g. remove it)
 								enumerable: false,  //  prevent this property from showing up in a for .. in loop
 								get: function(){
@@ -3390,9 +3389,8 @@
 		function dispatch(targets, name, option)
 		{
 			var type = getEventType(name) || 'CustomEvent',
-				support = kx.browser.feature(type),
+				support = konflux.browser.feature(type),
 				trigger = false,
-				hit = 0,
 				p;
 
 			option = option || {};
@@ -4092,7 +4090,7 @@
 							konflux.style.removeClass(stack[p].element, stack[p].current);
 
 						if (!empty(className))
-							kx.style.addClass(stack[p].element, className);
+							konflux.style.addClass(stack[p].element, className);
 
 						stack[p].current = className;
 						konflux.observer.notify('breakpoint.change', stack[p].current, stack[p].element);
@@ -4181,11 +4179,6 @@
 			timeout = setTimeout(function(){
 				monitor();
 			}, 5);
-		}
-
-		function remove()
-		{
-			var test;
 		}
 
 		/**
@@ -4857,7 +4850,7 @@
 		 */
 		ls.size = function()
 		{
-			return unescape(encodeURIComponent(JSON.stringify(localStorage))).length;
+			return decodeURI(encodeURIComponent(JSON.stringify(localStorage))).length;
 		};
 	}
 
