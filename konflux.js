@@ -2868,10 +2868,11 @@
 			 */
 			function namespace(type)
 			{
-				type = (type || '').split(/\./);
+				var match = type.match(/^(.*?)?(?:\.(.*))$/);
+
 				return {
-					name: type.shift() || '*',
-					namespace: type.shift() || '*'
+					name: match[1] || '*',
+					namespace: match[2] || '*'
 				};
 			}
 
@@ -2939,6 +2940,9 @@
 
 							if (filter)
 							{
+								if (!('target' in evt) && 'srcElement' in evt)
+									evt.target = evt.srcElement;
+
 								konflux.select(filter, target).each(function(){
 									if (evt.target === this)
 									{
@@ -3000,7 +3004,7 @@
 						type && type !== '*' ? kx.string.escapeRegExp(type) : wildcard,
 						filter ? kx.string.escapeRegExp(strip(filter)) : wildcard,
 						wildcard,
-						(handler ? kx.string.escapeRegExp(strip(handler)) : wildcard) + '$',
+						(handler ? kx.string.escapeRegExp(strip(handler)) : wildcard) + '$'
 					].join(separator)),
 					result = {},
 					p;
@@ -3437,10 +3441,8 @@
 						break;
 
 					default:
-/*
-						if (capture && 'setCapture' in target)
-							target.setCapture(true);
-*/
+						//  we deliberately ignore the 'capturing', as this will actually route any (such) event through
+						//  the capture target in IE8 (which is the only browser using attachEvent
 						target.attachEvent('on' + type, handler);
 						break;
 				}
@@ -3453,7 +3455,7 @@
 			{
 				target.removeEventListener(type, handler, capture);
 			}
-			else if (target.attachEvent)
+			else if (target.detachEvent)
 			{
 				switch (getEventType(type))
 				{
@@ -3491,7 +3493,8 @@
 
 			option = option || {};
 
-			if (support && !konflux.browser.ie())
+			//  IE11 actually has the CustomEvent (and the likes), but one cannot construct them
+			if (support && !konflux.browser.ie(11))
 			{
 				trigger = new support(name, {
 					detail: option,
