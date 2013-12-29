@@ -847,15 +847,16 @@
 		 *  @name    ie
 		 *  @type    method
 		 *  @access  public
-		 *  @return  mixed (boolean false if not IE, version number if IE)
+		 *  @param   number min version [optional, default null - obtain the version number]
+		 *  @return  mixed (boolean false if not IE (or not minimal version), version number if IE)
 		 *  @see     detectIE
 		 *  @note    this public implementation caches the result
 		 */
-		browser.ie = function()
+		browser.ie = function(min)
 		{
 			if (typeof ieVersion === undef)
 				ieVersion = detectIE();
-			return ieVersion;
+			return min ? ieVersion < min : ieVersion;
 		};
 		/**
 		 *  Obtain the vendor prefix for the current browser
