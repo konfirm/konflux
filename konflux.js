@@ -387,7 +387,7 @@
 		 *  @param  number x position
 		 *  @param  number y position
 		 *  @return kxPoint point
-		 *  @note   As of konflux version 0.3.2 the points are created without the new keyword
+		 *  @note   As of konflux version > 0.3.1 the points are created without the new keyword
 		 *          ('new konflux.point(X, Y)' can now be 'konflux.point(X, Y)')
 		 */
 		kx.point = function(x, y)
@@ -1026,7 +1026,7 @@
 				type  = 'type' in config ? config.type.toUpperCase() : 'GET',
 				data  = 'data' in config ? prepareData(config.data) : '',
 				async = 'async' in config ? config.async : true,
-				headers = 'header' in config ? combine(config.header, getHeader()) : false,
+				headers = 'header' in config ? combine(config.header, getHeader()) : getHeader(),
 				xhr   = getXMLHTTPRequest(),
 				p;
 
