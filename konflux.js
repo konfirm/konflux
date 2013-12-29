@@ -3396,9 +3396,6 @@
 			}
 			else if (target.attachEvent)
 			{
-				if (capture && 'setCapture' in target)
-					target.setCapture(true);
-
 				switch (getEventType(type))
 				{
 					case 'CustomEvent':
@@ -3434,9 +3431,16 @@
 									}
 								}
 							});
+
+						//  assign the event handler
+						target[i] = handler;
 						break;
 
 					default:
+/*
+						if (capture && 'setCapture' in target)
+							target.setCapture(true);
+*/
 						target.attachEvent('on' + type, handler);
 						break;
 				}
