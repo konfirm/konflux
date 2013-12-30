@@ -15,6 +15,7 @@
 		document = window.document,
 		navigator = window.navigator,
 		undef = 'undefined',
+
 		//  Private properties
 		_buffer  = {}, //  singleton-like container, providing 'static' objects
 		_count = 0,    //  internal counter, used to create unique values
@@ -33,7 +34,7 @@
 	 */
 	function buffer(key)
 	{
-		if (typeof _buffer[key] === undef)
+		if (isType(undef, _buffer[key]))
 			_buffer[key] = {};
 		return _buffer[key];
 	}
@@ -66,9 +67,9 @@
 			i, p;
 
 		for (i = 0; i < arguments.length; ++i)
-			if (typeof arguments[i] === 'object')
+			if (isType('object', arguments[i]))
 				for (p in arguments[i])
-					obj[p] = p in obj && typeof obj[p] === 'object' ? combine(arguments[i][p], obj[p]) : arguments[i][p];
+					obj[p] = p in obj && isType('object', obj[p]) ? combine(arguments[i][p], obj[p]) : arguments[i][p];
 
 		return obj;
 	}
@@ -165,10 +166,11 @@
 				'boolean': function(b){return b;},
 				'number':  function(n){return n !== 0;},
 				'string':  function(s){return !/^0?$/.test(s);}
-			};
+			},
+			t = type(p);
 
-		if (typeof types[typeof p] === 'function' && types[typeof p](p))
-				return false;
+		if (isType('function', types[t]) && types[t](p))
+			return false;
 		return true;
 	}
 
@@ -183,6 +185,20 @@
 	function type(variable)
 	{
 		return variable instanceof Array ? 'array' : typeof variable;
+	}
+
+	/**
+	 *  Test the type of given variable
+	 *  @name    isType
+	 *  @type    function
+	 *  @access  internal
+	 *  @param   string type
+	 *  @param   mixed  variable
+	 *  @return  bool   istype
+	 */
+	function isType(t, variable)
+	{
+		return type(variable).substr(0, t.length) === t;
 	}
 
 	/**
@@ -213,7 +229,7 @@
 			i;
 
 		for (i = 0 ; i < method.length; ++i)
-			if (typeof console[method[i]] === 'function')
+			if (isType('function', console[method[i]]))
 			{
 				console[method[i]](elapsed() + ' DEPRECATED: ' + message);
 				break;
@@ -331,6 +347,17 @@
 
 			return result;
 		};
+
+		/**
+		 *  Test the type of given variable
+		 *  @name    isType
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string type
+		 *  @param   mixed  variable
+		 *  @return  bool   istype
+		 */
+		kx.isType = isType;
 
 		/**
 		 *  Convenience function bridging the event.ready method
@@ -462,7 +489,7 @@
 		 */
 		function relay(member)
 		{
-			if (typeof collection[member] === 'function')
+			if (isType('function', collection[member]))
 				return function(){
 					return collection[member].apply(collection, konflux.array.cast(arguments));
 				};
@@ -591,7 +618,7 @@
 		 */
 		iterator.item = function(index)
 		{
-			if ('item' in collection && typeof collection.item === 'function')
+			if ('item' in collection && isType('object', data))
 				return collection.item(index);
 
 			return ('length' in collection && (index >= 0 || index < collection.length)) || index in collection ? collection[index] : null;
@@ -639,7 +666,7 @@
 		 */
 		iterator.previous = function()
 		{
-			current = Math.max(typeof current !== undef ? current - 1 : 0, -1);
+			current = Math.max(!isType(undef, current) ? current - 1 : 0, -1);
 			return iterator.current();
 		};
 
@@ -662,7 +689,7 @@
 		 */
 		iterator.next = function()
 		{
-			current = Math.min(typeof current !== undef ? current + 1 : 0, keys.length);
+			current = Math.min(!isType(undef, current) ? current + 1 : 0, keys.length);
 			return iterator.current();
 		};
 
@@ -770,7 +797,7 @@
 		 */
 		function hasFeature(feature)
 		{
-			return typeof support[feature] !== undef ? support[feature] : hasProperty(window, feature) || hasProperty(document, feature);
+			return !isType(undef, support[feature]) ? support[feature] : hasProperty(window, feature) || hasProperty(document, feature);
 		}
 
 		/**
@@ -856,7 +883,7 @@
 		 */
 		browser.ie = function(min)
 		{
-			if (typeof ieVersion === undef)
+			if (isType(undef, ieVersion))
 				ieVersion = detectIE();
 			return min ? ieVersion < min : ieVersion;
 		};
@@ -985,7 +1012,7 @@
 			 */
 			formdata.append = function(key, value)
 			{
-				if (typeof value !== 'object')
+				if (!isType('object', value))
 					data[key] = value;
 			};
 
@@ -1104,11 +1131,11 @@
 					konflux.observer.notify('konflux.ajax.' + type.toLowerCase() + '.' + state, xhr, config);
 			};
 
-			if ('progress' in config && typeof config.progress === 'function')
+			if ('progress' in config && isType('function', config.progress))
 				konflux.event.add(xhr.upload, 'progress', config.progress);
-			if ('error' in config && typeof config.error === 'function')
+			if ('error' in config && isType('function', config.error))
 				konflux.event.add(xhr, 'error', config.error);
-			if ('abort' in config && typeof config.abort === 'function')
+			if ('abort' in config && isType('function', config.abort))
 				konflux.event.add(xhr, 'abort', config.abort);
 
 			xhr.open(type, url, async);
@@ -1161,17 +1188,17 @@
 		 */
 		function prepareData(data, name, formData)
 		{
-			var r = formData || (typeof FormData !== undef ? new FormData() : new kxFormData()),
+			var r = formData || (!isType(undef, FormData) ? new FormData() : new kxFormData()),
 				p;
 
-			if (typeof File !== undef && data instanceof File)
+			if (!isType(undef, File) && data instanceof File)
 				r.append(name, data, data.name);
-			else if (typeof Blob !== undef && data instanceof Blob)
+			else if (!isType(undef, Blob) && data instanceof Blob)
 				r.append(name, data, 'blob');
-			else if (data instanceof Array || (typeof FileList !== undef && data instanceof FileList))
+			else if (data instanceof Array || (!isType(undef, FileList) && data instanceof FileList))
 				for (p = 0; p < data.length; ++p)
 					prepareData(data[p], (name || '') + '[' + p + ']', r);
-			else if (typeof data === 'object')
+			else if (isType('object', data))
 				for (p in data)
 					prepareData(data[p], name ? name + '[' + encodeURIComponent(p) + ']' : encodeURIComponent(p), r);
 			else
@@ -1191,7 +1218,7 @@
 		function requestType(type)
 		{
 			var handler = function(config){
-				switch (typeof config)
+				switch (type(config))
 				{
 					case 'object':
 						config.type = type;
@@ -1313,7 +1340,7 @@
 
 			if (result.query)
 				result.query.replace(/(?:^|&)([^&=]*)=?([^&]*)/g, function(a, b, c){
-					if (typeof result.query !== 'object')
+					if (!isType('object', result.query))
 						result.query = {};
 					if (b)
 						result.query[b] = c;
@@ -1327,7 +1354,7 @@
 		 *  @type    object
 		 *  @access  public
 		 */
-		url.current = typeof window.location.href !== undef ? parse(window.location.href) : false;
+		url.current = !isType(undef, window.location.href) ? parse(window.location.href) : false;
 
 		/**
 		 *  Parse given URL into its URI components
@@ -1755,10 +1782,10 @@
 		 */
 		style.sheet = function(target, editable)
 		{
-			var list = getStylesheet(typeof target === 'string' ? target : null, editable === false ? true : false),
+			var list = getStylesheet(isType('string', target) ? target : null, editable === false ? true : false),
 				i;
 
-			if (typeof target.nodeName !== undef)
+			if (!isType(undef, target.nodeName))
 				for (i = 0; i < list.length; ++i)
 					if (list[i].ownerNode === target)
 						return [list[i]];
@@ -1795,7 +1822,7 @@
 			var style = createStylesheet(url, before);
 
 			//  if style is a StyleSheet object, it has the ownerNode property containing the actual DOMElement in which it resides
-			if (typeof style.ownerNode !== undef)
+			if (!isType(undef, style.ownerNode))
 			{
 				style = style.ownerNode;
 				//  it is safe to assume here that the stylesheet was loaded, hence we need to apply the callback (with a slight delay, so the order of returning and execution of the callback is the same for both load scenario's)
@@ -1824,7 +1851,7 @@
 		style.isEditable = function(stylesheet)
 		{
 			var list = getLocalStylesheets(),
-				node = typeof stylesheet.ownerNode !== undef ? stylesheet.ownerNode : stylesheet,
+				node = !isType(undef, stylesheet.ownerNode) ? stylesheet.ownerNode : stylesheet,
 				i;
 			for (i = 0; i < list.length; ++i)
 				if (list[i].ownerNode === node)
@@ -1850,19 +1877,19 @@
 				find, p, pr;
 
 			//  in case the selector is not a string but a DOMElement, we go out and create a selector from it
-			if (typeof selector === 'object' && 'nodeType' in selector)
+			if (isType('object', selector) && 'nodeType' in selector)
 				selector = style.selector(selector, skipNode) || style.selector(selector);
 
 			//  make the rules into an object
-			if (typeof rules === 'string')
+			if (isType('string', rules))
 				rules = getStyleProperties(rules);
 
 			//  if rules isn't an object, we exit right here
-			if (typeof rules !== 'object')
+			if (!isType('object', rules))
 				return false;
 
 			//  if no sheet was provided, or a string reference to a sheet was provided, resolve it
-			if (!sheet || typeof sheet === 'string')
+			if (!sheet || isType('string', sheet))
 				sheet = getStylesheet(sheet || 'last');
 
 			//  in case we now have a list of stylesheets, we either want one (if there's just one) or we add the style to all
@@ -1928,7 +1955,7 @@
 
 			for (i = 0; i < sheet.length; ++i)
 			{
-				rules = typeof sheet[i].cssRules ? sheet[i].cssRules : sheet[i].rules;
+				rules = type(sheet[i].cssRules) ? sheet[i].cssRules : sheet[i].rules;
 				if (rules)
 					for (j = 0; j < rules.length; ++j)
 						if ('selectorText' in rules[j] && (!selector || normalizeSelector(rules[j].selectorText) === selector))
@@ -2060,8 +2087,8 @@
 			var multiplier = precision ? Math.pow(10, precision) : 0;
 
 			//  check whether default values need to be assigned
-			point     = type(point) !== undef ? point : '.';
-			separator = type(separator) !== undef || arguments.length < 3 ? separator : ',';
+			point     = !isType(undef, point) ? point : '.';
+			separator = !isType(undef, separator) || arguments.length < 3 ? separator : ',';
 			//  format the number
 			input = +(('' + input).replace(/[,\.]+/, '.'));
 			//  round the last desired decimal
@@ -2546,7 +2573,7 @@
 			var result = false,
 				len, i;
 
-			switch (typeof mixed)
+			switch (type(mixed))
 			{
 				case 'object':
 					if (!('length' in mixed))
@@ -2661,7 +2688,7 @@
 		{
 			var result, i;
 
-			if (typeof target === 'string')
+			if (isType('string', target))
 				target = document.querySelector(target);
 
 			if (source instanceof Array)
@@ -2710,7 +2737,7 @@
 		{
 			var nodeName, element, p, i;
 
-			switch (typeof struct)
+			switch (type(struct))
 			{
 				case 'object':
 					if (struct instanceof Array)
@@ -2835,7 +2862,7 @@
 		 */
 		dom.appendTo = function(target, source)
 		{
-			return appendTo(target, typeof source === 'object' && typeof source.nodeType !== undef ? source : createStructure(source));
+			return appendTo(target, isType('object', source) && !isType(undef, source.nodeType) ? source : createStructure(source));
 		};
 
 		/**
@@ -3353,10 +3380,10 @@
 		{
 			var evt = e || window.event;
 
-			if (typeof evt.target === undef)
-				evt.target = typeof evt.srcElement !== undef ? evt.srcElement : null;
+			if (isType(undef, evt.target))
+				evt.target = !isType(undef, evt.srcElement) ? evt.srcElement : null;
 
-			if (typeof evt.type === undef)
+			if (isType(undef, evt.type))
 				evt.type = evt.eventType;
 
 			evt.family = getEventType(evt.type);
@@ -3384,10 +3411,10 @@
 			if (!targets)
 				targets = [];
 
-			if (typeof targets === 'string')
+			if (isType('string', targets))
 				targets = document.querySelectorAll(targets);
 
-			if (typeof targets.length !== 'number')
+			if (!isType('number', targets.length))
 				targets = [targets];
 
 			return konflux.iterator(targets);
@@ -3403,7 +3430,7 @@
 		 */
 		function prepareEventIterator(events)
 		{
-			if (typeof events === 'string')
+			if (isType('string', events))
 				events = events.replace(/\*/g, '').split(/[\s*,]+/);
 			else if (!events)
 				events = [];
@@ -3531,7 +3558,7 @@
 									if (!(name in this))
 										this[name] = [];
 
-									if (typeof callback === 'function')
+									if (isType('function', callback))
 									{
 										this[name].push(callback);
 										return;
@@ -3616,7 +3643,7 @@
 				p;
 
 			//  IE11 actually has the CustomEvent (and the likes), but one cannot construct those directly as they are objects
-			if (support && typeof support === 'function')
+			if (support && isType('function', support))
 			{
 				trigger = new support(name, {
 					detail: detail,
@@ -3652,7 +3679,7 @@
 						{
 							p = getEventProperty(this, name);
 							//  simply set the event property as we've already set up an setter function on it
-							if (typeof this[p] !== undef)
+							if (!isType(undef, this[p]))
 								this[p] = trigger;
 						}
 						else
@@ -3692,7 +3719,7 @@
 		{
 			setTimeout(function(){
 				listen.apply(event, [targets, events].concat(
-					typeof filter === 'function' ? [null, filter, handler] : [filter, handler, capture]
+					isType('function', filter) ? [null, filter, handler] : [filter, handler, capture]
 				));
 			}, 1);
 		};
@@ -3722,17 +3749,17 @@
 
 			//  if the first argument is a function, we assume it is a handler
 			//  and remove the events using it from all elements
-			if (typeof targets === 'function')
+			if (isType('function', targets))
 				arg = [null, null, null, targets];
 
 			//  if the second argument is a function, we assume the first argument
 			//  to be the target(s) and remove all events using this handler from
 			//  given target(s)
-			else if (typeof events === 'function')
+			else if (isType('function', events))
 				arg = [targets, null, null, events];
 
 			//  if the third argument is a function, we know it is not a filter
-			else if (typeof filter === 'function')
+			else if (isType('function', filter))
 				arg = [targets, events, null, filter];
 
 			return remove.apply(event, arg);
@@ -3796,7 +3823,7 @@
 		 */
 		event.hasTouch = function()
 		{
-			if (typeof touch !== 'boolean')
+			if (!isType('boolean', touch))
 				touch = konflux.browser.supports('touch');
 			return touch;
 		};
@@ -3819,7 +3846,7 @@
 			}
 
 			//  we cannot use the event.listen method, as we need very different event listeners
-			if (typeof queue.ready === undef)
+			if (isType(undef, queue.ready))
 			{
 				queue.ready = [];
 				if (document.addEventListener)
@@ -3933,7 +3960,7 @@
 		 */
 		function remove(reference)
 		{
-			if (typeof stack[reference] !== undef)
+			if (!isType(undef, stack[reference]))
 			{
 				//  cancel the stack reference
 				stack[reference].cancel();
@@ -4057,7 +4084,7 @@
 		 */
 		function ensureSubscriptionStack(stack)
 		{
-			if (typeof subscription[stack] === undef) subscription[stack] = [];
+			if (isType(undef, subscription[stack])) subscription[stack] = [];
 		}
 
 		/**
@@ -4129,7 +4156,7 @@
 		{
 			var out = false;
 
-			if (typeof subscription[stack] !== undef)
+			if (!isType(undef, subscription[stack]))
 			{
 				out = subscription[stack];
 				delete subscription[stack];
@@ -4162,7 +4189,7 @@
 				name = part.join('.') + (wildcard ? (part.length ? '.' : '') + '*' : '');
 				wildcard = true;
 
-				if (typeof subscription[name] !== undef)
+				if (!isType(undef, subscription[name]))
 					for (i = 0; i < subscription[name].length; ++i)
 					{
 						if (!active[ref])
@@ -4738,26 +4765,26 @@
 		 */
 		function setCookie(key, value, expire, path, domain, secure)
 		{
-			var pairs = [key + '=' + (typeof value === 'number' ? value : value || '')],
+			var pairs = [key + '=' + (isType('number', value) ? value : value || '')],
 				date;
 
 			if (pairs[0].substr(-1) === '=')
 				expire = -1;
 
-			if (typeof expire !== undef && expire)
+			if (!isType(undef, expire) && expire)
 				date = new Date(expire);
 
 			if (date)
 			{
-				if (date < (new Date()).getTime() && typeof jar[key] !== undef)
+				if (date < (new Date()).getTime() && !isType(undef, jar[key]))
 					delete jar[key];
 				pairs.push('expires=' + date);
 			}
-			if (typeof path !== undef && path)
+			if (!isType(undef, path) && path)
 				pairs.push('path=' + path);
-			if (typeof domain !== undef && domain)
+			if (!isType(undef, domain) && domain)
 				pairs.push('domain=' + domain);
-			if (typeof secure !== undef && secure)
+			if (!isType(undef, secure) && secure)
 				pairs.push('secure');
 
 			document.cookie = pairs.join(';');
@@ -4775,7 +4802,7 @@
 		 */
 		function getCookie(key)
 		{
-			return typeof jar[key] !== undef ? jar[key] : null;
+			return !isType(undef, jar[key]) ? jar[key] : null;
 		}
 
 
@@ -4799,7 +4826,7 @@
 		 */
 		cookie.value = function(key, value, expire, path, domain, secure)
 		{
-			if (typeof key === undef)
+			if (isType(undef, key))
 				return jar;
 
 			//  if a second argument (value) was given, we update the cookie
@@ -4824,7 +4851,7 @@
 		/*jshint validthis: true*/
 		var ls = this,
 			maxSize = 2048,
-			storage = typeof window.localStorage !== undef ? window.localStorage : false,
+			storage = !isType(undef, window.localStorage) ? window.localStorage : false,
 			fragmentPattern = /^\[fragment:([0-9]+),([0-9]+),([a-z0-9_]+)\]$/;
 
 		/**
@@ -5133,9 +5160,9 @@
 
 				//  relay all methods
 				for (p in context.ctx2d)
-					if (typeof context[p] !== 'function')
+					if (!isType('function', context[p]))
 					{
-						if (typeof context.ctx2d[p] === 'function')
+						if (isType('function', context.ctx2d[p]))
 							context[p] = relayMethod(context.ctx2d[p]);
 						else if (p in context.ctx2d.canvas)
 							context[p] = relayCanvasProperty(p, p in property && property[p] === null);
@@ -5177,7 +5204,7 @@
 			function relayCanvasProperty(key, ro)
 			{
 				return function(value){
-					if (typeof value === undef)
+					if (isType(undef, value))
 						return context.ctx2d.canvas[key];
 					if (!ro)
 						context.ctx2d.canvas[key] = value;
@@ -5198,7 +5225,7 @@
 			function relayProperty(key, ro)
 			{
 				return function(value){
-					if (typeof value === undef)
+					if (isType(undef, value))
 						return context.ctx2d[key];
 					if (!ro)
 						context.ctx2d[key] = value;
@@ -5274,12 +5301,12 @@
 
 				if (width > 0 && width < 1)
 					width = Math.round(canvas.width * width);
-				else if (typeof width === 'string' && percentage.test(width))
+				else if (isType('string', width) && percentage.test(width))
 					width = Math.round(canvas.width * (parseInt(width, 10) / 100));
 
 				if (height > 0 && height < 1)
 					height = Math.round(canvas.height * height);
-				else if (typeof height === 'string' && percentage.test(height))
+				else if (isType('string', height) && percentage.test(height))
 					height = Math.round(canvas.height * (parseInt(height, 10) / 100));
 
 				if (!width && height)
@@ -5329,10 +5356,10 @@
 			 */
 			context.append = function(target)
 			{
-				if (typeof target === 'string')
+				if (isType('string', target))
 					target = document.getElementById(target);
 
-				if (typeof target === 'object')
+				if (isType('object', target))
 					return target.appendChild(canvas) ? context : false;
 
 				return false;
@@ -5351,13 +5378,13 @@
 			 */
 			context.shadow = function(x, y, blur, color)
 			{
-				if (typeof x === 'number')
+				if (isType('number', x))
 					context.shadowOffsetX(x);
-				if (typeof y === 'number')
+				if (isType('number', y))
 					context.shadowOffsetY(y);
-				if (typeof blur === 'number')
+				if (isType('number', mixed))
 					context.shadowBlur(blur);
-				if (typeof color !== undef)
+				if (!isType(undef, color))
 					context.shadowColor(color);
 
 				return context;
@@ -5619,7 +5646,7 @@
 		 */
 		canvas.append = function(target, mixed)
 		{
-			if (typeof mixed === 'number')
+			if (isType('number', mixed))
 				mixed = canvas.create(mixed, arguments.length > 2 ? arguments[2] : mixed);
 
 			if (mixed instanceof kxCanvasContext)
