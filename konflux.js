@@ -1798,7 +1798,7 @@
 
 			//  in case the selector is not a string but a DOMElement, we go out and create a selector from it
 			if (typeof selector === 'object' && 'nodeType' in selector)
-				selector = style.selector(selector, skipNode);
+				selector = style.selector(selector, skipNode) || style.selector(selector);
 
 			//  make the rules into an object
 			if (typeof rules === 'string')
