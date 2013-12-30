@@ -8,7 +8,7 @@
 
 /*jshint browser: true, undef: true, unused: true, curly: false, newcap: false, forin: false, devel: true */
 /*global File, FileList, FormData */
-;(function(window, undefined){
+;(function(window){
 	'use strict';
 
 	var version = '$DEV$ - $DATE$ - $COMMIT$',
@@ -639,7 +639,7 @@
 		 */
 		iterator.previous = function()
 		{
-			current = Math.max(typeof current !== 'undefined' ? current - 1 : 0, -1);
+			current = Math.max(typeof current !== undef ? current - 1 : 0, -1);
 			return iterator.current();
 		};
 
@@ -662,7 +662,7 @@
 		 */
 		iterator.next = function()
 		{
-			current = Math.min(typeof current !== 'undefined' ? current + 1 : 0, keys.length);
+			current = Math.min(typeof current !== undef ? current + 1 : 0, keys.length);
 			return iterator.current();
 		};
 
@@ -3353,10 +3353,10 @@
 		{
 			var evt = e || window.event;
 
-			if (typeof evt.target === 'undefined')
-				evt.target = typeof evt.srcElement !== 'undefined' ? evt.srcElement : null;
+			if (typeof evt.target === undef)
+				evt.target = typeof evt.srcElement !== undef ? evt.srcElement : null;
 
-			if (typeof evt.type === 'undefined')
+			if (typeof evt.type === undef)
 				evt.type = evt.eventType;
 
 			evt.family = getEventType(evt.type);
@@ -3652,7 +3652,7 @@
 						{
 							p = getEventProperty(this, name);
 							//  simply set the event property as we've already set up an setter function on it
-							if (typeof this[p] !== 'undefined')
+							if (typeof this[p] !== undef)
 								this[p] = trigger;
 						}
 						else
@@ -3819,7 +3819,7 @@
 			}
 
 			//  we cannot use the event.listen method, as we need very different event listeners
-			if (typeof queue.ready === 'undefined')
+			if (typeof queue.ready === undef)
 			{
 				queue.ready = [];
 				if (document.addEventListener)
