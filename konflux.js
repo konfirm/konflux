@@ -2942,7 +2942,7 @@
 									evt.target = evt.srcElement;
 
 								konflux.select(filter, target).each(function(){
-									if (evt.target === this)
+									if (evt.target === this || konflux.dom.contains(this, evt.target))
 									{
 										evt.delegate = target;
 										result = handler.apply(this, [unifier(evt)]);
