@@ -3297,7 +3297,10 @@
 			if (typeof evt.target === 'undefined')
 				evt.target = typeof evt.srcElement !== 'undefined' ? evt.srcElement : null;
 
-			evt.family = getEventType(e.type || e.eventType);
+			if (typeof evt.type === 'undefined')
+				evt.type = evt.eventType;
+
+			evt.family = getEventType(evt.type);
 
 			if (/^(mouse[a-z]+|drag(?:[a-z]+)?|drop|(?:dbl)?click)$/i.test(evt.type))
 			{
@@ -3481,36 +3484,38 @@
 		 *  @access  internal
 		 *  @param   mixed  target [one of: string CSSSelector, DOMElement, DOMNodeList, Array DOMElement, kxIterator DOMElement]
 		 *  @param   string type
-		 *  @param   object options
+		 *  @param   object option
 		 *  @return  void
 		 */
 		function dispatch(targets, name, option)
 		{
 			var type = getEventType(name) || 'CustomEvent',
 				support = konflux.browser.feature(type),
+				detail  = option || {},
 				trigger = false,
 				p;
 
-			option = option || {};
-
-			//  IE11 actually has the CustomEvent (and the likes), but one cannot construct them
-			if (support && !konflux.browser.ie(11))
+			//  IE11 actually has the CustomEvent (and the likes), but one cannot construct those directly as they are objects
+			if (support && typeof support === 'function')
 			{
 				trigger = new support(name, {
-					detail: option,
+					detail: detail,
 					cancelable: true
 				});
 			}
 			else if ('createEvent' in document)
 			{
 				trigger = document.createEvent(type);
-				trigger.initEvent(name, false, true);
+				if (option || type === 'CustomEvent')
+					trigger.initCustomEvent(name, false, true, detail);
+				else
+					trigger.initEvent(name, false, true);
 			}
 			else if ('createEventObject' in document)
 			{
 				trigger = document.createEventObject();
 				trigger.eventType = name;
-				trigger.detail    = option;
+				trigger.detail    = detail;
 			}
 
 
