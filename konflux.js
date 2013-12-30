@@ -58,7 +58,7 @@
 	 *  @param   object variable1
 	 *  @param   object ...
 	 *  @param   object variableN
-	 *  @return  function constructor
+	 *  @return  object combined
 	 */
 	function combine()
 	{
@@ -413,6 +413,7 @@
 	konflux = new Konflux();
 
 
+
 	/**
 	 *  Iterator object, providing a uniform mechanism to traverse collections (Array, Object, DOMNodeList, etc)
 	 *  @module  iterator
@@ -716,6 +717,7 @@
 	}
 
 
+
 	/**
 	 *  Browser/feature detection
 	 *  @module  browser
@@ -858,6 +860,7 @@
 				ieVersion = detectIE();
 			return min ? ieVersion < min : ieVersion;
 		};
+
 		/**
 		 *  Obtain the vendor prefix for the current browser
 		 *  @name    prefix
@@ -873,6 +876,7 @@
 
 			return prefix;
 		};
+
 		/**
 		 *  Obtain a specific feature from the browser
 		 *  @name    feature
@@ -886,6 +890,7 @@
 		{
 			return getFeature(feature);
 		};
+
 		/**
 		 *  Test whether or not the browser at hand is aware of given feature(s) exist in either the window or document scope
 		 *  @name    supports
@@ -942,6 +947,7 @@
 	}
 
 
+
 	/**
 	 *  Handle AJAX requests
 	 *  @module  ajax
@@ -954,17 +960,42 @@
 			stat = {},
 			header = false;
 
+		/**
+		 *  FormData stub, in case a browser doesn't feature the FormData object
+		 *  @module  ajax
+		 *  @name    kxFormData
+		 *  @type    module
+		 *  @access  internal
+		 *  @return  kxFormData instance
+		 */
 		function kxFormData()
 		{
 			/*jshint validthis: true*/
 			var formdata = this,
 				data = {};
 
+			/**
+			 *  Append a key/value pair to the kxFormData instance
+			 *  @name    append
+			 *  @type    method
+			 *  @access  public
+			 *  @param   string key
+			 *  @param   mixed  value (can be anything but an object)
+			 *  @return  void
+			 */
 			formdata.append = function(key, value)
 			{
 				if (typeof value !== 'object')
 					data[key] = value;
 			};
+
+			/**
+			 *  Serialize the kxFormData instance into a string
+			 *  @name    serialize
+			 *  @type    method
+			 *  @access  public
+			 *  @return  string  urlencoded data
+			 */
 			formdata.serialize = function()
 			{
 				var r = [],
@@ -976,10 +1007,21 @@
 				return r.join('&');
 			};
 		}
+
+		/**
+		 *  Convenience method to make kxFormData serialization work if used as string
+		 *  @name    toString
+		 *  @type    method
+		 *  @access  public
+		 *  @return  string urlencodes data
+		 *  @note    This method is autmatically called when the kxFormData instance is used as string (e.g. kxFormDataInstance + '')
+		 */
 		kxFormData.prototype.toString = function()
 		{
 			return this.serialize();
 		};
+
+
 
 		/**
 		 *  Obtain the default headers
@@ -1106,6 +1148,7 @@
 
 			return result;
 		}
+
 		/**
 		 *  Prepare data to be send
 		 *  @name    prepareData
@@ -1136,6 +1179,7 @@
 
 			return r;
 		}
+
 		/**
 		 *  Obtain a handler function for given request, this handler is triggered by the konflux observer (konflux.ajax.<type>)
 		 *  @name    requestType
@@ -1186,6 +1230,7 @@
 		 *  @return  object XMLHttpRequest
 		 */
 		ajax.request = request;
+
 		/**
 		 *  Perform a GET request
 		 *  @name    get
@@ -1194,7 +1239,8 @@
 		 *  @param   object config
 		 *  @return  object XMLHttpRequest
 		 */
-		ajax.get    = requestType('GET');
+		ajax.get = requestType('GET');
+
 		/**
 		 *  Perform a POST request
 		 *  @name    post
@@ -1203,7 +1249,8 @@
 		 *  @param   object config
 		 *  @return  object XMLHttpRequest
 		 */
-		ajax.post   = requestType('POST');
+		ajax.post = requestType('POST');
+
 		/**
 		 *  Perform a PUT request
 		 *  @name    put
@@ -1212,7 +1259,8 @@
 		 *  @param   object config
 		 *  @return  object XMLHttpRequest
 		 */
-		ajax.put    = requestType('PUT');
+		ajax.put = requestType('PUT');
+
 		/**
 		 *  Perform a DELETE request
 		 *  @name    del
@@ -1222,6 +1270,7 @@
 		 *  @return  object XMLHttpRequest
 		 */
 		ajax.del = requestType('DELETE');
+
 		/**
 		 *  Perform a PURGE request (mostly supported by caching servers such as Varnish)
 		 *  @name    purge
@@ -1232,6 +1281,7 @@
 		 */
 		ajax.purge = requestType('PURGE');
 	}
+
 
 
 	/**
@@ -1278,6 +1328,7 @@
 		 *  @access  public
 		 */
 		url.current = typeof window.location.href !== undef ? parse(window.location.href) : false;
+
 		/**
 		 *  Parse given URL into its URI components
 		 *  @name    parse
@@ -1287,6 +1338,7 @@
 		 *  @return  object result
 		 */
 		url.parse   = parse;
+
 		/**
 		 *  Determine whether given URL is on the same domain as the page itself
 		 *  @name    isLocal
@@ -1300,6 +1352,7 @@
 			return url.current.domain === url.parse(location).domain;
 		};
 	}
+
 
 
 	/**
@@ -1932,6 +1985,7 @@
 	}
 
 
+
 	/**
 	 *  Number utils
 	 *  @module  number
@@ -2022,6 +2076,7 @@
 			return input[0] + (precision > 0 ? point + konflux.string.pad(input[1] || '', precision, '0', konflux.string.PAD_RIGHT) : '');
 		};
 	}
+
 
 
 	/**
@@ -2398,6 +2453,7 @@
 	}
 
 
+
 	/**
 	 *  Array utils
 	 *  @module  array
@@ -2570,6 +2626,7 @@
 		 */
 		array.cast = cast;
 	}
+
 
 
 	/**
@@ -2830,6 +2887,8 @@
 		 */
 		dom.stackLevel = stackOrderIndex;
 	}
+
+
 
 	/**
 	 *  Event attachment handler
@@ -3312,6 +3371,14 @@
 			return evt;
 		}
 
+		/**
+		 *  Prepare an iterator containing all given targets as item
+		 *  @name    prepareTargetIterator
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   mixed target [one of: string CSSSelector, DOMElement, DOMNodeList, Array DOMElement, kxIterator DOMElement]
+		 *  @return  kxIterator target
+		 */
 		function prepareTargetIterator(targets)
 		{
 			if (!targets)
@@ -3326,6 +3393,14 @@
 			return konflux.iterator(targets);
 		}
 
+		/**
+		 *  Prepare an iterator containing all given events as item
+		 *  @name    prepareEventIterator
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   mixed event [one of: string events, Array events, kxIterator events]
+		 *  @return  kxIterator events
+		 */
 		function prepareEventIterator(events)
 		{
 			if (typeof events === 'string')
@@ -3336,6 +3411,18 @@
 			return konflux.iterator(events);
 		}
 
+		/*
+		 *  Attach event handler(s) to elements
+		 *  @name    listen
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   mixed target [one of: string CSSSelector, DOMElement, DOMNodeList, Array DOMElement, kxIterator DOMElement]
+		 *  @param   mixed event [one of: string events, Array events, kxIterator events]
+		 *  @param   mixed [one of: function handler or string CSSSelector]
+		 *  @param   mixed [one of: function handler or bool capture]
+		 *  @param   mixed [one of: bool capture or null]
+		 *  @return  void
+		 */
 		function listen(targets, events, filter, handler, capture)
 		{
 			if (!delegate)
@@ -3353,6 +3440,17 @@
 			});
 		}
 
+		/*
+		 *  Remove event handlers from elements
+		 *  @name    remove
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   mixed [one of: string CSSSelector, DOMElement, DOMNodeList, Array DOMElement, kxIterator DOMElement, function handler]
+		 *  @param   mixed [one of: string events, Array events, kxIterator events, function handler, null]
+		 *  @param   mixed [one of: string CSSSelector, function handler, null]
+		 *  @param   mixed [one of: function handler, null]
+		 *  @return  void
+		 */
 		function remove(targets, events, filter, handler)
 		{
 			var result = [],
@@ -3394,6 +3492,17 @@
 			return false;
 		}
 
+		/**
+		 *  Attach an event handler to the target element
+		 *  @name    attach
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   DOMElement target
+		 *  @param   string     event
+		 *  @param   function   handler
+		 *  @param   bool       capture
+		 *  @return  void
+		 */
 		function attach(target, type, handler, capture)
 		{
 			var prop;
@@ -3453,6 +3562,17 @@
 			}
 		}
 
+		/**
+		 *  Detach the event associated with the event type, handler and capturing from the target element
+		 *  @name    detach
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   DOMElement target
+		 *  @param   string     event
+		 *  @param   function   handler
+		 *  @param   bool       capture
+		 *  @return  void
+		 */
 		function detach(target, type, handler, capture)
 		{
 			if (target.removeEventListener)
@@ -3723,6 +3843,8 @@
 		};
 	}
 
+
+
 	/**
 	 *  Timing utils
 	 *  @module  timing
@@ -3864,6 +3986,7 @@
 		 */
 		timing.create = create;
 	}
+
 
 
 	/**
@@ -4116,6 +4239,7 @@
 	}
 
 
+
 	/**
 	 *  Breakpoint object, add/remove classes on specified object (or body) when specific browser dimensions are met
 	 *  (triggers observations when viewport dimensions change)
@@ -4331,6 +4455,7 @@
 			return false;
 		};
 	}
+
 
 
 	/**
@@ -4564,6 +4689,7 @@
 	}
 
 
+
 	/**
 	 *  Cookie object, making working with cookies a wee bit easier
 	 *  @module  cookie
@@ -4685,6 +4811,7 @@
 
 		init();
 	}
+
 
 
 	/**
@@ -4960,6 +5087,7 @@
 	}
 
 
+
 	/**
 	 *  Canvas object, allowing for chainable access to canvas methods
 	 *  @module  canvas
@@ -4979,6 +5107,8 @@
 		 *  @param   DOMElement canvas
 		 *  @param   object default properties
 		 *  @return  kxCanvasContext instance
+		 *  @note    By default all methods available in the (browser own) canvas context are made available, the ones
+		 *           documented are merely the ones overrided/added.
 		 */
 		function kxCanvasContext(canvas, defaults)
 		{
