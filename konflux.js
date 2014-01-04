@@ -91,13 +91,14 @@
 			hours = Math.floor((delta -= days * day) / hour),
 			minutes = Math.floor((delta -= hours * hour) / minute),
 			seconds = Math.floor((delta -= minutes * minute) / 1000),
-			ms = Math.floor(delta -= seconds * 1000);
+			ms = Math.floor(delta -= seconds * 1000),
+			zero = '000';
 
 		return (days > 0 ? days + 'd ' : '') +
-				('00' + hours).substr(-2) + ':' +
-				('00' + minutes).substr(-2) + ':' +
-				('00' + seconds).substr(-2) + '.' +
-				('000' + ms).substr(-3);
+				(zero + hours).substr(-2) + ':' +
+				(zero + minutes).substr(-2) + ':' +
+				(zero + seconds).substr(-2) + '.' +
+				(zero + ms).substr(-3);
 	}
 
 	/**
@@ -989,11 +990,10 @@
 
 		/**
 		 *  FormData stub, in case a browser doesn't feature the FormData object
-		 *  @module  ajax
 		 *  @name    kxFormData
 		 *  @type    module
 		 *  @access  internal
-		 *  @return  kxFormData instance
+		 *  @return  kxFormData object
 		 */
 		function kxFormData()
 		{
@@ -1008,12 +1008,14 @@
 			 *  @access  public
 			 *  @param   string key
 			 *  @param   mixed  value (can be anything but an object)
-			 *  @return  void
+			 *  @return  kxFormData reference
 			 */
 			formdata.append = function(key, value)
 			{
 				if (!isType('object', value))
 					data[key] = value;
+
+				return formdata;
 			};
 
 			/**
@@ -1106,7 +1108,7 @@
 			}
 
 			xhr.onload = function(){
-				var status = Math.floor(this.status / 100),
+				var status = Math.floor(this.status * .1),
 					state = false;
 				++stat[type];
 
@@ -1735,7 +1737,7 @@
 		 *  @access  public
 		 *  @param   DOMElement target
 		 *  @param   object style rules
-		 *  @return  void
+		 *  @return  kxStyle reference
 		 */
 		style.inline = function(target, rules)
 		{
@@ -1747,6 +1749,8 @@
 				if (q)
 					target.style[q] = rules[p];
 			}
+
+			return style;
 		};
 
 		/**
@@ -3733,7 +3737,7 @@
 		 *  @param   mixed [one of: string events, Array events, kxIterator events, function handler, null]
 		 *  @param   mixed [one of: string CSSSelector, function handler, null]
 		 *  @param   mixed [one of: function handler, null]
-		 *  @return  void
+		 *  @return  kxEvent reference
 		 *
 		 *  @note    event.remove(target)  - remove all event handling from given target(s)
 		 *  @note    event.remove(handler) - remove any event handling using given handler from any target
@@ -3762,7 +3766,8 @@
 			else if (isType('function', filter))
 				arg = [targets, events, null, filter];
 
-			return remove.apply(event, arg);
+			remove.apply(event, arg);
+			return event;
 		};
 
 		/**
@@ -3834,7 +3839,7 @@
 		 *  @type    method
 		 *  @access  public
 		 *  @param   function handler
-		 *  @return  void
+		 *  @return  bool     isReady
 		 */
 		event.ready = function(handler)
 		{
@@ -4032,7 +4037,7 @@
 		/**
 		 *  Observation object, instances of this are be provided to all observer notification subscribers
 		 *  @name    kxObservation
-		 *  @type    class
+		 *  @type    module
 		 *  @access  internal
 		 *  @param   string type
 		 *  @param   function handle
@@ -4111,7 +4116,7 @@
 		 *  @param   function handler
 		 *  @return  void
 		 *  @note    this method is used from the Observation object, which would influence the number of
-		 *          subscriptions if the subscription itself was removed immediately
+		 *           subscriptions if the subscription itself was removed immediately
 		 */
 		function disable(stack, handle)
 		{
@@ -5127,7 +5132,6 @@
 
 		/**
 		 *  Context wrapper, this is the actual 'canvas' which gets returned
-		 *  @module  canvas
 		 *  @name    kxCanvasContext
 		 *  @type    module
 		 *  @access  internal
