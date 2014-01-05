@@ -1108,7 +1108,7 @@
 			}
 
 			xhr.onload = function(){
-				var status = Math.floor(this.status * .1),
+				var status = Math.floor(this.status * 0.01),
 					state = false;
 				++stat[type];
 
