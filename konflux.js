@@ -619,7 +619,7 @@
 		 */
 		iterator.item = function(index)
 		{
-			if ('item' in collection && isType('object', data))
+			if ('item' in collection && isType('function', collection.item))
 				return collection.item(index);
 
 			return ('length' in collection && (index >= 0 || index < collection.length)) || index in collection ? collection[index] : null;
@@ -5386,7 +5386,7 @@
 					context.shadowOffsetX(x);
 				if (isType('number', y))
 					context.shadowOffsetY(y);
-				if (isType('number', mixed))
+				if (isType('number', blur))
 					context.shadowBlur(blur);
 				if (!isType(undef, color))
 					context.shadowColor(color);
