@@ -34,7 +34,7 @@
 	 */
 	function buffer(key)
 	{
-		if (isType(undef, _buffer[key]))
+		if (undef === typeof _buffer[key])
 			_buffer[key] = {};
 		return _buffer[key];
 	}
@@ -3851,7 +3851,7 @@
 			}
 
 			//  we cannot use the event.listen method, as we need very different event listeners
-			if (isType(undef, queue.ready))
+			if (undef === typeof queue.ready)
 			{
 				queue.ready = [];
 				if (document.addEventListener)
@@ -4089,7 +4089,8 @@
 		 */
 		function ensureSubscriptionStack(stack)
 		{
-			if (isType(undef, subscription[stack])) subscription[stack] = [];
+			if (undef === typeof subscription[stack])
+                subscription[stack] = [];
 		}
 
 		/**
@@ -4194,7 +4195,7 @@
 				name = part.join('.') + (wildcard ? (part.length ? '.' : '') + '*' : '');
 				wildcard = true;
 
-				if (!isType(undef, subscription[name]))
+				if (undef !== typeof subscription[name])
 					for (i = 0; i < subscription[name].length; ++i)
 					{
 						if (!active[ref])
