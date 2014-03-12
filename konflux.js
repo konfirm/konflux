@@ -1217,32 +1217,32 @@
 		 *  @param   string   type
 		 *  @return  function handler
 		 */
-		function requestType(type)
+		function requestType(t)
 		{
 			var handler = function(config){
 				switch (type(config))
 				{
 					case 'object':
-						config.type = type;
+						config.type = t;
 						break;
 
 					case 'string':
 						//  we assume an URL
 						config = {
 							url: config,
-							type: type
+							type: t
 						};
 						break;
 
 					default:
 						config = {
-							type: type
+							type: t
 						};
 				}
 				return request(config);
 			};
-			stat[type.toUpperCase()] = 0;
-			konflux.observer.subscribe('konflux.ajax.' + type.toLowerCase(), function(ob, config){
+			stat[t.toUpperCase()] = 0;
+			konflux.observer.subscribe('konflux.ajax.' + t.toLowerCase(), function(ob, config){
 				handler(config);
 			});
 
