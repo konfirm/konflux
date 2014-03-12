@@ -1957,7 +1957,7 @@
 			for (i = 0; i < sheet.length; ++i)
 			{
 				rules = type(sheet[i].cssRules) ? sheet[i].cssRules : sheet[i].rules;
-				if (rules)
+				if (rules && rules.length)
 					for (j = 0; j < rules.length; ++j)
 						if ('selectorText' in rules[j] && (!selector || normalizeSelector(rules[j].selectorText) === selector))
 							match = combine(match, getStyleProperties(rules[j].style.cssText));
@@ -3574,6 +3574,7 @@
 										if (!callback.returnValue)
 											break;
 									}
+									return null;
 								}
 							});
 
@@ -4867,9 +4868,10 @@
 		 */
 		function combineFragments(data)
 		{
-			var match, part, fragment, length, variable, i;
+			var match = data ? data.match(fragmentPattern) : false,
+				part, fragment, length, variable, i;
 
-			if (data && (match = data.match(fragmentPattern)))
+			if (match)
 			{
 				fragment = parseInt(match[1], 10);
 				length   = parseInt(match[2], 10);

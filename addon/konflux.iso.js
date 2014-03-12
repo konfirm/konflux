@@ -104,7 +104,7 @@
 
 			height = height ? height : (iso ? Math.min(iso * 0.2, 16) : false);
 
-			if (height)
+			if (height > 0)
 			{
 				for (i = 0; i < length; ++i)
 				{
