@@ -1159,19 +1159,16 @@
 		function process(xhr)
 		{
 			var contentType = xhr.getResponseHeader('content-type'),
-				result = [];
+				result = [
+					xhr.status,
+					xhr.responseText,
+					xhr
+				];
 
 			switch (contentType)
 			{
 				case 'application/json':
-					result.push(JSON.parse(xhr.responseText));
-					result.push(xhr);
-					break;
-
-				default:
-					result.push(xhr.status);
-					result.push(xhr.responseText);
-					result.push(xhr);
+					result[1] = JSON.parse(result[1]);
 					break;
 			}
 
