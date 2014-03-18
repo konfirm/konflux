@@ -637,7 +637,7 @@
 			if (!current)
 				current = 0;
 
-			return iterator.item(keys[current]) || false;
+			return undef !== typeof keys[current] ? iterator.item(keys[current]) : false;
 		};
 
 		/**
@@ -667,7 +667,7 @@
 		 */
 		iterator.previous = function()
 		{
-			current = Math.max(!isType(undef, current) ? current - 1 : 0, -1);
+			current = Math.max(undef !== typeof current ? current - 1 : 0, -1);
 			return iterator.current();
 		};
 
@@ -690,7 +690,7 @@
 		 */
 		iterator.next = function()
 		{
-			current = Math.min(!isType(undef, current) ? current + 1 : 0, keys.length);
+			current = Math.min(undef !== typeof current ? current + 1 : 0, keys.length);
 			return iterator.current();
 		};
 
@@ -1120,7 +1120,7 @@
 				else if (status >= 4 && 'error' in config)
 				{
 					state = 'error';
-					config.error.apply(this, [this.status, this.responseText]);
+					config.error.apply(this, process(this));
 				}
 
 				if ('complete' in config)
@@ -1158,12 +1158,15 @@
 		 */
 		function process(xhr)
 		{
-			var contentType = xhr.getResponseHeader('content-type'),
+			var contentType = xhr.getResponseHeader('content-type').match(/([^;]+)/),
 				result = [
 					xhr.status,
 					xhr.responseText,
 					xhr
 				];
+
+			if (contentType)
+				contentType = contentType[1];
 
 			switch (contentType)
 			{
@@ -3511,7 +3514,10 @@
 				if (result.length > 0)
 				{
 					for (i = 0; i < result.length; ++i)
+					{
 						detach(result[i].target, result[i].type, result[i].delegate, result[i].capture);
+						delegate.remove(result[i].target, result[i].type, filter, handler);
+					}
 
 					return true;
 				}
@@ -3574,7 +3580,7 @@
 										if (!callback.returnValue)
 											break;
 									}
-									return null;
+									return;
 								}
 							});
 
@@ -3589,6 +3595,8 @@
 						break;
 				}
 			}
+
+			return;
 		}
 
 		/**
