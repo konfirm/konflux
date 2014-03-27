@@ -2956,7 +2956,7 @@
 			 */
 			function namespace(type)
 			{
-				var match = type.match(/^(.*?)?(?:\.(.+))?$/);
+				var match = type.match(/^([^\.]*)?(?:\.(.+))?$/);
 
 				return {
 					name: match[1] || '*',
