@@ -3721,6 +3721,7 @@
 		 *  @param   mixed [one of: function handler or string CSSSelector]
 		 *  @param   mixed [one of: function handler or bool capture]
 		 *  @param   mixed [one of: bool capture or null]
+		 *  @return  kxEvent reference
 		 *
 		 *  @note    event.add(target, event, handler [,capture]) - add event handler(s) to target(s)
 		 *  @note    event.add(target, event, filter, handler [,capture]) - add event handler(s) to a selection of elements in target(s) matching given filter
@@ -3732,6 +3733,7 @@
 					isType('function', filter) ? [null, filter, handler] : [filter, handler, capture]
 				));
 			}, 1);
+			return event;
 		};
 
 		/*
@@ -3784,8 +3786,9 @@
 		 *  @param   DOMElement target
 		 *  @param   string event type
 		 *  @param   function handler
-		 *  @return  function delegate handler
+		 *  @return  kxEvent reference
 		 *  @alias   event.add
+		 *  @note    This method is deprecated and will be removed in a future release, use event.add instead
 		 */
 		event.listen = function(targets, events, handler)
 		{
@@ -3802,8 +3805,9 @@
 		 *  @param   string event type(s)
 		 *  @param   string filter
 		 *  @param   function handler
-		 *  @return  bool success
+		 *  @return  kxEvent reference
 		 *  @alias   event.add
+		 *  @note    This method is deprecated and will be removed in a future release, use event.add instead
 		 */
 		event.live = function(targets, events, filter, handler)
 		{
