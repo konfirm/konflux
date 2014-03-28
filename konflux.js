@@ -1193,11 +1193,11 @@
 			var r = formData || (!isType(undef, FormData) ? new FormData() : new kxFormData()),
 				p;
 
-			if (!isType(undef, File) && data instanceof File)
+			if (undef !== typeof File && data instanceof File)
 				r.append(name, data, data.name);
-			else if (!isType(undef, Blob) && data instanceof Blob)
+			else if (undef !== typeof Blob && data instanceof Blob)
 				r.append(name, data, 'blob');
-			else if (data instanceof Array || (!isType(undef, FileList) && data instanceof FileList))
+			else if (data instanceof Array || (undef !== FileList && data instanceof FileList))
 				for (p = 0; p < data.length; ++p)
 					prepareData(data[p], (name || '') + '[' + p + ']', r);
 			else if (isType('object', data))
@@ -3092,7 +3092,7 @@
 						type && type !== '*' ? konflux.string.escapeRegExp(type) : wildcard,
 						filter ? konflux.string.escapeRegExp(strip(filter)) : wildcard,
 						wildcard,
-						(handler ? konflux.string.escapeRegExp(strip(handler)) : wildcard) + '$',
+						(handler ? konflux.string.escapeRegExp(strip(handler)) : wildcard) + '$'
 					].join(separator)),
 					result = {},
 					p;
