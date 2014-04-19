@@ -8,7 +8,7 @@
 
 /*jshint undef: true, unused: true, curly: false, newcap: false, forin: false, maxstatements: 10, maxparams: 4, browser: true */
 ;(function(konflux){
-    "use strict";
+    'use strict';
 
     var version = '$DEV$';
 
