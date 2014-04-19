@@ -3568,19 +3568,19 @@
 									if (isType('function', callback))
 									{
 										this[name].push(callback);
-										return;
 									}
-
-									callback.returnValue = true;
-									callback.srcElement  = this;
-
-									for (i = 0; i < this[name].length; ++i)
+									else
 									{
-										this[name][i].apply(this, [callback]);
-										if (!callback.returnValue)
-											break;
+										callback.returnValue = true;
+										callback.srcElement  = this;
+
+										for (i = 0; i < this[name].length; ++i)
+										{
+											this[name][i].apply(this, [callback]);
+											if (!callback.returnValue)
+												break;
+										}
 									}
-									return;
 								}
 							});
 
