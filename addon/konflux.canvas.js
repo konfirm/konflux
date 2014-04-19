@@ -112,7 +112,7 @@
 
 			//  relay all methods
 			for (p in context.ctx2d)
-				if (!konflux.isType('function', context[p]))
+				if ('function' !== typeof context[p])
 				{
 					if (konflux.isType('function', context.ctx2d[p]))
 						context[p] = relayMethod(context.ctx2d[p]);
