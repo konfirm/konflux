@@ -554,6 +554,6 @@
 
 
 	//  register kxCanvas as konflux.canvas
-	konflux.canvas = kxCanvas;
+	konflux.canvas = new kxCanvas();
 
 })(window.konflux);
