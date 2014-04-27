@@ -33,7 +33,7 @@
 		 */
 		function init()
 		{
-			settings = konflux.combine(config || {}, defaults());
+			settings = konflux.combine(defaults(), config || {});
 		}
 
 		/**
