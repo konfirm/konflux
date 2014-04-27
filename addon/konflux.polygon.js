@@ -1,7 +1,7 @@
 /*
  *       __    Konflux - Polygons (version $DEV$ - $DATE$)
  *      /\_\
- *   /\/ / /   Copyright 2012-2013, Konfirm (Rogier Spieker)
+ *   /\/ / /   Copyright 2012-2014, Konfirm (Rogier Spieker)
  *   \  / /    Releases under the MIT license
  *    \/_/     More information: http://konfirm.net/konflux
  */
