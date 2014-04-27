@@ -1,5 +1,5 @@
 /*
- *       __    Konflux Logo (version $DEV$ - $DATE$)
+ *       __    Konflux HTML Simplification (version $DEV$ - $DATE$)
  *      /\_\
  *   /\/ / /   Copyright 2012-2014, Konfirm (Rogier Spieker)
  *   \  / /    Releases under the MIT license
