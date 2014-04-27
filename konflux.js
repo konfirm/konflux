@@ -806,7 +806,7 @@
 		 *  @name    getFeature
 		 *  @type    function
 		 *  @access  internal
-		 *  @param   mixed    feature [one of: string feature or array with strig features]
+		 *  @param   mixed    feature [one of: string feature or array with string features]
 		 *  @param   array    scope(s) [optional, default null - global scopes]
 		 *  @return  mixed    feature (false if it doesn't exist)
 		 */
@@ -918,7 +918,7 @@
 		 *  @name    feature
 		 *  @type    method
 		 *  @access  public
-		 *  @param   mixed    feature [one of: string feature or array with strig features]
+		 *  @param   mixed    feature [one of: string feature or array with string features]
 		 *  @param   mixed    scope(s) [optional, default null - global scopes]
 		 *  @return  mixed    feature (false if it doesn't exist)
 		 *  @note    this method attempts to search for the native feature and falls back onto vendor prefixed features
