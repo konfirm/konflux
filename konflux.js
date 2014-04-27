@@ -1,7 +1,7 @@
 /*
  *       __    Konflux (version $DEV$ - $DATE$) - a javascript helper library
  *      /\_\
- *   /\/ / /   Copyright 2012-2013, Konfirm (Rogier Spieker)
+ *   /\/ / /   Copyright 2012-2014, Konfirm (Rogier Spieker)
  *   \  / /    Released under the MIT license
  *    \/_/     More information: http://konfirm.net/konflux
  */
@@ -806,26 +806,34 @@
 		 *  @name    getFeature
 		 *  @type    function
 		 *  @access  internal
-		 *  @param   string   feature
+		 *  @param   mixed    feature [one of: string feature or array with strig features]
+		 *  @param   array    scope(s) [optional, default null - global scopes]
 		 *  @return  mixed    feature (false if it doesn't exist)
 		 */
-		function getFeature(feature)
+		function getFeature(feature, scope)
 		{
 			var vendor = vendorPrefix(),
-				uc     = konflux.string.ucFirst(feature),
 				//  the objects to search for the feature
-				object = [
+				object = scope ? scope : [
 					window,
 					document,
 					navigator
 				],
-				//  the features to search for in various notations
-				search = [
-					feature,
+				search = [],
+				uc, i;
+
+			if (!(feature instanceof Array))
+				feature = [feature];
+
+			for (i = 0; i < feature.length; ++i)
+			{
+				uc = konflux.string.ucFirst(feature[i]);
+				search = search.concat([
+					feature,	
 					vendor + uc,
 					vendor.toLowerCase() + uc
-				],
-				i;
+				]);
+			}
 
 			while (search.length)
 			{
@@ -910,13 +918,16 @@
 		 *  @name    feature
 		 *  @type    method
 		 *  @access  public
-		 *  @param   string   feature
+		 *  @param   mixed    feature [one of: string feature or array with strig features]
+		 *  @param   mixed    scope(s) [optional, default null - global scopes]
 		 *  @return  mixed    feature (false if it doesn't exist)
 		 *  @note    this method attempts to search for the native feature and falls back onto vendor prefixed features
 		 */
-		browser.feature = function(feature)
+		browser.feature = function(feature, scope)
 		{
-			return getFeature(feature);
+			if (scope && !(scope instanceof Array))
+				scope = [scope];
+			return getFeature(feature, scope);
 		};
 
 		/**
