@@ -18,7 +18,7 @@
 	 *  @module  htmlsimplify
 	 *  @note    available as konflux.htmlsimplify / kx.htmlsimplify
 	 */
-	function kxHTMLSimplify(allow, config)
+	function kxHTMLSimplify(config)
 	{
 		var simplify = this,
 			settings;
@@ -33,7 +33,7 @@
 		 */
 		function init()
 		{
-			settings = konflux.combine(defaults(), config || {});
+			settings = konflux.combine(config || {}, defaults());
 		}
 
 		/**
@@ -46,7 +46,7 @@
 		function defaults()
 		{
 			return {
-				selector: (allow || ['a[href]', 'a[href][target]', 'br', 'code', 'div', 'p', 'q', 'time']),
+				selector: ['a[href]', 'a[href][target]', 'br', 'code', 'div', 'p', 'q', 'time'],
 				style: [
 					{property: 'font-weight', value: ['bold', '400+'], replace: 'bold'},
 					{property: 'font-style', value: 'italic', replace: 'italic'},
