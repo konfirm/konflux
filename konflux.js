@@ -132,8 +132,10 @@
 		if (!element || !('nodeType' in element) || element.nodeType !== 1)
 			return false;
 
-		//  we don't ever contaminate the body element
-		if (element === document.body)
+		//  we don't ever contaminate the window object or body element
+		if (element === window)
+			reference = 'window';
+		else if (element === document.body)
 			reference = 'body';
 		else
 			reference = hidden ? (name in element ? element[name] : null) : element.getAttribute('data-' + name);
@@ -2490,7 +2492,7 @@
 			var chars = '.\\+*?[^]$(){}=!<>|:-'.split(''),
 				pattern = new RegExp('[' + chars.concat(delimeter ? [delimeter] : []).join('\\') + ']', 'g');
 
-			return input.replace(pattern, '\\$&');
+			return isType('string', input) ? input.replace(pattern, '\\$&') : '';
 		};
 	}
 
@@ -3418,13 +3420,16 @@
 		 *  @name    prepareTargetIterator
 		 *  @type    function
 		 *  @access  internal
-		 *  @param   mixed target [one of: string CSSSelector, DOMElement, DOMNodeList, Array DOMElement, kxIterator DOMElement]
+		 *  @param   mixed target [one of: string CSSSelector, DOMElement, DOMNodeList, Array DOMElement, kxIterator DOMElement, window]
 		 *  @return  kxIterator target
 		 */
 		function prepareTargetIterator(targets)
 		{
 			if (!targets)
 				targets = [];
+
+			if (targets === window)
+				targets = [targets];
 
 			if (isType('string', targets))
 				targets = document.querySelectorAll(targets);
@@ -3458,7 +3463,7 @@
 		 *  @name    listen
 		 *  @type    function
 		 *  @access  internal
-		 *  @param   mixed target [one of: string CSSSelector, DOMElement, DOMNodeList, Array DOMElement, kxIterator DOMElement]
+		 *  @param   mixed target [one of: string CSSSelector, DOMElement, DOMNodeList, Array DOMElement, kxIterator DOMElement, window]
 		 *  @param   mixed event [one of: string events, Array events, kxIterator events]
 		 *  @param   mixed [one of: function handler or string CSSSelector]
 		 *  @param   mixed [one of: function handler or bool capture]
@@ -3487,7 +3492,7 @@
 		 *  @name    remove
 		 *  @type    function
 		 *  @access  internal
-		 *  @param   mixed [one of: string CSSSelector, DOMElement, DOMNodeList, Array DOMElement, kxIterator DOMElement, function handler]
+		 *  @param   mixed [one of: string CSSSelector, DOMElement, DOMNodeList, Array DOMElement, kxIterator DOMElement, function handler, window]
 		 *  @param   mixed [one of: string events, Array events, kxIterator events, function handler, null]
 		 *  @param   mixed [one of: string CSSSelector, function handler, null]
 		 *  @param   mixed [one of: function handler, null]
@@ -3507,13 +3512,15 @@
 				else
 				{
 					prepareTargetIterator(targets).each(function(){
+						var target;
+
 						if (!events)
 						{
 							result = result.concat(delegate.find(this, null, null, handler));
 						}
 						else
 						{
-							var target = this;
+							target = this;
 
 							prepareEventIterator(events).each(function(){
 								result = result.concat(delegate.find(target, this, filter, handler));
@@ -3907,7 +3914,8 @@
 	{
 		/*jshint validthis: true*/
 		var timing = this,
-			stack = buffer('timing.delay');
+			stack = buffer('timing.delay'),
+			raf;
 
 
         /**
@@ -3947,7 +3955,15 @@
 			 */
 			function start()
 			{
-				timer = setTimeout(function(){cancel();handler.call();}, timeout);
+				timer = setTimeout(function(){
+					if (!raf)
+						raf = kx.browser.feature('requestAnimationFrame') || function(ready){
+							setTimeout(ready, 16);
+						};
+					raf(cancel);
+
+					handler.call();
+				}, timeout);
 			}
 
 			//  expose
@@ -3986,7 +4002,7 @@
 		 */
 		function remove(reference)
 		{
-			if (!isType(undef, stack[reference]))
+			if (undef !== typeof stack[reference])
 			{
 				//  cancel the stack reference
 				stack[reference].cancel();
@@ -4011,7 +4027,7 @@
 				remove(reference);
 			else
 				reference = handler.toString() || unique();
-			stack[reference] = new kxDelay(handler, delay, reference);
+			stack[reference] = new kxDelay(handler, delay || 0, reference);
 
 			return stack[reference];
 		}
