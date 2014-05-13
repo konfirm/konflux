@@ -1450,17 +1450,20 @@
 		 *  @name    hasProperty
 		 *  @type    function
 		 *  @access  internal
-		 *  @param   string property
+		 *  @param   string  property
+		 *  @param   DOMNode target [optional, default undefined - document.body]
 		 *  @return  mixed  (one of: string (script)property, or false)
 		 */
-		function hasProperty(property)
+		function hasProperty(property, target)
 		{
 			property = scriptProperty(property);
-			if (property in document.body.style)
+			target   = target || document.body;
+
+			if (property in target.style)
 				return property;
 
 			property = konflux.browser.prefix() + konflux.string.ucFirst(property);
-			if (property in document.body.style)
+			if (property in target.style)
 				return property;
 
 			return false;
@@ -2006,6 +2009,17 @@
 
 			return value;
 		};
+
+		/**
+		 *  Determine whether or not the property is supported and try a vendor prefix, otherwise return false
+		 *  @name    property
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string  property
+		 *  @param   DOMNode target [optional, default undefined - document.body]
+		 *  @return  mixed  (one of: string (script)property, or false)
+		 */
+		style.property = hasProperty;
 
 		/**
 		 *  Calculate the specificity of a selector
@@ -2933,7 +2947,6 @@
 	}
 
 
-
 	/**
 	 *  Event attachment handler
 	 *  @module  event
@@ -3052,7 +3065,7 @@
 									}
 								});
 							}
-							else
+							else if (handler)
 							{
 								result = handler.apply(target, [unifier(evt)]);
 							}
@@ -3224,6 +3237,30 @@
 					queue.ready[p].call(e);
 		}
 
+
+		/**
+		 *  Get the event name for given event
+		 *  @name    getEventName
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string     name
+		 *  @param   DOMElement target
+		 *  @return  string     name
+		 */
+		function getEventName(name, target)
+		{
+			var match = name.match(/^(transition|animation)(end|iteration|start)$/i),
+				property;
+
+			if (match && (property = konflux.style.property(match[1], target)) !== match[1])
+			{
+				property = property.substr(0, property.length - match[1].length);
+				name = property['to' + (property.length <= 2 ? 'Upper' : 'Lower') + 'Case']() + konflux.string.ucFirst(match[1]) + konflux.string.ucFirst(match[2]);
+			}
+
+			return name;
+		}
+
 		/**
 		 *  Get the proper event type for given event trigger
 		 *  @name    getEventType
@@ -3234,7 +3271,7 @@
 		 */
 		function getEventType(name)
 		{
-			var list = '!afterprint!beforeprint!canplay!canplaythrough!change!domcontentloaded!durationchange!emptied!ended!input!invalid!loadeddata!loadedmetadata!offline!online!pause!play!playing!ratechange!readystatechange!reset!seeked!seeking!stalled!submit!suspend!timeupdate!volumechange!waiting!abort!domactivate!error!load!resize!scroll!select!unload!animationend!animationiteration!animationstart!beforeunload!blur!domfocusin!domfocusout!focus!focusin!focusout!click!contextmenu!dblclick!mousedown!mouseenter!mouseleave!mousemove!mouseout!mouseover!mouseup!show!compositionend!compositionstart!compositionupdate!copy!cut!paste!drag!dragend!dragenter!dragleave!dragover!dragstart!drop!hashchange!keydown!keypress!keyup!pagehide!pageshow!popstate!touchcancel!touchend!touchmove!touchstart!wheel!',
+			var list = '!afterprint!beforeprint!canplay!canplaythrough!change!domcontentloaded!durationchange!emptied!ended!input!invalid!loadeddata!loadedmetadata!offline!online!pause!play!playing!ratechange!readystatechange!reset!seeked!seeking!stalled!submit!suspend!timeupdate!volumechange!waiting!abort!domactivate!error!load!resize!scroll!select!unload!animationend!animationiteration!animationstart!beforeunload!blur!domfocusin!domfocusout!focus!focusin!focusout!click!contextmenu!dblclick!mousedown!mouseenter!mouseleave!mousemove!mouseout!mouseover!mouseup!show!compositionend!compositionstart!compositionupdate!copy!cut!paste!drag!dragend!dragenter!dragleave!dragover!dragstart!drop!hashchange!keydown!keypress!keyup!pagehide!pageshow!popstate!touchcancel!touchend!touchmove!touchstart!transitionend!wheel!',
 				position = list.indexOf('!' + name.toLowerCase() + '!'),
 				result;
 
@@ -3365,8 +3402,13 @@
 			else if (position < 771)
 				result = 'Touch';  //  TouchEvent
 
-			//  'wheel'              (DOM L3) A wheel button of a pointing device is rotated in any direction.
+
+			//  'transitionend'      (Transition Events) A CSS Transition has completed.
 			else if (position < 777)
+				result = 'Transition';  //  TransitionEvent
+
+			//  'wheel'              (DOM L3) A wheel button of a pointing device is rotated in any direction.
+			else if (position < 786)
 				result = 'Wheel';  //  WheelEvent
 
 			return result + 'Event';
@@ -3561,7 +3603,7 @@
 
 			if (target.addEventListener)
 			{
-				target.addEventListener(type, handler, capture);
+				target.addEventListener(getEventName(type), handler, capture);
 			}
 			else if (target.attachEvent)
 			{
@@ -3632,7 +3674,7 @@
 		{
 			if (target.removeEventListener)
 			{
-				target.removeEventListener(type, handler, capture);
+				target.removeEventListener(getEventName(type), handler, capture);
 			}
 			else if (target.detachEvent)
 			{
@@ -4754,6 +4796,22 @@
 			return new kxPoint(
 				point.x - point.y,
 				(point.x + point.y) * angle
+			);
+		};
+
+		/**
+		 *  Create a new point between the current and given point
+		 *  @name    mid
+		 *  @type    method
+		 *  @access  public
+		 *  @param   kxPoint p
+		 *  @return  kxPoint mid
+		 */
+		point.mid = function(p)
+		{
+			return new kxPoint(
+				(point.x + p.x) * 0.5,
+				(point.y + p.y) * 0.5
 			);
 		};
 	}
