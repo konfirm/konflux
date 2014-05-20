@@ -1,5 +1,5 @@
 /*
- *       __    Konflux Logo (version $DEV$ - $DATE$)
+ *       __    Konflux Logo (version develop - 2014-04-27 13:12:34 +0200)
  *      /\_\
  *   /\/ / /   Copyright 2012-2014, Konfirm (Rogier Spieker)
  *   \  / /    Releases under the MIT license
@@ -237,7 +237,7 @@
 				for (i = 0; i < design[name].length; ++i)
 					for (p in design[name][i])
 						for (j = 0; j < design[name][i][p].length; ++j)
-							if (design[name][i][p][j] instanceof konflux.point)
+							if (design[name][i][p][j].x && design[name][i][p][j].y)
 								result = result.max(design[name][i][p][j]);
 			}
 			return result;
