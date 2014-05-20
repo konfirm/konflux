@@ -56,7 +56,7 @@
 				var arg = Array.prototype.slice.call(arguments),
 					result = batch.apply(polygon, [method].concat(arg));
 
-				if ('length' in result && result.length > 0 && result[0] instanceof konflux.point)
+				if ('length' in result && result.length > 0 && result[0].x && result[0].y)
 					result = result[0] === points[0] ? polygon : new kxPolygon(result);
 
 				return result;
