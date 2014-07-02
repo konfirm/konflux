@@ -831,7 +831,7 @@
 			{
 				uc = konflux.string.ucFirst(feature[i]);
 				search = search.concat([
-					feature,	
+					feature,
 					vendor + uc,
 					vendor.toLowerCase() + uc
 				]);
@@ -1116,7 +1116,7 @@
 
 			if (!/^(POST|PUT)$/.test(type))
 			{
-				url += data !== '' ? '?' + data : '';
+				url += 'data' in config && config.data !== '' ? '?' + ('string' === typeof config.data ? config.data : data) : '';
 				data = null;
 			}
 
@@ -1157,6 +1157,7 @@
 			if (headers)
 				for (p in headers)
 					xhr.setRequestHeader(p, headers[p]);
+
 			xhr.send(data);
 			return xhr;
 		}
@@ -1171,15 +1172,16 @@
 		 */
 		function process(xhr)
 		{
-			var contentType = xhr.getResponseHeader('content-type').match(/([^;]+)/),
+			var contentType = xhr.getResponseHeader('content-type'),
 				result = [
 					xhr.status,
 					xhr.responseText,
 					xhr
-				];
+				],
+				match;
 
-			if (contentType)
-				contentType = contentType[1];
+			if (contentType && (match = contentType.match(/([^;]+)/)))
+				contentType = match[1];
 
 			switch (contentType)
 			{
@@ -1203,7 +1205,7 @@
 		 */
 		function prepareData(data, name, formData)
 		{
-			var r = formData || (!isType(undef, FormData) ? new FormData() : new kxFormData()),
+			var r = formData || (undef !== typeof FormData ? new FormData() : new kxFormData()),
 				p;
 
 			if (undef !== typeof File && data instanceof File)
