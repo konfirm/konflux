@@ -551,7 +551,7 @@
 
 			//  and ensure it'll be an array
 			if (!(append instanceof Array))
-				append = konflux.array.cast(append);
+				append = isType('object', append) ? [append] : konflux.array.cast(append);
 
 			//  if the appending variable holds an array, we concatenate it into the collection
 			if (append instanceof Array)
