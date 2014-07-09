@@ -4001,7 +4001,7 @@
 			{
 				timer = setTimeout(function(){
 					if (!raf)
-						raf = kx.browser.feature('requestAnimationFrame') || function(ready){
+						raf = konflux.browser.feature('requestAnimationFrame') || function(ready){
 							setTimeout(ready, 16);
 						};
 					raf(cancel);
