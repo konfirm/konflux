@@ -568,6 +568,38 @@
 			return false;
 		}
 
+
+		/**
+		 *  Create a function which implements a specific signature (which occurs repeatedly)
+		 *  @name    implement
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   function evaluation
+		 *  @param   bool     one [optional, default undefined (false-ish) - return a kxIterator]
+		 *  @return  function implementation
+		 */
+		function implement(evaluate, one)
+		{
+			return function(callback, context){
+				var list = new kxIterator(),
+					result, i;
+
+				for (i = 0; i < collection.length; ++i)
+				{
+					result = evaluate(callback.apply(context || iterator, [collection[i], i, collection]), collection[i]);
+
+					if (result)
+					{
+						if (one)
+							return result;
+						list.add(result);
+					}
+				}
+
+				return list;
+			};
+		}
+
 		/**
 		 *  Obtain the raw underlying collection
 		 *  @name    collection
@@ -659,6 +691,46 @@
 
 			return result;
 		};
+
+		/**
+		 *  Create a new kxIterator from the current containing only elements which received a true(-ish) result
+		 *  from the provided filter method
+		 *  @name    filter
+		 *  @type    method
+		 *  @access  public
+		 *  @param   function evaluate
+		 *  @param   object   scope 'this' [optional, default undefined - the current iterator item]
+		 *  @return  kxIterator matches
+		 */
+		iterator.filter = implement(function(result, item){
+			return !!result ? item : false;
+		});
+
+		/**
+		 *  Return the first matching item (true-ish result from the evaluation function) from the iterating
+		 *  @name    map
+		 *  @type    method
+		 *  @access  public
+		 *  @param   function map
+		 *  @param   object   scope 'this' [optional, default undefined - the current iterator item]
+		 *  @return  kxIterator mapped
+		 */
+		iterator.find = implement(function(result, item){
+			return !!result ? item : false;
+		}, true);
+
+		/**
+		 *  Create a new kxIterator from the current containing items (possibly) modified by the map function
+		 *  @name    map
+		 *  @type    method
+		 *  @access  public
+		 *  @param   function map
+		 *  @param   object   scope 'this' [optional, default undefined - the current iterator item]
+		 *  @return  kxIterator mapped
+		 */
+		iterator.map = implement(function(result){
+			return result;
+		});
 
 		/**
 		 *  Obtain the previous value, shifting the cursor to the previous position
