@@ -831,7 +831,7 @@
 			{
 				uc = konflux.string.ucFirst(feature[i]);
 				search = search.concat([
-					feature,
+					feature[i],
 					vendor + uc,
 					vendor.toLowerCase() + uc
 				]);
