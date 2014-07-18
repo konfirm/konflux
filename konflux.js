@@ -3574,7 +3574,7 @@
 			return konflux.iterator(events);
 		}
 
-		/*
+		/**
 		 *  Attach event handler(s) to elements
 		 *  @name    listen
 		 *  @type    function
@@ -3603,7 +3603,7 @@
 			});
 		}
 
-		/*
+		/**
 		 *  Remove event handlers from elements
 		 *  @name    remove
 		 *  @type    function
@@ -3845,7 +3845,7 @@
 		//  expose public API
 
 
-		/*
+		/**
 		 *  Attach event handler(s) to elements
 		 *  @name    add
 		 *  @type    method
@@ -3870,7 +3870,7 @@
 			return event;
 		};
 
-		/*
+		/**
 		 *  Remove event handlers from elements
 		 *  @name    remove
 		 *  @type    method
