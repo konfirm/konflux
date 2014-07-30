@@ -258,18 +258,6 @@
 		var kx = this;
 
 		/**
-		 *  Return konflux itself
-		 *  @name    master
-		 *  @type    method
-		 *  @access  public
-		 *  @return  object konflux
-		 */
-		kx.master = function()
-		{
-			return kx;
-		};
-
-		/**
 		 *  Obtain the milliseconds since the UNIX Epoch (Jan 1, 1970 00:00:00.000)
 		 *  @name    time
 		 *  @type    method
