@@ -685,7 +685,7 @@
 		{
 			var result = [];
 
-			iterator.each(function(key){
+			iterator.each(function(value, key){
 				result.push(key);
 			});
 
@@ -773,21 +773,20 @@
 		 *  @name    each
 		 *  @type    method
 		 *  @access  public
-		 *  @param   function   handle
+		 *  @param   function   callback
+		 *  @param   object     thisArg (value to use as this when executing callback)
 		 *  @return  kxIterator instance
-		 *  @note    the handle will be called with the collection item as scope ('this' inside the handle)
-		 *           and will receive its key as first argument
 		 */
-		iterator.each = function(handle)
+		iterator.each = function(callback, thisArg)
 		{
 			var p;
 
 			if ('length' in collection)
 				for (p = 0; p < collection.length; ++p)
-					handle.apply(collection[p], [p]);
+					callback.apply(thisArg || undefined, [collection[p], p, iterator]);
 			else
 				for (p in collection)
-					handle.apply(collection[p], [p]);
+					callback.apply(thisArg || undefined, [collection[p], p, iterator]);
 
 			return iterator;
 		};
@@ -3131,11 +3130,11 @@
 								if (!('target' in evt) && 'srcElement' in evt)
 									evt.target = evt.srcElement;
 
-								konflux.select(filter, target).each(function(){
-									if (evt.target === this || konflux.dom.contains(this, evt.target))
+								konflux.select(filter, target).each(function(element){
+									if (evt.target === element || konflux.dom.contains(element, evt.target))
 									{
 										evt.delegate = target;
-										result = handler.apply(this, [unifier(evt)]);
+										result = handler.apply(element, [unifier(evt)]);
 									}
 								});
 							}
@@ -3592,11 +3591,9 @@
 				delegate = new kxEventDelegate(unifyEvent);
 
 			events = prepareEventIterator(events);
-			prepareTargetIterator(targets).each(function(){
-				var target = this;
-
-				events.each(function(){
-					var setting = delegate.create(target, this, filter, handler, capture || filter ? true : false);
+			prepareTargetIterator(targets).each(function(target){
+				events.each(function(event){
+					var setting = delegate.create(target, event, filter, handler, capture || filter ? true : false);
 
 					attach(setting.target, setting.type, setting.delegate, setting.capture);
 				});
@@ -3627,19 +3624,15 @@
 				}
 				else
 				{
-					prepareTargetIterator(targets).each(function(){
-						var target;
-
+					prepareTargetIterator(targets).each(function(target){
 						if (!events)
 						{
-							result = result.concat(delegate.find(this, null, null, handler));
+							result = result.concat(delegate.find(target, null, null, handler));
 						}
 						else
 						{
-							target = this;
-
-							prepareEventIterator(events).each(function(){
-								result = result.concat(delegate.find(target, this, filter, handler));
+							prepareEventIterator(events).each(function(event){
+								result = result.concat(delegate.find(target, event, filter, handler));
 							});
 						}
 					});
@@ -3812,23 +3805,23 @@
 
 			if (trigger)
 			{
-				prepareTargetIterator(targets).each(function(){
+				prepareTargetIterator(targets).each(function(target){
 					if ('dispatchEvent' in this)
 					{
-						this.dispatchEvent(trigger);
+						target.dispatchEvent(trigger);
 					}
-					else if ('fireEvent' in this)
+					else if ('fireEvent' in target)
 					{
 						if (type === 'CustomEvent')
 						{
-							p = getEventProperty(this, name);
+							p = getEventProperty(target, name);
 							//  simply set the event property as we've already set up an setter function on it
-							if (!isType(undef, this[p]))
-								this[p] = trigger;
+							if (!isType(undef, target[p]))
+								target[p] = trigger;
 						}
 						else
 						{
-							this.fireEvent('on' + name, trigger);
+							target.fireEvent('on' + name, trigger);
 						}
 					}
 
