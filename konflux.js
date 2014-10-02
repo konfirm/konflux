@@ -773,21 +773,20 @@
 		 *  @name    each
 		 *  @type    method
 		 *  @access  public
-		 *  @param   function   handle
+		 *  @param   function   callback
+		 *  @param   object     thisArg (value to use as this when executing callback)
 		 *  @return  kxIterator instance
-		 *  @note    the handle will be called with the collection item as scope ('this' inside the handle)
-		 *           and will receive its key as first argument
 		 */
-		iterator.each = function(handle)
+		iterator.each = function(callback, thisArg)
 		{
 			var p;
 
 			if ('length' in collection)
 				for (p = 0; p < collection.length; ++p)
-					handle.apply(collection[p], [p]);
+					callback.apply(thisArg || undefined, [collection[p], p, iterator]);
 			else
 				for (p in collection)
-					handle.apply(collection[p], [p]);
+					callback.apply(thisArg || undefined, [collection[p], p, iterator]);
 
 			return iterator;
 		};
