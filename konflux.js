@@ -8,7 +8,7 @@
 
 /*jshint browser: true, undef: true, unused: true, curly: false, newcap: false, forin: false, devel: true */
 /*global File, FileList, FormData */
-;(function(window){
+;(function(window, undefined){
 	'use strict';
 
 	var version = '$DEV$ - $DATE$ - $COMMIT$',
@@ -574,19 +574,24 @@
 		 *  @name    implement
 		 *  @type    function
 		 *  @access  internal
+		 *  @param   string   name
 		 *  @param   function evaluation
 		 *  @param   bool     one [optional, default undefined (false-ish) - return a kxIterator]
 		 *  @return  function implementation
 		 */
-		function implement(evaluate, one)
+		function implement(name, evaluate, one)
 		{
 			return function(callback, context){
-				var list = new kxIterator(),
-					result, i;
+				var list, result, i;
 
+				//  always use the native implementation, if it exists
+				if (name in collection && isType('function', collection[name]))
+					return new kxIterator(collection[name].apply(collection, arguments));
+
+				list = new kxIterator();
 				for (i = 0; i < collection.length; ++i)
 				{
-					result = evaluate(callback.apply(context || iterator, [collection[i], i, collection]), collection[i]);
+					result = evaluate(callback.apply(context || undefined, [collection[i], i, collection]), collection[i]);
 
 					if (result)
 					{
@@ -699,23 +704,23 @@
 		 *  @type    method
 		 *  @access  public
 		 *  @param   function evaluate
-		 *  @param   object   scope 'this' [optional, default undefined - the current iterator item]
+		 *  @param   object   thisArg 'this' [optional, default undefined]
 		 *  @return  kxIterator matches
 		 */
-		iterator.filter = implement(function(result, item){
+		iterator.filter = implement('filter', function(result, item){
 			return !!result ? item : false;
 		});
 
 		/**
-		 *  Return the first matching item (true-ish result from the evaluation function) from the iterating
-		 *  @name    map
+		 *  Return the first matching item (true-ish result from the evaluation function) from the iterator
+		 *  @name    find
 		 *  @type    method
 		 *  @access  public
 		 *  @param   function map
-		 *  @param   object   scope 'this' [optional, default undefined - the current iterator item]
-		 *  @return  kxIterator mapped
+		 *  @param   object   thisArg 'this' [optional, default undefined]
+		 *  @return  kxIterator found
 		 */
-		iterator.find = implement(function(result, item){
+		iterator.find = implement('find', function(result, item){
 			return !!result ? item : false;
 		}, true);
 
@@ -725,10 +730,10 @@
 		 *  @type    method
 		 *  @access  public
 		 *  @param   function map
-		 *  @param   object   scope 'this' [optional, default undefined - the current iterator item]
+		 *  @param   object   thisArg 'this' [optional, default undefined]
 		 *  @return  kxIterator mapped
 		 */
-		iterator.map = implement(function(result){
+		iterator.map = implement('map', function(result){
 			return result;
 		});
 
