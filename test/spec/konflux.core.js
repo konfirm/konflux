@@ -1,6 +1,5 @@
 describe('Konflux Core - basics', function(){
 
-	//  existence
 	it('has both the konflux and kx global object variables, which are equal', function(){
 		expect(typeof konflux).toBe('object');
 		expect(kx).toEqual(konflux);
@@ -22,13 +21,6 @@ describe('Konflux Core - basics', function(){
 
 			done();
 		}, 1000);
-
-		setTimeout(function(){
-			//  we expect the elapsed to be anywhere between 00:00:10.000 and 00:00:12.999
-			expect(kx.elapsed()).toMatch(/00:00:1[0-2]\.[0-9]{3}/);
-
-			done();
-		}, 10000);
 	});
 
 	//  kx.unique
@@ -43,7 +35,6 @@ describe('Konflux Core - basics', function(){
 			expect(kx.unique()).not.toEqual(kx.unique());
 		}
 	});
-
 
 	describe('Combining variables', function(){
 
@@ -65,7 +56,6 @@ describe('Konflux Core - basics', function(){
 
 	});
 
-
 	describe('testing for empty values', function(){
 
 		it('empty: null', function(){
@@ -74,6 +64,18 @@ describe('Konflux Core - basics', function(){
 
 		it('not empty: "null"', function(){
 			expect(konflux.empty("null")).toEqual(false);
+		});
+
+		it('empty: false', function(){
+			expect(konflux.empty(false)).toEqual(true);
+		});
+
+		it('not empty: "false"', function(){
+			expect(konflux.empty("false")).toEqual(false);
+		});
+
+		it('not empty: true', function(){
+			expect(konflux.empty(true)).toEqual(false);
 		});
 
 		it('empty: "" ', function(){
@@ -92,6 +94,14 @@ describe('Konflux Core - basics', function(){
 			expect(konflux.empty("0")).toEqual(true);
 		});
 
+		it('empty: 0.0', function(){
+			expect(konflux.empty(0.0)).toEqual(true);
+		});
+
+		it('not empty: "0.0"', function(){
+			expect(konflux.empty("0.0")).toEqual(false);
+		});
+
 		it('empty: {}', function(){
 			expect(konflux.empty({})).toEqual(true);
 		});
@@ -108,25 +118,50 @@ describe('Konflux Core - basics', function(){
 			expect(konflux.empty([0])).toEqual(false);
 		});
 
-		it('empty: null, {}, [], 0, "", "0"', function(){
-			expect(konflux.empty(null, {}, [], 0, "")).toEqual(true);
+		it('empty: null, false, {}, [], 0, "", "0"', function(){
+			expect(konflux.empty(null, false, {}, [], 0, "")).toEqual(true);
 		});
 
-		it('not empty: null, {}, [], 0, "", [0]', function(){
-			expect(konflux.empty(null, {}, [], 0, "", [0])).toEqual(false);
+		it('not empty: "null", false, {}, [], 0, "", "0"', function(){
+			expect(konflux.empty("null", false, {}, [], 0, "")).toEqual(false);
 		});
 
-		it('not empty: null, {}, [], 0, "", "1"', function(){
-			expect(konflux.empty(null, {}, [], 0, "", "1")).toEqual(false);
+		it('not empty: null, "false", {}, [], 0, "", "0"', function(){
+			expect(konflux.empty(null, "false", {}, [], 0, "")).toEqual(false);
 		});
 
-		it('not empty: null, {}, [], 0, "", {0:0}', function(){
-			expect(konflux.empty(null, {}, [], 0, "", "{0:0}")).toEqual(false);
+		it('not empty: null, false, "{}", [], 0, "", "0"', function(){
+			expect(konflux.empty(null, false, "{}", [], 0, "")).toEqual(false);
 		});
 
-		it('not empty: null, {}, [], 0, "", " "', function(){
-			expect(konflux.empty(null, {}, [], 0, "", " ")).toEqual(false);
+		it('not empty: null, false, {0:0}, [], 0, "", "0"', function(){
+			expect(konflux.empty(null, false, {0:0}, [], 0, "")).toEqual(false);
+		});
+
+		it('not empty: null, false, {}, "[]", 0, "", "0"', function(){
+			expect(konflux.empty(null, false, {}, "[]", 0, "")).toEqual(false);
+		});
+
+		it('not empty: null, false, {}, [0], 0, "", "0"', function(){
+			expect(konflux.empty(null, false, {}, [0], 0, "")).toEqual(false);
+		});
+
+		it('not empty: null, false, {}, [], 1, "", "0"', function(){
+			expect(konflux.empty(null, false, {}, [], 1, "")).toEqual(false);
+		});
+
+		it('not empty: null, false, {}, [], -1, "", "0"', function(){
+			expect(konflux.empty(null, false, {}, [], -1, "")).toEqual(false);
+		});
+
+		it('empty: null, false, {}, [], 0.0, "", "0"', function(){
+			expect(konflux.empty(null, false, {}, [], 0.0, "")).toEqual(true);
+		});
+
+		it('empty: null, false, {}, [], 0.0, "", "0"', function(){
+			expect(konflux.empty(null, false, {}, [], 0.0, "")).toEqual(true);
 		});
 
 	});
+
 });
