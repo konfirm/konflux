@@ -8,7 +8,7 @@
 
 /*jshint browser: true, undef: true, unused: true, curly: false, newcap: false, forin: false, devel: true */
 /*global File, FileList, FormData */
-;(function(window){
+;(function(window, undefined){
 	'use strict';
 
 	var version = '$DEV$ - $DATE$ - $COMMIT$',
@@ -562,19 +562,24 @@
 		 *  @name    implement
 		 *  @type    function
 		 *  @access  internal
+		 *  @param   string   name
 		 *  @param   function evaluation
 		 *  @param   bool     one [optional, default undefined (false-ish) - return a kxIterator]
 		 *  @return  function implementation
 		 */
-		function implement(evaluate, one)
+		function implement(name, evaluate, one)
 		{
 			return function(callback, context){
-				var list = new kxIterator(),
-					result, i;
+				var list, result, i;
 
+				//  always use the native implementation, if it exists
+				if (name in collection && isType('function', collection[name]))
+					return new kxIterator(collection[name].apply(collection, arguments));
+
+				list = new kxIterator();
 				for (i = 0; i < collection.length; ++i)
 				{
-					result = evaluate(callback.apply(context || iterator, [collection[i], i, collection]), collection[i]);
+					result = evaluate(callback.apply(context || undefined, [collection[i], i, collection]), collection[i]);
 
 					if (result)
 					{
@@ -673,7 +678,7 @@
 		{
 			var result = [];
 
-			iterator.each(function(key){
+			iterator.each(function(value, key){
 				result.push(key);
 			});
 
@@ -687,23 +692,23 @@
 		 *  @type    method
 		 *  @access  public
 		 *  @param   function evaluate
-		 *  @param   object   scope 'this' [optional, default undefined - the current iterator item]
+		 *  @param   object   thisArg 'this' [optional, default undefined]
 		 *  @return  kxIterator matches
 		 */
-		iterator.filter = implement(function(result, item){
+		iterator.filter = implement('filter', function(result, item){
 			return !!result ? item : false;
 		});
 
 		/**
-		 *  Return the first matching item (true-ish result from the evaluation function) from the iterating
-		 *  @name    map
+		 *  Return the first matching item (true-ish result from the evaluation function) from the iterator
+		 *  @name    find
 		 *  @type    method
 		 *  @access  public
 		 *  @param   function map
-		 *  @param   object   scope 'this' [optional, default undefined - the current iterator item]
-		 *  @return  kxIterator mapped
+		 *  @param   object   thisArg 'this' [optional, default undefined]
+		 *  @return  kxIterator found
 		 */
-		iterator.find = implement(function(result, item){
+		iterator.find = implement('find', function(result, item){
 			return !!result ? item : false;
 		}, true);
 
@@ -713,10 +718,10 @@
 		 *  @type    method
 		 *  @access  public
 		 *  @param   function map
-		 *  @param   object   scope 'this' [optional, default undefined - the current iterator item]
+		 *  @param   object   thisArg 'this' [optional, default undefined]
 		 *  @return  kxIterator mapped
 		 */
-		iterator.map = implement(function(result){
+		iterator.map = implement('map', function(result){
 			return result;
 		});
 
@@ -761,21 +766,20 @@
 		 *  @name    each
 		 *  @type    method
 		 *  @access  public
-		 *  @param   function   handle
+		 *  @param   function   callback
+		 *  @param   object     thisArg (value to use as this when executing callback)
 		 *  @return  kxIterator instance
-		 *  @note    the handle will be called with the collection item as scope ('this' inside the handle)
-		 *           and will receive its key as first argument
 		 */
-		iterator.each = function(handle)
+		iterator.each = function(callback, thisArg)
 		{
 			var p;
 
 			if ('length' in collection)
 				for (p = 0; p < collection.length; ++p)
-					handle.apply(collection[p], [p]);
+					callback.apply(thisArg || undefined, [collection[p], p, iterator]);
 			else
 				for (p in collection)
-					handle.apply(collection[p], [p]);
+					callback.apply(thisArg || undefined, [collection[p], p, iterator]);
 
 			return iterator;
 		};
@@ -3119,11 +3123,11 @@
 								if (!('target' in evt) && 'srcElement' in evt)
 									evt.target = evt.srcElement;
 
-								konflux.select(filter, target).each(function(){
-									if (evt.target === this || konflux.dom.contains(this, evt.target))
+								konflux.select(filter, target).each(function(element){
+									if (evt.target === element || konflux.dom.contains(element, evt.target))
 									{
 										evt.delegate = target;
-										result = handler.apply(this, [unifier(evt)]);
+										result = handler.apply(element, [unifier(evt)]);
 									}
 								});
 							}
@@ -3580,11 +3584,9 @@
 				delegate = new kxEventDelegate(unifyEvent);
 
 			events = prepareEventIterator(events);
-			prepareTargetIterator(targets).each(function(){
-				var target = this;
-
-				events.each(function(){
-					var setting = delegate.create(target, this, filter, handler, capture || filter ? true : false);
+			prepareTargetIterator(targets).each(function(target){
+				events.each(function(event){
+					var setting = delegate.create(target, event, filter, handler, capture || filter ? true : false);
 
 					attach(setting.target, setting.type, setting.delegate, setting.capture);
 				});
@@ -3615,19 +3617,15 @@
 				}
 				else
 				{
-					prepareTargetIterator(targets).each(function(){
-						var target;
-
+					prepareTargetIterator(targets).each(function(target){
 						if (!events)
 						{
-							result = result.concat(delegate.find(this, null, null, handler));
+							result = result.concat(delegate.find(target, null, null, handler));
 						}
 						else
 						{
-							target = this;
-
-							prepareEventIterator(events).each(function(){
-								result = result.concat(delegate.find(target, this, filter, handler));
+							prepareEventIterator(events).each(function(event){
+								result = result.concat(delegate.find(target, event, filter, handler));
 							});
 						}
 					});
@@ -3800,23 +3798,23 @@
 
 			if (trigger)
 			{
-				prepareTargetIterator(targets).each(function(){
+				prepareTargetIterator(targets).each(function(target){
 					if ('dispatchEvent' in this)
 					{
-						this.dispatchEvent(trigger);
+						target.dispatchEvent(trigger);
 					}
-					else if ('fireEvent' in this)
+					else if ('fireEvent' in target)
 					{
 						if (type === 'CustomEvent')
 						{
-							p = getEventProperty(this, name);
+							p = getEventProperty(target, name);
 							//  simply set the event property as we've already set up an setter function on it
-							if (!isType(undef, this[p]))
-								this[p] = trigger;
+							if (!isType(undef, target[p]))
+								target[p] = trigger;
 						}
 						else
 						{
-							this.fireEvent('on' + name, trigger);
+							target.fireEvent('on' + name, trigger);
 						}
 					}
 
