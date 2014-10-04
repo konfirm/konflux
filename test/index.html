@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<meta charset=utf-8>
+		<title>Konflux Tests</title>
+
+		<link rel="shortcut icon" type=image/png href=jasmine/lib/jasmine-2.0.3/jasmine_favicon.png>
+		<link rel=stylesheet type=text/css href=jasmine/lib/jasmine-2.0.3/jasmine.css>
+
+		<!--  jasmine library dependencies  -->
+		<script src=jasmine/lib/jasmine-2.0.3/jasmine.js></script>
+		<script src=jasmine/lib/jasmine-2.0.3/jasmine-html.js></script>
+		<script src=jasmine/lib/jasmine-2.0.3/boot.js></script>
+
+		<!--  blanket for jasmine  -->
+		<script src=blanket/blanket-1.1.5.min.js></script>
+		<script src=blanket/jasmine-2.x-blanket.js></script>
+
+		<!--  konflux  -->
+		<script src=../src/konflux.js data-cover></script>
+
+		<!--  the jasmine spec files containing the actual tests  -->
+		<script src=spec/konflux.core.js></script>
+
+	</head>
+	<body>
+
+		<div id="shouldBePubliclyReferenced"></div>
+		<div id="shouldBeSecretlyReferenced"></div>
+
+	</body>
+</html>
