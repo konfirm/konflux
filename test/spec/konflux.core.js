@@ -39,19 +39,19 @@ describe('Konflux Core - basics', function(){
 	describe('Combining variables', function(){
 
 		it('combine {a:1} into {a:1}', function(){
-			expect(konflux.combine({a:1})).toEqual({a:1});
+			expect(kx.combine({a:1})).toEqual({a:1});
 		});
 
 		it('combine {}, {a:1} into {a:1}', function(){
-			expect(konflux.combine({}, {a:1})).toEqual({a:1});
+			expect(kx.combine({}, {a:1})).toEqual({a:1});
 		});
 
 		it('combine {a:1}, {a:null,b:2} into {a:null, b:2}', function(){
-			expect(konflux.combine({a:1}, {a:null,b:2})).toEqual({a:null,b:2});
+			expect(kx.combine({a:1}, {a:null,b:2})).toEqual({a:null,b:2});
 		});
 
 		it('combines {a:4}, {a:3, b:2}, {b:1}, {a:2}, {a:1} into {a:1,b:1}', function(){
-			expect(konflux.combine({a:4}, {a:3, b:2}, {b:1}, {a:2}, {a:1})).toEqual({a:1,b:1});
+			expect(kx.combine({a:4}, {a:3, b:2}, {b:1}, {a:2}, {a:1})).toEqual({a:1,b:1});
 		});
 
 	});
@@ -59,109 +59,126 @@ describe('Konflux Core - basics', function(){
 	describe('testing for empty values', function(){
 
 		it('empty: null', function(){
-			expect(konflux.empty(null)).toEqual(true);
+			expect(kx.empty(null)).toEqual(true);
 		});
 
 		it('not empty: "null"', function(){
-			expect(konflux.empty("null")).toEqual(false);
+			expect(kx.empty("null")).toEqual(false);
 		});
 
 		it('empty: false', function(){
-			expect(konflux.empty(false)).toEqual(true);
+			expect(kx.empty(false)).toEqual(true);
 		});
 
 		it('not empty: "false"', function(){
-			expect(konflux.empty("false")).toEqual(false);
+			expect(kx.empty("false")).toEqual(false);
 		});
 
 		it('not empty: true', function(){
-			expect(konflux.empty(true)).toEqual(false);
+			expect(kx.empty(true)).toEqual(false);
 		});
 
 		it('empty: "" ', function(){
-			expect(konflux.empty("")).toEqual(true);
+			expect(kx.empty("")).toEqual(true);
 		});
 
 		it('not empty: " " ', function(){
-			expect(konflux.empty(" ")).toEqual(false);
+			expect(kx.empty(" ")).toEqual(false);
 		});
 
 		it('empty: 0', function(){
-			expect(konflux.empty(0)).toEqual(true);
+			expect(kx.empty(0)).toEqual(true);
 		});
 
 		it('empty: "0"', function(){
-			expect(konflux.empty("0")).toEqual(true);
+			expect(kx.empty("0")).toEqual(true);
 		});
 
 		it('empty: 0.0', function(){
-			expect(konflux.empty(0.0)).toEqual(true);
+			expect(kx.empty(0.0)).toEqual(true);
 		});
 
 		it('not empty: "0.0"', function(){
-			expect(konflux.empty("0.0")).toEqual(false);
+			expect(kx.empty("0.0")).toEqual(false);
 		});
 
 		it('empty: {}', function(){
-			expect(konflux.empty({})).toEqual(true);
+			expect(kx.empty({})).toEqual(true);
 		});
 
 		it('not empty: {a:""}', function(){
-			expect(konflux.empty({a:""})).toEqual(false);
+			expect(kx.empty({a:""})).toEqual(false);
 		});
 
 		it('empty: []', function(){
-			expect(konflux.empty([])).toEqual(true);
+			expect(kx.empty([])).toEqual(true);
 		});
 
 		it('not empty: [0]', function(){
-			expect(konflux.empty([0])).toEqual(false);
+			expect(kx.empty([0])).toEqual(false);
 		});
 
 		it('empty: null, false, {}, [], 0, "", "0"', function(){
-			expect(konflux.empty(null, false, {}, [], 0, "")).toEqual(true);
+			expect(kx.empty(null, false, {}, [], 0, "")).toEqual(true);
 		});
 
 		it('not empty: "null", false, {}, [], 0, "", "0"', function(){
-			expect(konflux.empty("null", false, {}, [], 0, "")).toEqual(false);
+			expect(kx.empty("null", false, {}, [], 0, "")).toEqual(false);
 		});
 
 		it('not empty: null, "false", {}, [], 0, "", "0"', function(){
-			expect(konflux.empty(null, "false", {}, [], 0, "")).toEqual(false);
+			expect(kx.empty(null, "false", {}, [], 0, "")).toEqual(false);
 		});
 
 		it('not empty: null, false, "{}", [], 0, "", "0"', function(){
-			expect(konflux.empty(null, false, "{}", [], 0, "")).toEqual(false);
+			expect(kx.empty(null, false, "{}", [], 0, "")).toEqual(false);
 		});
 
 		it('not empty: null, false, {0:0}, [], 0, "", "0"', function(){
-			expect(konflux.empty(null, false, {0:0}, [], 0, "")).toEqual(false);
+			expect(kx.empty(null, false, {0:0}, [], 0, "")).toEqual(false);
 		});
 
 		it('not empty: null, false, {}, "[]", 0, "", "0"', function(){
-			expect(konflux.empty(null, false, {}, "[]", 0, "")).toEqual(false);
+			expect(kx.empty(null, false, {}, "[]", 0, "")).toEqual(false);
 		});
 
 		it('not empty: null, false, {}, [0], 0, "", "0"', function(){
-			expect(konflux.empty(null, false, {}, [0], 0, "")).toEqual(false);
+			expect(kx.empty(null, false, {}, [0], 0, "")).toEqual(false);
 		});
 
 		it('not empty: null, false, {}, [], 1, "", "0"', function(){
-			expect(konflux.empty(null, false, {}, [], 1, "")).toEqual(false);
+			expect(kx.empty(null, false, {}, [], 1, "")).toEqual(false);
 		});
 
 		it('not empty: null, false, {}, [], -1, "", "0"', function(){
-			expect(konflux.empty(null, false, {}, [], -1, "")).toEqual(false);
+			expect(kx.empty(null, false, {}, [], -1, "")).toEqual(false);
 		});
 
 		it('empty: null, false, {}, [], 0.0, "", "0"', function(){
-			expect(konflux.empty(null, false, {}, [], 0.0, "")).toEqual(true);
+			expect(kx.empty(null, false, {}, [], 0.0, "")).toEqual(true);
 		});
 
 		it('empty: null, false, {}, [], 0.0, "", "0"', function(){
-			expect(konflux.empty(null, false, {}, [], 0.0, "")).toEqual(true);
+			expect(kx.empty(null, false, {}, [], 0.0, "")).toEqual(true);
 		});
 
+	});
+
+	describe('Basic type determination', function(){
+		it('recognises array types', function(){
+			expect(kx.type([])).toBe('array');
+			expect(kx.type(''.split(''))).toBe('array');
+			expect(kx.type(Array(10).join('-'))).not.toBe('array');
+			expect(kx.type({})).not.toBe('array');
+		});
+	});
+
+	describe('Strong type determination', function(){
+		it('recognises number types', function(){
+			expect(kx.type(0, true)).toBe('integer');
+			expect(kx.type(0.0, true)).toBe('integer');
+			expect(kx.type(1.2, true)).toBe('float');
+		});
 	});
 
 });
