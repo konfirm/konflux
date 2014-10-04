@@ -160,12 +160,13 @@
 	 *  @access  internal
 	 *  @param   mixed variable to check
 	 *  @return  bool  empty
-	 *  @note    The function follows PHP's empty function; null, undefined, 0, '', '0' and false are all considered empty
+	 *  @note    The function follows PHP's empty function; null, undefined, 0, '', '0', {}, [] and false are all considered empty
 	 */
 	function empty(p)
 	{
 		var types = {
-				'object':  function(o){if (o instanceof Array)return o.length > 0; for (o in o)return true;return false;},
+				'array':   function(a){return a.length > 0;},
+				'object':  function(o){for (o in o)return true;return false;},
 				'boolean': function(b){return b;},
 				'number':  function(n){return n !== 0;},
 				'string':  function(s){return !/^0?$/.test(s);}
