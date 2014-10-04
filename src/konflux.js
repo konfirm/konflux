@@ -322,20 +322,28 @@
 		 *  @type    method
 		 *  @access  public
 		 *  @param   mixed  variable
-		 *  @param   bool   object names
+		 *  @param   bool   strong types (object names, number types)
 		 *  @return  string type
 		 */
-		kx.type = function(variable, objectTypes)
+		kx.type = function(variable, strong)
 		{
 			var result = type(variable),
 				name;
 
-			if (result === 'object' && objectTypes)
-			{
-				name = /(?:function\s+)?(.{1,})\(/i.exec(variable.constructor.toString());
-				if (name && name.length > 1)
-					result = name[1];
-			}
+			if (strong)
+				switch (result)
+				{
+					case 'number':
+						console.log(variable | 0, variable);
+						result = parseInt(variable) === variable ? 'integer' : 'float';
+						break;
+
+					case 'object':
+						name = /(?:function\s+)?(.{1,})\(/i.exec(variable.constructor.toString());
+						if (name && name.length > 1)
+							result = name[1];
+						break;
+				}
 
 			return result;
 		};
