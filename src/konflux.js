@@ -1148,16 +1148,24 @@
 		 *  @name    getHeader
 		 *  @type    function
 		 *  @access  internal
+		 *  @param   string url
 		 *  @return  object headers
 		 */
-		function getHeader()
+		function getHeader(url)
 		{
 			if (!header)
 				header = {
 					'X-Konflux': 'konflux/' + konflux.string.ascii(konflux.version())
 				};
 
-			return header;
+			// Since browsers "preflight" requests for cross-site HTTP requests with
+			// custom headers we should not try to send them, or request will fail
+			// silently
+			//
+			// For more information, please refer to:
+			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS#Preflighted_requests
+
+			return konflux.url.isLocal(url) ? header : {};
 		}
 
 		/**
@@ -1188,7 +1196,7 @@
 				type  = 'type' in config ? config.type.toUpperCase() : 'GET',
 				data  = 'data' in config ? prepareData(config.data) : '',
 				async = 'async' in config ? config.async : true,
-				headers = 'header' in config ? combine(config.header, getHeader()) : getHeader(),
+				headers = 'header' in config ? combine(config.header, getHeader(url)) : getHeader(url),
 				xhr   = getXMLHTTPRequest(),
 				p;
 
