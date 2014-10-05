@@ -184,11 +184,22 @@
 	 *  @type    function
 	 *  @access  internal
 	 *  @param   mixed variable
+	 *  @param   bool  explicit
 	 *  @return  string type
 	 */
-	function type(variable)
+	function type(variable, explicit)
 	{
-		return variable instanceof Array ? 'array' : typeof variable;
+		var result = variable instanceof Array ? 'array' : (variable === null ? 'null' : typeof variable),
+			name;
+
+		if (explicit && result === 'object')
+		{
+			name = /(?:function\s+)?(.{1,})\(/i.exec(variable.constructor.toString());
+			if (name && name.length > 1 && name[1] !== 'Object')
+				return name[1];
+		}
+
+		return result;
 	}
 
 	/**
@@ -202,7 +213,22 @@
 	 */
 	function isType(t, variable)
 	{
-		return type(variable).substr(0, t.length) === t;
+		var full = type(variable),
+			check = full.substr(0, t.length);
+
+		if (check !== t)
+			switch (full)
+			{
+				case 'object':
+					check = type(variable, true).substr(0, t.length);
+					break;
+
+				case 'number':
+					check = (parseInt(variable) === variable ? 'integer' : 'float').substr(0, t.length);
+					break;
+			}
+
+		return check === t;
 	}
 
 	/**
@@ -322,31 +348,10 @@
 		 *  @type    method
 		 *  @access  public
 		 *  @param   mixed  variable
-		 *  @param   bool   strong types (object names, number types)
+		 *  @param   bool   explicit types [optional, default undefined - simple types]
 		 *  @return  string type
 		 */
-		kx.type = function(variable, strong)
-		{
-			var result = type(variable),
-				name;
-
-			if (strong)
-				switch (result)
-				{
-					case 'number':
-						console.log(variable | 0, variable);
-						result = parseInt(variable) === variable ? 'integer' : 'float';
-						break;
-
-					case 'object':
-						name = /(?:function\s+)?(.{1,})\(/i.exec(variable.constructor.toString());
-						if (name && name.length > 1)
-							result = name[1];
-						break;
-				}
-
-			return result;
-		};
+		kx.type = type;
 
 		/**
 		 *  Test the type of given variable
