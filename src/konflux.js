@@ -214,7 +214,7 @@
 	function isType(t, variable)
 	{
 		var full = type(variable),
-			check = full.substr(0, t.length);
+			check = t && t.length ? full.substr(0, t.length) : null;
 
 		if (check !== t)
 			switch (full)
