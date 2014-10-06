@@ -1,5 +1,10 @@
 describe('Konflux.browser', function(){
 
+	it('IE', function(){
+		expect(konflux.browser.ie(20)).toBe(false);
+		expect(typeof konflux.browser.ie()).toBe('boolean');
+	});
+
 	it('prefix', function(){
 		expect(konflux.browser.prefix()).toMatch(/^o|ms|moz|icab|khtml|webkit$/i);
 	});

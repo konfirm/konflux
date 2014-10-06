@@ -974,7 +974,7 @@
 		{
 			if (isType(undef, ieVersion))
 				ieVersion = detectIE();
-			return min ? ieVersion < min : ieVersion;
+			return min && ieVersion ? ieVersion < min : ieVersion;
 		};
 
 		/**
