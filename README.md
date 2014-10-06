@@ -11,6 +11,7 @@ Ease of use, cross-browser compatibility, stability and performance are the main
 * konflux.cookie - Cookie object, making working with cookies a wee bit easier
 * konflux.dom - DOM Structure helper
 * konflux.event - Event attachment handler
+* konflux.iterator - Iterator object, providing a uniform mechanism to traverse collections (Array, Object, DOMNodeList, etc)
 * konflux.number - Number utils
 * konflux.observer - Observer object, handles subscriptions to messages
 * konflux.storage - Storage object, a simple wrapper for localStorage
