@@ -2696,7 +2696,10 @@
 			{
 				case 'object':
 					if (!('length' in mixed))
+					{
+						result = [mixed];
 						break;
+					}
 
 					try
 					{
@@ -2707,6 +2710,11 @@
 						for (result = [], len = mixed.length, i = 0; i < len; ++i)
 							result.push(mixed[i]);
 					}
+					break;
+
+				case 'null':
+				case 'undefined':
+					result = [];
 					break;
 
 				default:
