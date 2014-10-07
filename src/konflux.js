@@ -2610,6 +2610,28 @@
 		/*jshint validthis: true*/
 		var array = this;
 
+		function same(a, b)
+		{
+			var p;
+
+			if (!isType('object', a) || !isType('object', b))
+				return a === b;
+
+			for (p in a)
+			{
+				if (!(p in b))
+					return false;
+
+				if (isType('object', a[p]) && isType('object', b[p]))
+					return same(a[p], b[p]);
+
+				if (b[p] !== a[p])
+					return false;
+			}
+
+			return true;
+		}
+
 		/**
 		 *  Determine whether given value (needle) is in the array (haystack)
 		 *  @name    contains
@@ -2622,7 +2644,7 @@
 		function contains(a, v)
 		{
 			for (var i = 0; i < a.length; ++i)
-				if (a[i] === v)
+				if (same(a[i], v))
 					return i;
 			return false;
 		}
