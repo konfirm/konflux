@@ -6,9 +6,9 @@ describe('Konflux.Array', function() {
 		expect(kx.array.contains(A, 4)).toEqual(3);
 		expect(kx.array.contains(A, 10)).toBe(false);
 		expect(kx.array.contains(A, null)).toEqual(5);
-		expect(kx.array.contains(A, {b:{c:1}})).toEqual(8);
+		expect(kx.array.contains(A, {b:{c:1}})).toEqual(false);
 		expect(kx.array.contains(B, 'string')).toEqual(0);
-		expect(kx.array.contains(B, {a: 1})).toEqual(1);
+		expect(kx.array.contains(B, {a: 1})).toEqual(false);
 	});
 
 	it('diff', function() {
