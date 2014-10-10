@@ -393,4 +393,12 @@ describe('Konflux Core - basics', function(){
 		});
 	});
 
+	describe('Version info', function(){
+		it('contains version, date, revision, type', function(){
+			expect('version' in kx.version(true)).toBe(true);
+			expect('date' in kx.version(true)).toBe(true);
+			expect('revision' in kx.version(true)).toBe(true);
+		});
+	});
+
 });
