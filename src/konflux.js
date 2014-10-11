@@ -590,7 +590,7 @@
 				if (name in collection && isType('function', collection[name]))
 					return new kxIterator(collection[name].apply(collection, arguments));
 
-				list = new window[type(collection, true)]();
+				list = collection instanceof Array ? [] : {};
 
 				keys = iterator.keys();
 				for (i = 0; i < keys.length; ++i)
