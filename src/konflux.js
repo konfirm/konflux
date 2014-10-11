@@ -584,26 +584,28 @@
 		function implement(name, evaluate, one)
 		{
 			return function(callback, context){
-				var list, result, i;
+				var list, result, keys, i;
 
 				//  always use the native implementation, if it exists
 				if (name in collection && isType('function', collection[name]))
 					return new kxIterator(collection[name].apply(collection, arguments));
 
-				list = new kxIterator();
-				for (i = 0; i < collection.length; ++i)
+				list = collection instanceof Array ? [] : {};
+
+				keys = iterator.keys();
+				for (i = 0; i < keys.length; ++i)
 				{
-					result = evaluate(callback.apply(context || undefined, [collection[i], i, collection]), collection[i]);
+					result = evaluate(callback.apply(context || undefined, [collection[keys[i]], keys[i], collection]), collection[keys[i]]);
 
 					if (result)
 					{
 						if (one)
 							return result;
-						list.add(result);
+						list[keys[i]] = result;
 					}
 				}
 
-				return list;
+				return konflux.iterator(list);
 			};
 		}
 
