@@ -590,7 +590,7 @@
 				if (name in collection && isType('function', collection[name]))
 					return new kxIterator(collection[name].apply(collection, arguments));
 
-				list = new window[collection.constructor.name]();
+				list = new window[type(collection, true)]();
 
 				keys = iterator.keys();
 				for (i = 0; i < keys.length; ++i)
@@ -605,7 +605,7 @@
 					}
 				}
 
-				return kx.iterator(list);
+				return konflux.iterator(list);
 			};
 		}
 
