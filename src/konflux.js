@@ -2866,43 +2866,40 @@
 
 			switch (type(struct))
 			{
+				case 'array':
+					element = [];
+					for (i = 0; i < struct.length; ++i)
+						element.push(createStructure(struct[i]));
+					break;
+
 				case 'object':
-					if (struct instanceof Array)
-					{
-						element = [];
-						for (i = 0; i < struct.length; ++i)
-							element.push(createStructure(struct[i]));
-					}
+					nodeName = 'name' in struct ? struct.name : 'div';
+					if (!/^[a-z]+$/.test(nodeName))
+						element = document.querySelector(nodeName);
 					else
+						element = document.createElement(nodeName);
+
+					for (p in struct)
 					{
-						nodeName = 'name' in struct ? struct.name : 'div';
-						if (!/^[a-z]+$/.test(nodeName))
-							element = document.querySelector(nodeName);
-						else
-							element = document.createElement(nodeName);
-
-						for (p in struct)
+						switch (p)
 						{
-							switch (p)
-							{
-								case 'name':
-									//  do nothing
-									break;
+							case 'name':
+								//  do nothing
+								break;
 
-								case 'child':
-								case 'content':
-									appendTo(element, createStructure(struct[p]));
-									break;
+							case 'child':
+							case 'content':
+								appendTo(element, createStructure(struct[p]));
+								break;
 
-								case 'class':
-								case 'className':
-									element.setAttribute('class', struct[p]);
-									break;
+							case 'class':
+							case 'className':
+								element.setAttribute('class', struct[p]);
+								break;
 
-								default:
-									element.setAttribute(p, struct[p]);
-									break;
-							}
+							default:
+								element.setAttribute(p, struct[p]);
+								break;
 						}
 					}
 					break;
