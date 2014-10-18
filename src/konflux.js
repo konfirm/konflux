@@ -129,16 +129,34 @@
 		var name = 'kxref',
 			reference;
 
-		if (!element || !('nodeType' in element) || element.nodeType !== 1)
-			return false;
-
-		//  we don't ever contaminate the window object or body element
+		//  we don't ever contaminate the window object, document, documentElement or body element
 		if (element === window)
+		{
 			reference = 'window';
+		}
+		else if (element === document)
+		{
+			reference = 'document';
+		}
+		else if (element === document.documentElement)
+		{
+			reference = 'root';
+		}
+		else if (element === document.head)
+		{
+			reference = 'head';
+		}
 		else if (element === document.body)
+		{
 			reference = 'body';
+		}
 		else
+		{
+			if (!element || !('nodeType' in element) || element.nodeType !== 1)
+				return false;
+
 			reference = hidden ? (name in element ? element[name] : null) : element.getAttribute('data-' + name);
+		}
 
 		//  if no reference was set yet, do so now
 		if (!reference)
@@ -2859,10 +2877,11 @@
 		 *  @name   createStructure
 		 *  @type   function
 		 *  @access internal
-		 *  @param  mixed source
+		 *  @param  mixed   source
+		 *  @param  DOMNode scope
 		 *  @return DOMElement structure
 		 */
-		function createStructure(struct)
+		function createStructure(struct, scope)
 		{
 			var nodeName, element, p, i;
 
@@ -2877,7 +2896,7 @@
 				case 'object':
 					nodeName = 'name' in struct ? struct.name : 'div';
 					if (!/^[a-z]+$/.test(nodeName))
-						element = document.querySelector(nodeName);
+						element = scope.querySelector(nodeName) || document.querySelector(nodeName);
 					else
 						element = document.createElement(nodeName);
 
@@ -2891,7 +2910,7 @@
 
 							case 'child':
 							case 'content':
-								appendTo(element, createStructure(struct[p]));
+								appendTo(element, createStructure(struct[p], element));
 								break;
 
 							case 'class':
@@ -2975,7 +2994,7 @@
 		 *  @param  mixed source
 		 *  @return DOMElement structure
 		 */
-		dom.create   = createStructure;
+		dom.create = createStructure;
 
 		/**
 		 *  Append given source element or structure to the target element
@@ -2988,7 +3007,7 @@
 		 */
 		dom.appendTo = function(target, source)
 		{
-			return appendTo(target, isType('object', source) && !isType(undef, source.nodeType) ? source : createStructure(source));
+			return appendTo(target, isType('object', source) && !isType(undef, source.nodeType) ? source : createStructure(source, target));
 		};
 
 		/**
