@@ -129,16 +129,34 @@
 		var name = 'kxref',
 			reference;
 
-		if (!element || !('nodeType' in element) || element.nodeType !== 1)
-			return false;
-
-		//  we don't ever contaminate the window object or body element
+		//  we don't ever contaminate the window object, document, documentElement or body element
 		if (element === window)
+		{
 			reference = 'window';
+		}
+		else if (element === document)
+		{
+			reference = 'document';
+		}
+		else if (element === document.documentElement)
+		{
+			reference = 'root';
+		}
+		else if (element === document.head)
+		{
+			reference = 'head';
+		}
 		else if (element === document.body)
+		{
 			reference = 'body';
+		}
 		else
+		{
+			if (!element || !('nodeType' in element) || element.nodeType !== 1)
+				return false;
+
 			reference = hidden ? (name in element ? element[name] : null) : element.getAttribute('data-' + name);
+		}
 
 		//  if no reference was set yet, do so now
 		if (!reference)
@@ -584,26 +602,28 @@
 		function implement(name, evaluate, one)
 		{
 			return function(callback, context){
-				var list, result, i;
+				var list, result, keys, i;
 
 				//  always use the native implementation, if it exists
 				if (name in collection && isType('function', collection[name]))
 					return new kxIterator(collection[name].apply(collection, arguments));
 
-				list = new kxIterator();
-				for (i = 0; i < collection.length; ++i)
+				list = collection instanceof Array ? [] : {};
+
+				keys = iterator.keys();
+				for (i = 0; i < keys.length; ++i)
 				{
-					result = evaluate(callback.apply(context || undefined, [collection[i], i, collection]), collection[i]);
+					result = evaluate(callback.apply(context || undefined, [collection[keys[i]], keys[i], collection]), collection[keys[i]]);
 
 					if (result)
 					{
 						if (one)
 							return result;
-						list.add(result);
+						list[keys[i]] = result;
 					}
 				}
 
-				return list;
+				return konflux.iterator(list);
 			};
 		}
 
@@ -2857,52 +2877,50 @@
 		 *  @name   createStructure
 		 *  @type   function
 		 *  @access internal
-		 *  @param  mixed source
+		 *  @param  mixed   source
+		 *  @param  DOMNode scope
 		 *  @return DOMElement structure
 		 */
-		function createStructure(struct)
+		function createStructure(struct, scope)
 		{
 			var nodeName, element, p, i;
 
 			switch (type(struct))
 			{
+				case 'array':
+					element = [];
+					for (i = 0; i < struct.length; ++i)
+						element.push(createStructure(struct[i]));
+					break;
+
 				case 'object':
-					if (struct instanceof Array)
-					{
-						element = [];
-						for (i = 0; i < struct.length; ++i)
-							element.push(createStructure(struct[i]));
-					}
+					nodeName = 'name' in struct ? struct.name : 'div';
+					if (!/^[a-z]+$/.test(nodeName))
+						element = scope.querySelector(nodeName) || document.querySelector(nodeName);
 					else
+						element = document.createElement(nodeName);
+
+					for (p in struct)
 					{
-						nodeName = 'name' in struct ? struct.name : 'div';
-						if (!/^[a-z]+$/.test(nodeName))
-							element = document.querySelector(nodeName);
-						else
-							element = document.createElement(nodeName);
-
-						for (p in struct)
+						switch (p)
 						{
-							switch (p)
-							{
-								case 'name':
-									//  do nothing
-									break;
+							case 'name':
+								//  do nothing
+								break;
 
-								case 'child':
-								case 'content':
-									appendTo(element, createStructure(struct[p]));
-									break;
+							case 'child':
+							case 'content':
+								appendTo(element, createStructure(struct[p], element));
+								break;
 
-								case 'class':
-								case 'className':
-									element.setAttribute('class', struct[p]);
-									break;
+							case 'class':
+							case 'className':
+								element.setAttribute('class', struct[p]);
+								break;
 
-								default:
-									element.setAttribute(p, struct[p]);
-									break;
-							}
+							default:
+								element.setAttribute(p, struct[p]);
+								break;
 						}
 					}
 					break;
@@ -2976,7 +2994,7 @@
 		 *  @param  mixed source
 		 *  @return DOMElement structure
 		 */
-		dom.create   = createStructure;
+		dom.create = createStructure;
 
 		/**
 		 *  Append given source element or structure to the target element
@@ -2989,7 +3007,7 @@
 		 */
 		dom.appendTo = function(target, source)
 		{
-			return appendTo(target, isType('object', source) && !isType(undef, source.nodeType) ? source : createStructure(source));
+			return appendTo(target, isType('object', source) && !isType(undef, source.nodeType) ? source : createStructure(source, target));
 		};
 
 		/**
