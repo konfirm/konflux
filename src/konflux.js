@@ -2953,7 +2953,7 @@
 		 */
 		function stackOrderIndex(node)
 		{
-			var zIndex = konflux.style.get(node, 'z-index'),
+			var zIndex = +konflux.style.get(node, 'z-index'),
 				opacity = parseFloat(konflux.style.get(node, 'opacity')),
 				position = konflux.style.get(node, 'position'),
 				display = konflux.style.get(node, 'display'),
