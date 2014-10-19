@@ -198,6 +198,12 @@ describe('Konflux.dom', function(){
 			expect(document.body.getAttribute('data-kxref')).toEqual(null);
 		});
 
+		it('does not do anything for non DOM-elements', function(){
+			expect(konflux.dom.reference()).toEqual(false);
+			expect(konflux.dom.reference({})).toEqual(false);
+			expect(konflux.dom.reference(document.createTextNode('foo'))).toEqual(false);
+		});
+
 		it('has consistent references but differs per unique element', function(){
 			var list = document.querySelectorAll('*'),
 				reference = [],
