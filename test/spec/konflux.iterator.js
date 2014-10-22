@@ -118,6 +118,37 @@ describe('Konflux.iterator', function(){
 		expect(test.prev()).toEqual(12);
 		expect(test.previous()).toEqual(1);
 		expect(test.previous()).toEqual(false);
+
+		expect(test.cursor('b')).toEqual('b');
+
+	});
+
+	it('String as collection', function(){
+		var coll = 'The quick brown fox',
+			test = konflux.iterator(coll),
+			c;
+
+		//  we expect the string to have been shrinkwrapped into an array, so it should be an array with one single item
+
+		c = test.cursor();
+		expect(c).toEqual(0);
+		expect(test.length).toEqual(1);
+		expect(test[0]).toEqual(coll);
+
+	});
+
+	it('Number as collection', function(){
+		var coll = Math.PI,
+			test = konflux.iterator(coll),
+			c;
+
+		//  we expect the number to have been shrinkwrapped into an array, so it should be an array with one single item
+
+		c = test.cursor();
+		expect(c).toEqual(0);
+		expect(test.length).toEqual(1);
+		expect(test[0]).toEqual(coll);
+
 	});
 
 	it('each', function(){
