@@ -490,6 +490,9 @@
 
 			collection = collection || [];
 
+			if ('object' !== typeof collection)
+				collection = [collection];
+
 			//  create a magic property for the length
 			if ('length' in collection)
 				property('length');
