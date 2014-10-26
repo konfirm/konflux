@@ -2875,7 +2875,7 @@
 					break;
 
 				case 'object':
-					nodeName = 'tagName' in struct ? struct.tagName : ('name' in struct ? struct.name : 'div');
+					nodeName = 'tag' in struct ? struct.tag : ('name' in struct ? struct.name : 'div');
 
 					if (!/^[a-z]+$/.test(nodeName))
 						element = document.querySelector(nodeName);
@@ -2887,7 +2887,7 @@
 						switch (p)
 						{
 							case 'name':
-								if ('tagName' in struct)
+								if ('tag' in struct)
 									element.setAttribute('name', struct[p]);
 								break;
 
