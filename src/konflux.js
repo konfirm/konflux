@@ -4396,7 +4396,7 @@
 		 */
 		observer.subscribe = function(stack, handle, callback)
 		{
-			var list = stack.split(','),
+			var list = stack.split(/[\s*,]+/),
 				result = true,
 				i;
 
@@ -4421,7 +4421,7 @@
 		 */
 		observer.unsubscribe = function(stack, handle, callback)
 		{
-			var list = stack.split(','),
+			var list = stack.split(/[\s*,]+/),
 				result = [],
 				i;
 
