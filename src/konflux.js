@@ -2897,7 +2897,8 @@
 					break;
 
 				case 'object':
-					nodeName = 'name' in struct ? struct.name : 'div';
+					nodeName = 'tag' in struct ? struct.tag : ('name' in struct ? struct.name : 'div');
+
 					if (!/^[a-z]+$/.test(nodeName))
 						element = scope.querySelector(nodeName) || document.querySelector(nodeName);
 					else
@@ -2908,7 +2909,8 @@
 						switch (p)
 						{
 							case 'name':
-								//  do nothing
+								if ('tag' in struct)
+									element.setAttribute('name', struct[p]);
 								break;
 
 							case 'child':
@@ -4411,18 +4413,22 @@
 		 *  @access  public
 		 *  @param   string stack name
 		 *  @param   function handle
-		 *  @return  bool success
+		 *  @param   function callback [optional, default undefined]
+		 *  @return  kxObserver reference
 		 */
-		observer.subscribe = function(stack, handle)
+		observer.subscribe = function(stack, handle, callback)
 		{
-			var list = stack.split(','),
+			var list = stack.split(/[\s*,]+/),
 				result = true,
 				i;
 
 			for (i = 0; i < list.length; ++i)
 				result = (add(list[i], handle) ? true : false) && result;
 
-			return result;
+			if (callback)
+				callback.apply(observer, [result]);
+
+			return observer;
 		};
 
 		/**
@@ -4432,16 +4438,22 @@
 		 *  @access  public
 		 *  @param   string stack name
 		 *  @param   function handle
-		 *  @return  array removed handlers
+		 *  @param   function callback [optional, default undefined]
+		 *  @return  kxObserver reference
 		 */
-		observer.unsubscribe = function(stack, handle)
+		observer.unsubscribe = function(stack, handle, callback)
 		{
-			var list = stack.split(','),
+			var list = stack.split(/[\s*,]+/),
 				result = [],
 				i;
+
 			for (i = 0; i < list.length; ++i)
 				result = result.concat(handle ? remove(list[i], handle) : flush(list[i]));
-			return result;
+
+			if (callback)
+				callback.apply(observer, [result]);
+
+			return observer;
 		};
 
 		/**
