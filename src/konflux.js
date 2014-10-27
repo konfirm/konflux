@@ -4391,9 +4391,10 @@
 		 *  @access  public
 		 *  @param   string stack name
 		 *  @param   function handle
-		 *  @return  bool success
+		 *  @param   function callback [optional, default undefined]
+		 *  @return  kxObserver reference
 		 */
-		observer.subscribe = function(stack, handle)
+		observer.subscribe = function(stack, handle, callback)
 		{
 			var list = stack.split(','),
 				result = true,
@@ -4402,7 +4403,10 @@
 			for (i = 0; i < list.length; ++i)
 				result = (add(list[i], handle) ? true : false) && result;
 
-			return result;
+			if (callback)
+				callback.apply(observer, [result]);
+
+			return observer;
 		};
 
 		/**
@@ -4412,16 +4416,22 @@
 		 *  @access  public
 		 *  @param   string stack name
 		 *  @param   function handle
-		 *  @return  array removed handlers
+		 *  @param   function callback [optional, default undefined]
+		 *  @return  kxObserver reference
 		 */
-		observer.unsubscribe = function(stack, handle)
+		observer.unsubscribe = function(stack, handle, callback)
 		{
 			var list = stack.split(','),
 				result = [],
 				i;
+
 			for (i = 0; i < list.length; ++i)
 				result = result.concat(handle ? remove(list[i], handle) : flush(list[i]));
-			return result;
+
+			if (callback)
+				callback.apply(observer, [result]);
+
+			return observer;
 		};
 
 		/**
