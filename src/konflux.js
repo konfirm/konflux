@@ -2897,7 +2897,8 @@
 					break;
 
 				case 'object':
-					nodeName = 'name' in struct ? struct.name : 'div';
+					nodeName = 'tag' in struct ? struct.tag : ('name' in struct ? struct.name : 'div');
+
 					if (!/^[a-z]+$/.test(nodeName))
 						element = scope.querySelector(nodeName) || document.querySelector(nodeName);
 					else
@@ -2908,7 +2909,8 @@
 						switch (p)
 						{
 							case 'name':
-								//  do nothing
+								if ('tag' in struct)
+									element.setAttribute('name', struct[p]);
 								break;
 
 							case 'child':
