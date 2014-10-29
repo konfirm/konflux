@@ -4223,7 +4223,8 @@
 		/*jshint validthis: true*/
 		var observer = this,
 			subscription = buffer('observer.subscriptions'),
-			active = buffer('observer.active');
+			active = buffer('observer.active'),
+			multiplePattern = /[\s,]+/;
 
 
 		/**
@@ -4418,7 +4419,7 @@
 		 */
 		observer.subscribe = function(stack, handle, callback)
 		{
-			var list = stack.split(/[\s,]+/),
+			var list = stack.split(multiplePattern),
 				result = true,
 				i;
 
@@ -4443,7 +4444,7 @@
 		 */
 		observer.unsubscribe = function(stack, handle, callback)
 		{
-			var list = stack.split(/[\s,]+/),
+			var list = stack.split(multiplePattern),
 				result = [],
 				i;
 
@@ -4469,13 +4470,12 @@
 		 */
 		observer.notify = function()
 		{
-			var args = Array.prototype.slice.call(arguments),
-				list = args.shift().split(/[\s,]+/),
+			var args = konflux.array.cast(arguments),
+				list = args.shift().split(multiplePattern),
 				i;
 
-			for (i = 0; i < list.length; ++i) {
+			for (i = 0; i < list.length; ++i)
 				trigger.apply(observer, [list[i]].concat(args));
-			}
 		};
 	}
 
