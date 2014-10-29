@@ -4418,7 +4418,7 @@
 		 */
 		observer.subscribe = function(stack, handle, callback)
 		{
-			var list = stack.split(/[\s*,]+/),
+			var list = stack.split(/[\s,]+/),
 				result = true,
 				i;
 
@@ -4443,7 +4443,7 @@
 		 */
 		observer.unsubscribe = function(stack, handle, callback)
 		{
-			var list = stack.split(/[\s*,]+/),
+			var list = stack.split(/[\s,]+/),
 				result = [],
 				i;
 
@@ -4469,7 +4469,13 @@
 		 */
 		observer.notify = function()
 		{
-			return trigger.apply(observer, arguments);
+			var args = Array.prototype.slice.call(arguments),
+				list = args.shift().split(/[\s,]+/),
+				i;
+
+			for (i = 0; i < list.length; ++i) {
+				trigger.apply(observer, [list[i]].concat(args));
+			}
 		};
 	}
 
