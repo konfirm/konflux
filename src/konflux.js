@@ -2899,8 +2899,8 @@
 				case 'object':
 					nodeName = 'tag' in struct ? struct.tag : ('name' in struct ? struct.name : 'div');
 
-					if (!/^[a-z]+$/.test(nodeName))
-						element = scope.querySelector(nodeName) || document.querySelector(nodeName);
+					if (!/^[a-z]+[a-z0-9-]*$/i.test(nodeName))
+						element = (scope ? scope.querySelector(nodeName) : null) || document.querySelector(nodeName);
 					else
 						element = document.createElement(nodeName);
 
@@ -4223,8 +4223,7 @@
 		/*jshint validthis: true*/
 		var observer = this,
 			subscription = buffer('observer.subscriptions'),
-			active = buffer('observer.active'),
-			multiplePattern = /[\s,]+/;
+			active = buffer('observer.active');
 
 
 		/**
@@ -4419,7 +4418,7 @@
 		 */
 		observer.subscribe = function(stack, handle, callback)
 		{
-			var list = stack.split(multiplePattern),
+			var list = stack.split(/[\s*,]+/),
 				result = true,
 				i;
 
@@ -4444,7 +4443,7 @@
 		 */
 		observer.unsubscribe = function(stack, handle, callback)
 		{
-			var list = stack.split(multiplePattern),
+			var list = stack.split(/[\s*,]+/),
 				result = [],
 				i;
 
@@ -4470,12 +4469,7 @@
 		 */
 		observer.notify = function()
 		{
-			var args = konflux.array.cast(arguments),
-				list = args.shift().split(multiplePattern),
-				i;
-
-			for (i = 0; i < list.length; ++i)
-				trigger.apply(observer, [list[i]].concat(args));
+			return trigger.apply(observer, arguments);
 		};
 	}
 
