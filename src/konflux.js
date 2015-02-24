@@ -2899,8 +2899,8 @@
 				case 'object':
 					nodeName = 'tag' in struct ? struct.tag : ('name' in struct ? struct.name : 'div');
 
-					if (!/^[a-z]+$/.test(nodeName))
-						element = scope.querySelector(nodeName) || document.querySelector(nodeName);
+					if (!/^[a-z]+[a-z0-9-]*$/i.test(nodeName))
+						element = (scope ? scope.querySelector(nodeName) : null) || document.querySelector(nodeName);
 					else
 						element = document.createElement(nodeName);
 

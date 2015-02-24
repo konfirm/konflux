@@ -121,6 +121,26 @@ describe('Konflux.dom', function(){
 			truncate(isolate);
 		});
 
+		it('Creates element by from object {tag:"h3"}', function(){
+			var struct = konflux.dom.appendTo(isolate, {tag:'h3'});
+
+			expect(struct.nodeType).toEqual(1);
+			expect(struct.nodeName).toEqual('H3');
+			expect(struct.parentNode).toEqual(isolate);
+
+			truncate(isolate);
+		});
+
+		it('Creates custom element from object {tag:"custom-element"}', function(){
+			var struct = konflux.dom.appendTo(isolate, {name:'custom-element'});
+
+			expect(struct.nodeType).toEqual(1);
+			expect(struct.nodeName).toEqual('CUSTOM-ELEMENT');
+			expect(struct.parentNode).toEqual(isolate);
+
+			truncate(isolate);
+		});
+
 		it('Creates named-element with id from object {name:"span", id:"hello"}', function(){
 			var struct = konflux.dom.appendTo(isolate, {name:'span', id:'hello'});
 
@@ -244,7 +264,7 @@ describe('Konflux.dom', function(){
 		});
 
 		it('documentElement to equal {type: konflux.dom.STACK_BLOCK, index: 0, context: false}', function(){
-			var stack = konflux.dom.stackLevel(document.documentElement)
+			var stack = konflux.dom.stackLevel(document.documentElement);
 
 			expect(stack.index).toEqual(0);
 			expect(stack.context).toEqual(false);
@@ -259,7 +279,7 @@ describe('Konflux.dom', function(){
 		});
 
 		it('head to equal {type: 8, index: 0, context: false}', function(){
-			var stack = konflux.dom.stackLevel(document.head)
+			var stack = konflux.dom.stackLevel(document.head);
 
 			expect(stack.index).toEqual(0);
 			expect(stack.context).toEqual(false);
@@ -274,7 +294,7 @@ describe('Konflux.dom', function(){
 		});
 
 		it('body to equal {type: konflux.dom.STACK_BLOCK, index: 0, context: false}', function(){
-			var stack = konflux.dom.stackLevel(document.body)
+			var stack = konflux.dom.stackLevel(document.body);
 
 			expect(stack.index).toEqual(0);
 			expect(stack.context).toEqual(false);
