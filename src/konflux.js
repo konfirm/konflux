@@ -2258,6 +2258,17 @@
 		/*jshint validthis: true*/
 		var string = this;
 
+		//  'constants'
+		string.PAD_LEFT    = 1;
+		string.PAD_BOTH    = 2;
+		string.PAD_RIGHT   = 3;
+		string.TRIM_LEFT   = 1;
+		string.TRIM_BOTH   = 2;
+		string.TRIM_RIGHT  = 3;
+		string.CHUNK_START = 1;
+		string.CHUNK_END   = 2;
+
+
 		/**
 		 *  Javascript port of Java's String.hashCode()
 		 *  (Based on http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/)
@@ -2428,16 +2439,6 @@
 			return result.join('');
 		}
 
-		//  'constants'
-		string.PAD_LEFT    = 1;
-		string.PAD_BOTH    = 2;
-		string.PAD_RIGHT   = 3;
-		string.TRIM_LEFT   = 1;
-		string.TRIM_BOTH   = 2;
-		string.TRIM_RIGHT  = 3;
-		string.CHUNK_START = 1;
-		string.CHUNK_END   = 2;
-
 		/**
 		 *  Convert characters based on their ASCII value
 		 *  @name    ascii
@@ -2473,26 +2474,31 @@
 		};
 
 		/**
-		 *  Trim string from leading/trailing whitespace
+		 *  Trim string from leading/trailing pattern (whitespace by default)
 		 *  @name    trim
 		 *  @type    method
 		 *  @access  public
 		 *  @param   string input
-		 *  @param   int    side [optional, default TRIM_BOTH - trim both sides. One of: TRIM_LEFT, TRIM_RIGHT, TRIM_BOTH (default)]
+		 *  @param   string character [default \s, may be the contents of a regular expression pattern]
+		 *  @param   int    side [optional, One of: TRIM_BOTH (default), TRIM_LEFT, TRIM_RIGHT]
 		 *  @return  string trimmed
 		 *  @note    the side params are located in konflux.string (e.g. konflux.string.TRIM_LEFT)
 		 */
-		string.trim = function(s, side)
+		string.trim = function(input, chr, dir)
 		{
-			var	w = side || string.TRIM_BOTH,
-				r = w === string.TRIM_RIGHT ? s : s.replace(/^\s\s*/, ''),
-				x = /\s/,
-				i = r.length;
+			var character = chr || ' \n\r\t\f',
+				from = 0,
+				to = input.length;
 
-			if (w !== string.TRIM_LEFT)
-				while (x.test(r.charAt(--i)));
-			return r.slice(0, i + 1);
+			while (from < to && dir !== string.TRIM_RIGHT && character.indexOf(input.charAt(from)) >= 0)
+				++from;
+
+			while (to > 0 && dir !== string.TRIM_LEFT && character.indexOf(input.charAt(to)) >= 0)
+				--to;
+
+			return input.substring(from, to + 1);
 		};
+
 
 		/**
 		 *  Reverse given string

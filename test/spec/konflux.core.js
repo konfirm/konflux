@@ -16,8 +16,8 @@ describe('Konflux Core - basics', function(){
 		expect(kx.elapsed()).toMatch(/00:00:00\.[0-9]{3}/);
 
 		setTimeout(function(){
-			//  we expect the elapsed to be anywhere between 00:00:01.000 and 00:00:02.999
-			expect(kx.elapsed()).toMatch(/00:00:0[1-2]\.[0-9]{3}/);
+			//  we expect the elapsed to be anywhere between 00:00:01.000 and 00:00:09.999
+			expect(kx.elapsed()).toMatch(/00:00:0[1-9]\.[0-9]{3}/);
 
 			done();
 		}, 1000);
