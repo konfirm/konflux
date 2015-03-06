@@ -2486,15 +2486,11 @@
 		 */
 		string.trim = function(input, chr, dir)
 		{
-			var character = chr || ' \n\r\t\f',
-				from = 0,
-				to = input.length;
+			var chars = chr || ' \n\r\t\f',
+				from, to;
 
-			while (from < to && dir !== string.TRIM_RIGHT && character.indexOf(input.charAt(from)) >= 0)
-				++from;
-
-			while (to > 0 && dir !== string.TRIM_LEFT && character.indexOf(input.charAt(to)) >= 0)
-				--to;
+			for (to = input.length; to > 0 && dir !== string.TRIM_LEFT && chars.indexOf(input.charAt(--to)) >= 0;);
+			for (from = 0; from < to && dir !== string.TRIM_RIGHT && chars.indexOf(input.charAt(from)) >= 0; ++from);
 
 			return input.substring(from, to + 1);
 		};
@@ -2511,6 +2507,7 @@
 		string.reverse = function(s)
 		{
 			for (var n = s.length, r = ''; n > 0; r += s[--n]);
+
 			return r;
 		};
 
