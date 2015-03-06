@@ -25,5 +25,5 @@ To suggest a feature or report a bug, use the [new issue](https://github.com/kon
 When you want to contribute code, please follow the implicit coding style, write and run tests and make sure jshint has nothing to complain ;)
 
 ## Copyright
-Code and documentation copyright Konfirm 2013-2014.
+Code and documentation copyright Konfirm 2013-2015.
 Code released under [the MIT license](LICENSE).
