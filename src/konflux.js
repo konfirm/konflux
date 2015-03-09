@@ -959,7 +959,7 @@
 		 */
 		function vendorPrefix()
 		{
-			var vendor = ['O', 'ms', 'Moz', 'Icab', 'Khtml', 'Webkit'],
+			var vendor = ['Icab', 'Khtml', 'O', 'ms', 'Moz', 'webkit'],
 				regex  = new RegExp('^(' + vendor.join('|') + ')(?=[A-Z])'),
 				script = document.createElement('script'),
 				p;
@@ -981,6 +981,7 @@
 			}
 
 			script = null;
+
 			return prefix;
 		}
 
