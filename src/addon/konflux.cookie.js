@@ -7,6 +7,7 @@
  */
 
 /*jshint undef: true, curly: false, browser: true */
+//@dep: string
 ;(function(konflux){
 	'use strict';
 

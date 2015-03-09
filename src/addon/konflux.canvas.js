@@ -6,7 +6,8 @@
  *    \/_/     More information: http://konfirm.net/konflux
  */
 
-/*jshint undef: true, unused: true, curly: false, newcap: false, forin: false, maxstatements: 10, maxparams: 4, browser: true, devel: true */
+/*jshint undef: true, newcap: false, forin: false, maxstatements: 10, maxparams: 4, browser: true */
+//@dep: array
 ;(function(konflux){
 	'use strict';
 

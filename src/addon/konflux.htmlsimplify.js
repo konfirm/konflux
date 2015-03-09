@@ -6,7 +6,8 @@
  *    \/_/     More information: http://konfirm.net/konflux
  */
 
-/*jshint undef: true, unused: true, curly: false, newcap: false, forin: false, maxstatements: 10, maxparams: 4, browser: true, devel: true */
+/*jshint undef: true, newcap: false, forin: false, maxstatements: 10, maxparams: 4, browser: true */
+//@dep: array, browser, iterator, style
 ;(function(konflux){
 	'use strict';
 
@@ -20,6 +21,7 @@
 	 */
 	function kxHTMLSimplify(config)
 	{
+		/*jshint validthis: true*/
 		var simplify = this,
 			settings;
 
@@ -226,4 +228,4 @@
 
 	konflux.htmlsimplify = kxHTMLSimplify;
 
-})(konflux);
+})(window.konflux);

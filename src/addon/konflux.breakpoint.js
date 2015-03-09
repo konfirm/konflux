@@ -7,9 +7,9 @@
  */
 
 /*jshint undef: true, curly: false, browser: true, newcap: false*/
+//@dep: dom, browser, observer
 ;(function(konflux){
 	'use strict';
-	"@depends: dom";
 
 	var version = '$DEV$';
 
