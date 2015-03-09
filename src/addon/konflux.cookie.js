@@ -1,5 +1,5 @@
 /*
- *       __    Konflux Cookie (version develop - 2014-04-27 13:12:34 +0200)
+ *       __    Konflux Cookie (version $DEV$ - $DATE$)
  *      /\_\
  *   /\/ / /   Copyright 2012-2015, Konfirm (Rogier Spieker)
  *   \  / /    Releases under the MIT license

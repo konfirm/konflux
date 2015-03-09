@@ -1,5 +1,5 @@
 /*
- *       __    Konflux - Canvas module - allowing for chainable canvas operations
+ *       __    Konflux - Canvas module - allowing for chainable canvas operations (version $DEV$ - $DATE$)
  *      /\_\
  *   /\/ / /   Copyright 2012-2014, Konfirm (Rogier Spieker)
  *   \  / /    Releases under the MIT license
