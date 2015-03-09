@@ -1,12 +1,13 @@
 /*
- *       __    Konflux Logo (version develop - 2014-04-27 13:12:34 +0200)
+ *       __    Konflux Logo (version $DEV$ - $DATE$)
  *      /\_\
  *   /\/ / /   Copyright 2012-2014, Konfirm (Rogier Spieker)
  *   \  / /    Releases under the MIT license
  *    \/_/     More information: http://konfirm.net/konflux
  */
 
-/*jshint undef: true, unused: true, curly: false, newcap: false, forin: false, maxstatements: 10, maxparams: 4, browser: true, devel: true */
+/*jshint undef: true, newcap: false, forin: false, maxstatements: 10, maxparams: 4, browser: true */
+//@dep: canvas, point
 ;(function(konflux){
 	'use strict';
 

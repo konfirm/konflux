@@ -36,6 +36,7 @@
 	{
 		if (undef === typeof _buffer[key])
 			_buffer[key] = {};
+
 		return _buffer[key];
 	}
 
@@ -958,7 +959,7 @@
 		 */
 		function vendorPrefix()
 		{
-			var vendor = ['O', 'ms', 'Moz', 'Icab', 'Khtml', 'Webkit'],
+			var vendor = ['Icab', 'Khtml', 'O', 'ms', 'Moz', 'webkit'],
 				regex  = new RegExp('^(' + vendor.join('|') + ')(?=[A-Z])'),
 				script = document.createElement('script'),
 				p;
@@ -980,6 +981,7 @@
 			}
 
 			script = null;
+
 			return prefix;
 		}
 
@@ -2486,15 +2488,11 @@
 		 */
 		string.trim = function(input, chr, dir)
 		{
-			var character = chr || ' \n\r\t\f',
-				from = 0,
-				to = input.length;
+			var chars = chr || ' \n\r\t\f',
+				from, to;
 
-			while (from < to && dir !== string.TRIM_RIGHT && character.indexOf(input.charAt(from)) >= 0)
-				++from;
-
-			while (to > 0 && dir !== string.TRIM_LEFT && character.indexOf(input.charAt(to)) >= 0)
-				--to;
+			for (to = input.length; to > 0 && dir !== string.TRIM_LEFT && chars.indexOf(input.charAt(--to)) >= 0;);
+			for (from = 0; from < to && dir !== string.TRIM_RIGHT && chars.indexOf(input.charAt(from)) >= 0; ++from);
 
 			return input.substring(from, to + 1);
 		};
@@ -2511,6 +2509,7 @@
 		string.reverse = function(s)
 		{
 			for (var n = s.length, r = ''; n > 0; r += s[--n]);
+
 			return r;
 		};
 
@@ -4482,224 +4481,6 @@
 
 
 	/**
-	 *  Breakpoint object, add/remove classes on specified object (or body) when specific browser dimensions are met
-	 *  (triggers observations when viewport dimensions change)
-	 *  @module  breakpoint
-	 *  @note    available as konflux.breakpoint / kx.breakpoint
-	 */
-	function kxBreakpoint()
-	{
-		/*jshint validthis: true*/
-		var breakpoint = this,
-			stack = buffer('breakpoint.stack'),
-			tick = false,
-			pixelRatio, timeout;
-
-		/**
-		 *  Simple monitor function which calls the update function at a convenient interval
-		 *  @name    monitor
-		 *  @type    function
-		 *  @access  internal
-		 *  @return  void
-		 */
-		function monitor()
-		{
-			var now = time();
-
-			clearTimeout(timeout);
-
-			if (!tick || now - tick > 100)
-			{
-				tick = now;
-				update();
-			}
-
-			//  attempt to ease up on the load
-			timeout = setTimeout(function(){
-				var timer = konflux.browser.feature('requestAnimationFrame') || function(handle){
-					setTimeout(handle, 100);
-				};
-
-				timer(monitor);
-			}, 50);
-		}
-
-		/**
-		 *  Loop through all element stacks and determine if anything needs updates
-		 *  @name    update
-		 *  @type    function
-		 *  @access  internal
-		 *  @return  void
-		 */
-		function update()
-		{
-			var bounds, matched, className, p;
-
-			for (p in stack)
-			{
-				bounds = stack[p].element.getBoundingClientRect();
-
-				if (stack[p].width !== bounds.width)
-				{
-					stack[p].width = bounds.width;
-					className = stack[p].current;
-					matched = match(stack[p], stack[p].width);
-
-					if (matched !== stack[p].match)
-					{
-						className = null;
-
-						className = stack[p].config[matched].join(' ');
-						if (matched && parseInt(matched, 10) <= stack[p].width && hasProperty(stack[p].config, matched))
-							stack[p].match = matched;
-					}
-
-					if (className !== stack[p].current)
-					{
-						if (!empty(stack[p].current))
-							konflux.style.removeClass(stack[p].element, stack[p].current);
-
-						if (!empty(className))
-							konflux.style.addClass(stack[p].element, className);
-
-						stack[p].current = className;
-						konflux.observer.notify('breakpoint.change', stack[p].current, stack[p].element);
-					}
-				}
-			}
-		}
-
-		/**
-		 *  Obtain the settings stack for the given element
-		 *  @name    getStack
-		 *  @type    function
-		 *  @access  internal
-		 *  @param   DOMElement target
-		 *  @return  object     config
-		 */
-		function getStack(target)
-		{
-			var ref = elementReference(target);
-
-			if (!hasProperty(stack, ref))
-				stack[ref] = {
-					match: null,
-					width: null,
-					current: null,
-					element: target,
-					config: {}
-				};
-
-			return stack[ref];
-		}
-
-		/**
-		 *  Determine the best matching dimension and return the settings
-		 *  @name    match
-		 *  @type    function
-		 *  @access  internal
-		 *  @param   object stack reference
-		 *  @param   int    browser width
-		 *  @return  object config
-		 */
-		function match(refStack, width)
-		{
-			var found, delta, min, p;
-
-			if (hasProperty(refStack, 'config'))
-			{
-				width = Math.round(width);
-				for (p in refStack.config)
-				{
-					p = parseInt(p, 10);
-					min = !min ? p : Math.min(min, p);
-					if (p <= width && (!delta || width - p <= delta))
-					{
-						found = p;
-						delta = width - p;
-					}
-				}
-			}
-
-			return found >= 0 ? found : min || false;
-		}
-
-		/**
-		 *  Add a breakpoint which sets given className if element (or the document body) becomes at
-		 *  least the given width wide and there is no setting matching better
-		 *  @name    add
-		 *  @type    function
-		 *  @access  internal
-		 *  @param   DOMElement target
-		 *  @param   number     width
-		 *  @param   string     class(es)
-		 *  @return  void
-		 */
-		function add(target, width, className)
-		{
-			var refStack = getStack(target);
-
-			clearTimeout(timeout);
-
-			if (!hasProperty(refStack.config, width))
-				refStack.config[width] = [];
-
-			refStack.config[width].push(className);
-
-			timeout = setTimeout(function(){
-				monitor();
-			}, 5);
-		}
-
-		/**
-		 *  Add a breakpoint which sets given className if element (or the document body) becomes at
-		 *  least the given width wide and there is no setting matching better
-		 *  @name    add
-		 *  @type    method
-		 *  @access  public
-		 *  @param   number     width
-		 *  @param   string     class(es)
-		 *  @param   DOMElement target [optional, default document.body]
-		 *  @return  kxBreakpoint object
-		 */
-		breakpoint.add = function(width, className, target)
-		{
-			add(target || document.body, width, className);
-			return breakpoint;
-		};
-
-		breakpoint.remove = function()
-		{
-			//  to be implemented
-		};
-
-		/**
-		 *  Assign className to the body element when a configuration for given pixelRatio matches
-		 *  @name    ratio
-		 *  @type    method
-		 *  @access  public
-		 *  @param   number pixelRatio
-		 *  @param   string className
-		 *  @param   bool   allow to round the ratio to get to a matching ratio
-		 *  @param   return bool matched
-		 */
-		breakpoint.ratio = function(ratio, className, round)
-		{
-			if (!pixelRatio)
-				pixelRatio = konflux.browser.feature('devicePixelRatio') || 1;
-
-			if (ratio === pixelRatio || (round && Math.round(ratio) === pixelRatio))
-			{
-				konflux.style.addClass(document.body, className);
-				return true;
-			}
-			return false;
-		};
-	}
-
-
-
-	/**
 	 *  Point object, handling the (heavy) lifting of working with points
 	 *  @module  point
 	 *  @factory konflux.point
@@ -4943,130 +4724,6 @@
 				(point.y + p.y) * 0.5
 			);
 		};
-	}
-
-
-
-	/**
-	 *  Cookie object, making working with cookies a wee bit easier
-	 *  @module  cookie
-	 *  @note    available as konflux.cookie / kx.cookie
-	 */
-	function kxCookie()
-	{
-		/*jshint validthis: true*/
-		var cookie = this,
-			jar = {};
-
-		/**
-		 *  Read the available cookie information and populate the jar variable
-		 *  @name    init
-		 *  @type    function
-		 *  @access  internal
-		 *  @return  void
-		 */
-		function init()
-		{
-			var part = document.cookie.split(';'),
-				data;
-
-			while (part.length)
-			{
-				data = part.shift().split('=');
-				jar[konflux.string.trim(data.shift())] = konflux.string.trim(data.join('='));
-			}
-		}
-
-		/**
-		 *  Set a cookie
-		 *  @name    setCookie
-		 *  @type    function
-		 *  @access  internal
-		 *  @param   string key
-		 *  @param   string value
-		 *  @param   int    expire [optional, default null - expire at the end of the session]
-		 *  @param   string path   [optional, default null - the current path]
-		 *  @param   string domain [optional, default null - the current domain]
-		 *  @param   bool   secure [optional, default false - not secure]
-		 *  @return  void
-		 *  @note    the syntax of setCookie is compatible with that of PHP's setCookie
-		 *           this means that setting an empty value (string '' | null | false) or
-		 *           an expiry time in the past, the cookie will be removed
-		 */
-		function setCookie(key, value, expire, path, domain, secure)
-		{
-			var pairs = [key + '=' + (isType('number', value) ? value : value || '')],
-				date;
-
-			if (pairs[0].substr(-1) === '=')
-				expire = -1;
-
-			if (!isType(undef, expire) && expire)
-				date = new Date(expire);
-
-			if (date)
-			{
-				if (date < (new Date()).getTime() && !isType(undef, jar[key]))
-					delete jar[key];
-				pairs.push('expires=' + date);
-			}
-			if (!isType(undef, path) && path)
-				pairs.push('path=' + path);
-			if (!isType(undef, domain) && domain)
-				pairs.push('domain=' + domain);
-			if (!isType(undef, secure) && secure)
-				pairs.push('secure');
-
-			document.cookie = pairs.join(';');
-			if (document.cookie.indexOf(pairs.shift()) >= 0)
-				jar[key] = value + '';
-		}
-
-		/**
-		 *  Obtain a cookie value
-		 *  @name    getCookie
-		 *  @type    function
-		 *  @access  internal
-		 *  @param   string key
-		 *  @return  void
-		 */
-		function getCookie(key)
-		{
-			return !isType(undef, jar[key]) ? jar[key] : null;
-		}
-
-
-		//  expose
-		/**
-		 *  Get and/or set cookies
-		 *  @name    value
-		 *  @type    method
-		 *  @access  public
-		 *  @param   string key    [optional, default null - return all cookies]
-		 *  @param   string value  [optional, default null - return current value]
-		 *  @param   int    expire [optional, default null - expire at the end of the session]
-		 *  @param   string path   [optional, default null - the current path]
-		 *  @param   string domain [optional, default null - the current domain]
-		 *  @param   bool   secure [optional, default false - not secure]
-		 *  @note    the syntax of setCookie is compatible with that of PHP's setCookie
-		 *           this means that setting an empty value (string '' | null | false) or
-		 *           an expiry time in the past, the cookie will be removed
-		 *  @note    It is not possible to set httpOnly cookies from javascript (as this defies the purpose)
-		 *  @return  void
-		 */
-		cookie.value = function(key, value, expire, path, domain, secure)
-		{
-			if (isType(undef, key))
-				return jar;
-
-			//  if a second argument (value) was given, we update the cookie
-			if (arguments.length >= 2)
-				setCookie(key, value, expire, path, domain, secure);
-
-			return getCookie(key);
-		};
-
-		init();
 	}
 
 
@@ -5358,8 +5015,6 @@
 	konflux.dom        = new kxDOM();
 	konflux.event      = new kxEvent();
 	konflux.timing     = new kxTiming();
-	konflux.breakpoint = new kxBreakpoint();
-	konflux.cookie     = new kxCookie();
 	konflux.storage    = new kxStorage();
 
 	//  make konflux available on the global (window) scope both as 'konflux' and 'kx'

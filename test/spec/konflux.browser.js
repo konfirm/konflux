@@ -19,6 +19,10 @@ describe('Konflux.browser', function(){
 		expect(typeof konflux.browser.feature('getElementsByTagName')).toEqual('function');
 	});
 
+	it('unknown feature', function(){
+		expect(konflux.browser.feature('kxFluff' + konflux.unique())).toEqual(false);
+	});
+
 	describe('per browser requestAnimationFrame', function(){
 		switch (konflux.browser.prefix().toLowerCase())
 		{
