@@ -96,8 +96,8 @@ describe('Konflux.iterator', function(){
 
 		c = test.cursor();
 		expect(c).toEqual('a');
-		expect(test['a']).toEqual(1);
-		expect(test['c']).toEqual(123);
+		expect(test.a).toEqual(1);
+		expect(test.c).toEqual(123);
 		expect(test.a).toEqual(1);
 		expect(test.c).toEqual(123);
 		expect(test.item('a')).toEqual(1);
@@ -175,6 +175,20 @@ describe('Konflux.iterator', function(){
 		expect(
 			kx.iterator(range).filter(function(value){return value === 'c';}).collection()
 		).toEqual(['c']);
+	});
+
+	it('maps', function(){
+		var range = ['a', 'b', 'c'],
+			rangeIt = kx.iterator(range),
+			mapped = rangeIt.map(function(value){
+				return value + '!';
+			}).collection();
+
+		expect(rangeIt.collection()).toEqual(range);
+
+		expect(mapped[0]).toEqual('a!');
+		expect(mapped[1]).toEqual('b!');
+		expect(mapped[2]).toEqual('c!');
 	});
 
 });
