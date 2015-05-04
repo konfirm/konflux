@@ -2105,9 +2105,10 @@
 		 *  @access  public
 		 *  @param   DOMElement element
 		 *  @param   string     property
+		 *  @param   string     pseudo tag [optional, default undefined - no pseudo tag]
 		 *  @return  string     value
 		 */
-		style.get = function(element, property)
+		style.get = function(element, property, pseudo)
 		{
 			var value;
 
@@ -2117,7 +2118,7 @@
 				if (element.currentStyle)
 					value = element.currentStyle(scriptProperty(property));
 				else if (window.getComputedStyle)
-					value = document.defaultView.getComputedStyle(element, null).getPropertyValue(cssProperty(property));
+					value = document.defaultView.getComputedStyle(element, pseudo || null).getPropertyValue(cssProperty(property));
 			}
 
 			return value;
