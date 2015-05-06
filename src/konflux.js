@@ -3858,7 +3858,7 @@
 			if (trigger)
 			{
 				prepareTargetIterator(targets).each(function(target){
-					if ('dispatchEvent' in this)
+					if ('dispatchEvent' in target)
 					{
 						target.dispatchEvent(trigger);
 					}
