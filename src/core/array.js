@@ -97,7 +97,7 @@ function KonfluxArray() {
 		var result = false,
 			len, i;
 
-		switch (type(mixed)) {
+		switch (konflux.type(mixed)) {
 			case 'object':
 				if (!('length' in mixed)) {
 					result = [mixed];

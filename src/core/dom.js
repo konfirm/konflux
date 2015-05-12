@@ -84,7 +84,7 @@ function KonfluxDOM() {
 	function createStructure(struct, scope) {
 		var nodeName, element, p, i;
 
-		switch (type(struct)) {
+		switch (konflux.type(struct)) {
 			case 'array':
 				element = [];
 				for (i = 0; i < struct.length; ++i) {

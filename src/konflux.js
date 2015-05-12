@@ -158,36 +158,13 @@
 					return !/^0?$/.test(s);
 				}
 			},
-			t = type(p);
+			t = kx.type(p);
 
 		if (konflux.isType('function', types[t]) && types[t](p)) {
 			return false;
 		}
 
 		return true;
-	}
-
-	/**
-	 *  Determine the type of given variable
-	 *  @name    type
-	 *  @type    function
-	 *  @access  internal
-	 *  @param   mixed variable
-	 *  @param   bool  explicit
-	 *  @return  string type
-	 */
-	function type(variable, explicit) {
-		var result = variable instanceof Array ? 'array' : (variable === null ? 'null' : typeof variable),
-			name;
-
-		if (explicit && result === 'object') {
-			name = /(?:function\s+)?(.{1,})\(/i.exec(variable.constructor.toString());
-			if (name && name.length > 1 && name[1] !== 'Object') {
-				return name[1];
-			}
-		}
-
-		return result;
 	}
 
 	/**
@@ -328,7 +305,20 @@
 		 *  @param   bool   explicit types [optional, default undefined - simple types]
 		 *  @return  string type
 		 */
-		kx.type = type;
+		kx.type = function(variable, explicit) {
+			var result = variable instanceof Array ? 'array' : (variable === null ? 'null' : typeof variable),
+				name;
+
+			if (explicit && result === 'object') {
+				name = /(?:function\s+)?(.{1,})\(/i.exec(variable.constructor.toString());
+
+				if (name && name.length > 1 && name[1] !== 'Object') {
+					return name[1];
+				}
+			}
+
+			return result;
+		}
 
 		/**
 		 *  Test the type of given variable
@@ -1074,7 +1064,7 @@
 				sheet = [sheet];
 
 			for (i = 0; i < sheet.length; ++i) {
-				rules = type(sheet[i].cssRules) ? sheet[i].cssRules : sheet[i].rules;
+				rules = kx.type(sheet[i].cssRules) ? sheet[i].cssRules : sheet[i].rules;
 				if (rules && rules.length)
 					for (j = 0; j < rules.length; ++j)
 						if ('selectorText' in rules[j] && (!selector || normalizeSelector(rules[j].selectorText) === selector))

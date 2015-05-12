@@ -213,7 +213,7 @@ function KonfluxAjax() {
 	 */
 	function requestType(t) {
 		var handler = function(config){
-			switch (type(config)) {
+			switch (konflux.type(config)) {
 				case 'object':
 					config.type = t;
 					break;
