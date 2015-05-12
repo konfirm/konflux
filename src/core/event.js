@@ -6,7 +6,7 @@
 function KonfluxEvent() {
 	'use strict';
 
-	/*global konflux, kxEventDelegate, window, document, buffer, isType, deprecate, undef*/
+	/*global konflux, kxEventDelegate, window, document, buffer, deprecate*/
 
 	/*jshint validthis: true*/
 	var event = this,
@@ -291,11 +291,11 @@ function KonfluxEvent() {
 	function unifyEvent(e) {
 		var evt = e || window.event;
 
-		if (isType(undef, evt.target)) {
-			evt.target = !isType(undef, evt.srcElement) ? evt.srcElement : null;
+		if (konflux.isType('undefined', evt.target)) {
+			evt.target = !konflux.isType('undefined', evt.srcElement) ? evt.srcElement : null;
 		}
 
-		if (isType(undef, evt.type)) {
+		if (konflux.isType('undefined', evt.type)) {
 			evt.type = evt.eventType;
 		}
 
@@ -328,11 +328,11 @@ function KonfluxEvent() {
 			targets = [targets];
 		}
 
-		if (isType('string', targets)) {
+		if (konflux.isType('string', targets)) {
 			targets = document.querySelectorAll(targets);
 		}
 
-		if (!isType('number', targets.length)) {
+		if (!konflux.isType('number', targets.length)) {
 			targets = [targets];
 		}
 
@@ -348,7 +348,7 @@ function KonfluxEvent() {
 	 *  @return  kxIterator events
 	 */
 	function prepareEventIterator(events) {
-		if (isType('string', events)) {
+		if (konflux.isType('string', events)) {
 			events = events.replace(/\*/g, '').split(/[\s*,]+/);
 		}
 		else if (!events) {
@@ -470,7 +470,7 @@ function KonfluxEvent() {
 									this[name] = [];
 								}
 
-								if (isType('function', callback)) {
+								if (konflux.isType('function', callback)) {
 									this[name].push(callback);
 								}
 								else {
@@ -552,7 +552,7 @@ function KonfluxEvent() {
 			p;
 
 		//  IE11 actually has the CustomEvent (and the likes), but one cannot construct those directly as they are objects
-		if (support && isType('function', support)) {
+		if (support && konflux.isType('function', support)) {
 			trigger = new support(name, {
 				detail: detail,
 				cancelable: true
@@ -583,7 +583,7 @@ function KonfluxEvent() {
 						p = getEventProperty(target, name);
 
 						//  simply set the event property as we've already set up an setter function on it
-						if (!isType(undef, target[p])) {
+						if (!konflux.isType('undefined', target[p])) {
 							target[p] = trigger;
 						}
 					}
@@ -620,7 +620,7 @@ function KonfluxEvent() {
 	event.add = function(targets, events, filter, handler, capture) {
 		setTimeout(function() {
 			listen.apply(event, [targets, events].concat(
-				isType('function', filter) ? [null, filter, handler] : [filter, handler, capture]
+				konflux.isType('function', filter) ? [null, filter, handler] : [filter, handler, capture]
 			));
 		}, 1);
 
@@ -651,19 +651,19 @@ function KonfluxEvent() {
 
 		//  if the first argument is a function, we assume it is a handler
 		//  and remove the events using it from all elements
-		if (isType('function', targets)) {
+		if (konflux.isType('function', targets)) {
 			arg = [null, null, null, targets];
 		}
 
 		//  if the second argument is a function, we assume the first argument
 		//  to be the target(s) and remove all events using this handler from
 		//  given target(s)
-		else if (isType('function', events)) {
+		else if (konflux.isType('function', events)) {
 			arg = [targets, null, null, events];
 		}
 
 		//  if the third argument is a function, we know it is not a filter
-		else if (isType('function', filter)) {
+		else if (konflux.isType('function', filter)) {
 			arg = [targets, events, null, filter];
 		}
 
@@ -727,7 +727,7 @@ function KonfluxEvent() {
 	 *  @return  bool is touch device
 	 */
 	event.hasTouch = function() {
-		if (!isType('boolean', touch)) {
+		if (!konflux.isType('boolean', touch)) {
 			touch = konflux.browser.supports('touch');
 		}
 
@@ -752,7 +752,7 @@ function KonfluxEvent() {
 		}
 
 		//  we cannot use the event.listen method, as we need very different event listeners
-		if (undef === typeof queue.ready) {
+		if ('undefined' === typeof queue.ready) {
 			queue.ready = [];
 
 			if (document.addEventListener) {

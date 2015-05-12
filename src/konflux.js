@@ -6,7 +6,7 @@
  *    \/_/     More information: http://konfirm.net/konflux
  */
 
-/*jshint browser: true, undef: true, unused: true, curly: false, newcap: false, forin: false, devel: true */
+/*jshint browser: true, 'undefined': true, unused: true, curly: false, newcap: false, forin: false, devel: true */
 /*global File, FileList, FormData */
 ;(function(window, undefined) {
 	'use strict';
@@ -14,7 +14,6 @@
 	var version = '$DEV$ - $DATE$ - $COMMIT$',
 		document = window.document,
 		navigator = window.navigator,
-		undef = 'undefined',
 
 		//  Internal properties
 
@@ -23,9 +22,6 @@
 
 		//  internal counter, used to create unique values
 		_count = 0,
-
-		//  rough execution start time
-		_timestamp,
 		konflux;
 
 	//  Internal functions
@@ -39,21 +35,10 @@
 	 *  @return  object buffer
 	 */
 	function buffer(key) {
-		if (undef === typeof _buffer[key])
+		if ('undefined' === typeof _buffer[key])
 			_buffer[key] = {};
 
 		return _buffer[key];
-	}
-
-	/**
-	 *  Obtain the milliseconds since the UNIX Epoch (Jan 1, 1970 00:00:00.000)
-	 *  @name    time
-	 *  @type    function
-	 *  @access  internal
-	 *  @return  int milliseconds
-	 */
-	function time() {
-		return Date.now ? Date.now() : (new Date()).getTime();
 	}
 
 	/**
@@ -71,37 +56,11 @@
 			i, p;
 
 		for (i = 0; i < arguments.length; ++i)
-			if (isType('object', arguments[i]))
+			if (konflux.isType('object', arguments[i]))
 				for (p in arguments[i])
-					obj[p] = p in obj && isType('object', obj[p]) ? combine(arguments[i][p], obj[p]) : arguments[i][p];
+					obj[p] = p in obj && konflux.isType('object', obj[p]) ? combine(arguments[i][p], obj[p]) : arguments[i][p];
 
 		return obj;
-	}
-
-	/**
-	 *  Obtain the elapsed time since Konflux started (roughly), using the format: [Nd ] hh:mm:ss.ms
-	 *  @name    elapsed
-	 *  @type    function
-	 *  @access  internal
-	 *  @return  string formatted time
-	 */
-	function elapsed() {
-		var day = 86400000,
-			hour = 3600000,
-			minute = 60000,
-			delta = Math.abs((new Date()).getTime() - _timestamp),
-			days = Math.floor(delta / day),
-			hours = Math.floor((delta -= days * day) / hour),
-			minutes = Math.floor((delta -= hours * hour) / minute),
-			seconds = Math.floor((delta -= minutes * minute) / 1000),
-			ms = Math.floor(delta -= seconds * 1000),
-			zero = '000';
-
-		return (days > 0 ? days + 'd ' : '') +
-				(zero + hours).substr(-2) + ':' +
-				(zero + minutes).substr(-2) + ':' +
-				(zero + seconds).substr(-2) + '.' +
-				(zero + ms).substr(-3);
 	}
 
 	/**
@@ -112,7 +71,7 @@
 	 *  @return  string key
 	 */
 	function unique() {
-		return (++_count + time() % 86400000).toString(36);
+		return (++_count + konflux.time() % 86400000).toString(36);
 	}
 
 	/**
@@ -201,8 +160,10 @@
 			},
 			t = type(p);
 
-		if (isType('function', types[t]) && types[t](p))
+		if (konflux.isType('function', types[t]) && types[t](p)) {
 			return false;
+		}
+
 		return true;
 	}
 
@@ -227,34 +188,6 @@
 		}
 
 		return result;
-	}
-
-	/**
-	 *  Test the type of given variable
-	 *  @name    isType
-	 *  @type    function
-	 *  @access  internal
-	 *  @param   string type
-	 *  @param   mixed  variable
-	 *  @return  bool   istype
-	 */
-	function isType(t, variable) {
-		var full = type(variable),
-			check = t && t.length ? full.substr(0, t.length) : null;
-
-		if (check !== t) {
-			switch (full) {
-				case 'object':
-					check = type(variable, true).substr(0, t.length);
-					break;
-
-				case 'number':
-					check = (parseInt(variable) === variable ? 'integer' : 'float').substr(0, t.length);
-					break;
-			}
-		}
-
-		return check === t;
 	}
 
 	/**
@@ -283,15 +216,12 @@
 			i;
 
 		for (i = 0 ; i < method.length; ++i) {
-			if (isType('function', console[method[i]])) {
-				console[method[i]](elapsed() + ' DEPRECATED: ' + message);
+			if (konflux.isType('function', console[method[i]])) {
+				console[method[i]](konflux.elapsed() + ' DEPRECATED: ' + message);
 				break;
 			}
 		}
 	}
-
-	//  use the time() function to obtain the starting time
-	_timestamp = time();
 
 	/**
 	 *  The Konflux object itself
@@ -303,7 +233,12 @@
 	 */
 	function Konflux() {
 		/*jshint validthis: true*/
-		var kx = this;
+		var kx = this,
+			timestamp;
+
+		function init() {
+			timestamp = kx.time();
+		}
 
 		/**
 		 *  Obtain the milliseconds since the UNIX Epoch (Jan 1, 1970 00:00:00.000)
@@ -312,7 +247,9 @@
 		 *  @access  public
 		 *  @return  int milliseconds
 		 */
-		kx.time = time;
+		kx.time = function() {
+			return Date.now ? Date.now() : (new Date()).getTime();
+		};
 
 		/**
 		 *  Obtain the elapsed time since Konflux started (roughly), using the format: [Nd] hh:mm:ss.ms
@@ -321,7 +258,24 @@
 		 *  @access  public
 		 *  @return  string formatted time
 		 */
-		kx.elapsed = elapsed;
+		kx.elapsed = function() {
+			var day = 86400000,
+				hour = 3600000,
+				minute = 60000,
+				delta = Math.abs((new Date()).getTime() - timestamp),
+				days = Math.floor(delta / day),
+				hours = Math.floor((delta -= days * day) / hour),
+				minutes = Math.floor((delta -= hours * hour) / minute),
+				seconds = Math.floor((delta -= minutes * minute) / 1000),
+				ms = Math.floor(delta -= seconds * 1000),
+				zero = '000';
+
+			return (days > 0 ? days + 'd ' : '') +
+					(zero + hours).substr(-2) + ':' +
+					(zero + minutes).substr(-2) + ':' +
+					(zero + seconds).substr(-2) + '.' +
+					(zero + ms).substr(-3);
+		};
 
 		/**
 		 *  Obtain an unique key, the key is guaranteed to be unique within the browser runtime
@@ -383,9 +337,27 @@
 		 *  @access  public
 		 *  @param   string type
 		 *  @param   mixed  variable
-		 *  @return  bool   istype
+		 *  @return  bool  is type
 		 */
-		kx.isType = isType;
+		kx.isType = function(type, variable) {
+			var full = kx.type(variable),
+				check = type && type.length ? full.substr(0, type.length) : null;
+
+			if (check !== type) {
+				switch (full) {
+					case 'object':
+						check = kx.type(variable, true).substr(0, type.length);
+						break;
+
+					case 'number':
+						check = (parseInt(variable) === variable ? 'integer' : 'float').substr(0, type.length);
+						break;
+				}
+			}
+
+			return check === type;
+
+		};
 
 		/**
 		 *  Convenience function bridging the event.ready method
@@ -459,7 +431,26 @@
 			return collection instanceof KonfluxIterator ? collection : new KonfluxIterator(collection);
 		};
 
-		return this;
+		/**
+		 *  Register a module or function onto the kx object
+		 *  @name    register
+		 *  @access  public
+		 *  @param   string  name
+		 *  @param   mixed   value [one of: object (module) or function]
+		 *  @return  mixed   old value
+		 */
+		kx.register = function(name, module) {
+			var result = false;
+
+			if (kx.isType('function', module) || kx.isType('object', module)) {
+				result = name in kx ? kx[name] : null;
+				kx[name] = module;
+			}
+
+			return result;
+		};
+
+		init();
 	}
 
 	konflux = new Konflux();
@@ -472,332 +463,7 @@
 	//= include core/dom.js
 	//= include core/event.js
 	//= include core/point.js
-
-	/**
-	 *  Handle AJAX requests
-	 *  @module  ajax
-	 *  @note    available as konflux.ajax / kx.ajax
-	 */
-	function KonfluxAjax() {
-		/*jshint validthis: true*/
-		var ajax = this,
-			stat = {},
-			header = false;
-
-		/**
-		 *  FormData stub, in case a browser doesn't feature the FormData object
-		 *  @name    KonfluxFormData
-		 *  @type    module
-		 *  @access  internal
-		 *  @return  KonfluxFormData object
-		 */
-		function KonfluxFormData() {
-			/*jshint validthis: true*/
-			var formdata = this,
-				data = {};
-
-			/**
-			 *  Append a key/value pair to the KonfluxFormData instance
-			 *  @name    append
-			 *  @type    method
-			 *  @access  public
-			 *  @param   string key
-			 *  @param   mixed  value (can be anything but an object)
-			 *  @return  KonfluxFormData reference
-			 */
-			formdata.append = function(key, value) {
-				if (!isType('object', value))
-					data[key] = value;
-
-				return formdata;
-			};
-
-			/**
-			 *  Serialize the KonfluxFormData instance into a string
-			 *  @name    serialize
-			 *  @type    method
-			 *  @access  public
-			 *  @return  string  urlencoded data
-			 */
-			formdata.serialize = function() {
-				var r = [],
-					p;
-
-				for (p in data)
-					r.push(p + '=' + encodeURIComponent(data[p]));
-
-				return r.join('&');
-			};
-		}
-
-		/**
-		 *  Convenience method to make KonfluxFormData serialization work if used as string
-		 *  @name    toString
-		 *  @type    method
-		 *  @access  public
-		 *  @return  string urlencodes data
-		 *  @note    This method is autmatically called when the KonfluxFormData instance is used as string (e.g. KonfluxFormDataInstance + '')
-		 */
-		KonfluxFormData.prototype.toString = function() {
-			return this.serialize();
-		};
-
-		/**
-		 *  Obtain the default headers
-		 *  @name    getHeader
-		 *  @type    function
-		 *  @access  internal
-		 *  @param   string url
-		 *  @return  object headers
-		 */
-		function getHeader(url) {
-			if (!header)
-				header = {
-					'X-Konflux': 'konflux/' + konflux.string.ascii(konflux.version())
-				};
-
-			// Since browsers "preflight" requests for cross-site HTTP requests with
-			// custom headers we should not try to send them, or request will fail
-			// silently
-			//
-			// For more information, please refer to:
-			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS#Preflighted_requests
-
-			return konflux.url.isLocal(url) ? header : {};
-		}
-
-		/**
-		 *  Obtain a new XHR object
-		 *  @name    getXMLHTTPRequest
-		 *  @type    function
-		 *  @access  internal
-		 *  @return  object XMLHttpRequest
-		 */
-		function getXMLHTTPRequest() {
-			var xhr     = new XMLHttpRequest();
-			xhr.__kxref = konflux.unique();
-			return xhr;
-		}
-
-		/**
-		 *  Request a resource using XHR
-		 *  @name    request
-		 *  @type    function
-		 *  @access  internal
-		 *  @param   object config
-		 *  @return  object XMLHttpRequest
-		 */
-		function request(config) {
-			var url   = 'url' in config ? config.url : (konflux.url ? konflux.url.path : null),
-				type  = 'type' in config ? config.type.toUpperCase() : 'GET',
-				data  = 'data' in config ? prepareData(config.data) : '',
-				async = 'async' in config ? config.async : true,
-				headers = 'header' in config ? combine(config.header, getHeader(url)) : getHeader(url),
-				xhr   = getXMLHTTPRequest(),
-				p;
-
-			if (!/^(POST|PUT)$/.test(type)) {
-				url += 'data' in config && config.data !== '' ? '?' + ('string' === typeof config.data ? config.data : data) : '';
-				data = null;
-			}
-
-			xhr.onload = function() {
-				var status = Math.floor(this.status * 0.01),
-					state = false;
-				++stat[type];
-
-				if (status === 2 && 'success' in config) {
-					state = 'success';
-					config.success.apply(this, process(this));
-				}
-				else if (status >= 4 && 'error' in config) {
-					state = 'error';
-					config.error.apply(this, process(this));
-				}
-
-				if ('complete' in config) {
-					state = !state ? 'complete' : state;
-					config.complete.apply(this, [this.status, this.statusText, this]);
-				}
-
-				if (state)
-					konflux.observer.notify('konflux.ajax.' + type.toLowerCase() + '.' + state, xhr, config);
-			};
-
-			if ('progress' in config && isType('function', config.progress))
-				konflux.event.add(xhr.upload, 'progress', config.progress);
-			if ('error' in config && isType('function', config.error))
-				konflux.event.add(xhr, 'error', config.error);
-			if ('abort' in config && isType('function', config.abort))
-				konflux.event.add(xhr, 'abort', config.abort);
-
-			xhr.open(type, url, async);
-			if (headers)
-				for (p in headers)
-					xhr.setRequestHeader(p, headers[p]);
-
-			xhr.send(data);
-			return xhr;
-		}
-
-		/**
-		 *  Process an XHR response
-		 *  @name    process
-		 *  @type    function
-		 *  @access  internal
-		 *  @param   object XMLHttpRequest
-		 *  @return  array  response ([status, response text, XMLHttpRequest])
-		 */
-		function process(xhr) {
-			var contentType = xhr.getResponseHeader('content-type'),
-				result = [
-					xhr.status,
-					xhr.responseText,
-					xhr
-				],
-				match;
-
-			if (contentType && (match = contentType.match(/([^;]+)/)))
-				contentType = match[1];
-
-			switch (contentType) {
-				case 'application/json':
-					result[1] = JSON.parse(result[1]);
-					break;
-			}
-
-			return result;
-		}
-
-		/**
-		 *  Prepare data to be send
-		 *  @name    prepareData
-		 *  @type    function
-		 *  @access  internal
-		 *  @param   mixed  data
-		 *  @param   string name
-		 *  @param   FormData (or KonfluxFormData) object
-		 *  @return  FormData (or KonfluxFormData) object
-		 */
-		function prepareData(data, name, formData) {
-			var r = formData || (undef !== typeof FormData ? new FormData() : new KonfluxFormData()),
-				p;
-
-			if (undef !== typeof File && data instanceof File)
-				r.append(name, data, data.name);
-			else if (undef !== typeof Blob && data instanceof Blob)
-				r.append(name, data, 'blob');
-			else if (data instanceof Array || (undef !== FileList && data instanceof FileList))
-				for (p = 0; p < data.length; ++p)
-					prepareData(data[p], (name || '') + '[' + p + ']', r);
-			else if (isType('object', data))
-				for (p in data)
-					prepareData(data[p], name ? name + '[' + encodeURIComponent(p) + ']' : encodeURIComponent(p), r);
-			else
-				r.append(name, data);
-
-			return r;
-		}
-
-		/**
-		 *  Obtain a handler function for given request, this handler is triggered by the konflux observer (konflux.ajax.<type>)
-		 *  @name    requestType
-		 *  @type    function
-		 *  @access  internal
-		 *  @param   string   type
-		 *  @return  function handler
-		 */
-		function requestType(t) {
-			var handler = function(config) {
-				switch (type(config)) {
-					case 'object':
-						config.type = t;
-						break;
-
-					case 'string':
-
-						//  we assume an URL
-						config = {
-							url: config,
-							type: t
-						};
-						break;
-
-					default:
-						config = {
-							type: t
-						};
-				}
-				return request(config);
-			};
-			stat[t.toUpperCase()] = 0;
-			konflux.observer.subscribe('konflux.ajax.' + t.toLowerCase(), function(ob, config) {
-				handler(config);
-			});
-
-			return handler;
-		}
-
-		/**
-		 *  Perform a request
-		 *  @name    request
-		 *  @type    method
-		 *  @access  public
-		 *  @param   object config
-		 *  @return  object XMLHttpRequest
-		 */
-		ajax.request = request;
-
-		/**
-		 *  Perform a GET request
-		 *  @name    get
-		 *  @type    method
-		 *  @access  public
-		 *  @param   object config
-		 *  @return  object XMLHttpRequest
-		 */
-		ajax.get = requestType('GET');
-
-		/**
-		 *  Perform a POST request
-		 *  @name    post
-		 *  @type    method
-		 *  @access  public
-		 *  @param   object config
-		 *  @return  object XMLHttpRequest
-		 */
-		ajax.post = requestType('POST');
-
-		/**
-		 *  Perform a PUT request
-		 *  @name    put
-		 *  @type    method
-		 *  @access  public
-		 *  @param   object config
-		 *  @return  object XMLHttpRequest
-		 */
-		ajax.put = requestType('PUT');
-
-		/**
-		 *  Perform a DELETE request
-		 *  @name    del
-		 *  @type    method
-		 *  @access  public
-		 *  @param   object config
-		 *  @return  object XMLHttpRequest
-		 */
-		ajax.del = requestType('DELETE');
-
-		/**
-		 *  Perform a PURGE request (mostly supported by caching servers such as Varnish)
-		 *  @name    purge
-		 *  @type    method
-		 *  @access  public
-		 *  @param   object config
-		 *  @return  object XMLHttpRequest
-		 */
-		ajax.purge = requestType('PURGE');
-	}
+	//= include core/ajax.js
 
 	/**
 	 *  Handle URL's/URI's
@@ -826,7 +492,7 @@
 
 			if (result.query)
 				result.query.replace(/(?:^|&)([^&=]*)=?([^&]*)/g, function(a, b, c) {
-					if (!isType('object', result.query))
+					if (konflux.isType('object', result.query))
 						result.query = {};
 					if (b)
 						result.query[b] = c;
@@ -840,7 +506,7 @@
 		 *  @type    object
 		 *  @access  public
 		 */
-		url.current = !isType(undef, window.location.href) ? parse(window.location.href) : false;
+		url.current = konflux.isType('undefined', window.location.href) ? parse(window.location.href) : false;
 
 		/**
 		 *  Parse given URL into its URI components
@@ -1246,10 +912,10 @@
 		 *  @return  array  stylesheets
 		 */
 		style.sheet = function(target, editable) {
-			var list = getStylesheet(isType('string', target) ? target : null, editable === false ? true : false),
+			var list = getStylesheet(konflux.isType('string', target) ? target : null, editable === false ? true : false),
 				i;
 
-			if (!isType(undef, target.nodeName))
+			if (konflux.isType('undefined', target.nodeName))
 				for (i = 0; i < list.length; ++i)
 					if (list[i].ownerNode === target)
 						return [list[i]];
@@ -1284,7 +950,7 @@
 			var style = createStylesheet(url, before);
 
 			//  if style is a StyleSheet object, it has the ownerNode property containing the actual DOMElement in which it resides
-			if (!isType(undef, style.ownerNode)) {
+			if (konflux.isType('undefined', style.ownerNode)) {
 				style = style.ownerNode;
 
 				//  it is safe to assume here that the stylesheet was loaded, hence we need to apply the callback (with a slight delay, so the order of returning and execution of the callback is the same for both load scenario's)
@@ -1312,7 +978,7 @@
 		 */
 		style.isEditable = function(stylesheet) {
 			var list = getLocalStylesheets(),
-				node = !isType(undef, stylesheet.ownerNode) ? stylesheet.ownerNode : stylesheet,
+				node = konflux.isType('undefined', stylesheet.ownerNode) ? stylesheet.ownerNode : stylesheet,
 				i;
 			for (i = 0; i < list.length; ++i)
 				if (list[i].ownerNode === node)
@@ -1336,19 +1002,19 @@
 				find, p, pr;
 
 			//  in case the selector is not a string but a DOMElement, we go out and create a selector from it
-			if (isType('object', selector) && 'nodeType' in selector)
+			if (konflux.isType('object', selector) && 'nodeType' in selector)
 				selector = style.selector(selector, skipNode) || style.selector(selector);
 
 			//  make the rules into an object
-			if (isType('string', rules))
+			if (konflux.isType('string', rules))
 				rules = getStyleProperties(rules);
 
 			//  if rules isn't an object, we exit right here
-			if (!isType('object', rules))
+			if (konflux.isType('object', rules))
 				return false;
 
 			//  if no sheet was provided, or a string reference to a sheet was provided, resolve it
-			if (!sheet || isType('string', sheet))
+			if (!sheet || konflux.isType('string', sheet))
 				sheet = getStylesheet(sheet || 'last');
 
 			//  in case we now have a list of stylesheets, we either want one (if there's just one) or we add the style to all
@@ -1562,7 +1228,7 @@
 		 *  @return  void
 		 */
 		function remove(reference) {
-			if (undef !== typeof stack[reference]) {
+			if ('undefined' !== typeof stack[reference]) {
 				//  cancel the stack reference
 				stack[reference].cancel();
 
@@ -1615,253 +1281,7 @@
 		timing.create = create;
 	}
 
-	/**
-	 *  Observer object, handles subscriptions to messages
-	 *  @module  observer
-	 *  @note    available as konflux.observer / kx.observer
-	 */
-	function KonfluxObserver() {
-		/*jshint validthis: true*/
-		var observer = this,
-			subscription = buffer('observer.subscriptions'),
-			active = buffer('observer.active');
-
-		/**
-		 *  Observation object, instances of this are be provided to all observer notification subscribers
-		 *  @name    KonfluxObservation
-		 *  @type    module
-		 *  @access  internal
-		 *  @param   string type
-		 *  @param   function handle
-		 *  @param   string reference
-		 *  @return  KonfluxObservation object
-		 */
-		function KonfluxObservation(type, handle, reference) {
-			/*jshint validthis: true*/
-			var observation = this;
-
-			observation.type      = type;
-			observation.reference = reference;
-			observation.timeStamp = time();
-			observation.timeDelta = elapsed();
-
-			/**
-			 *  Unsubscribe from the current observer stack
-			 *  @name    unsubscribe
-			 *  @type    method
-			 *  @access  public
-			 *  @return  void
-			 */
-			observation.unsubscribe = function() {
-				return disable(type, handle);
-			};
-			/**
-			 *  Stop the execution of this Observation
-			 *  @name    stop
-			 *  @type    method
-			 *  @access  public
-			 *  @return  void
-			 */
-			observation.stop = function() {
-				active[reference] = false;
-			};
-		}
-
-		/**
-		 *  Create the subscription stack if it does not exist
-		 *  @name    ensureSubscriptionStack
-		 *  @type    function
-		 *  @access  internal
-		 *  @param   string stack name
-		 *  @return  void
-		 */
-		function ensureSubscriptionStack(stack) {
-			if (undef === typeof subscription[stack])
-                subscription[stack] = [];
-		}
-
-		/**
-		 *  Add handler to specified stack
-		 *  @name    add
-		 *  @type    function
-		 *  @access  internal
-		 *  @param   string stack name
-		 *  @param   function handler
-		 *  @return  int total number of subscriptions in this stack
-		 */
-		function add(stack, handle) {
-			ensureSubscriptionStack(stack);
-			return subscription[stack].push(handle);
-		}
-
-		/**
-		 *  Disable a handler for specified stack
-		 *  @name    disable
-		 *  @type    function
-		 *  @access  internal
-		 *  @param   string stack name
-		 *  @param   function handler
-		 *  @return  void
-		 *  @note    this method is used from the Observation object, which would influence the number of
-		 *           subscriptions if the subscription itself was removed immediately
-		 */
-		function disable(stack, handle) {
-			var i;
-
-			for (i = 0; i < subscription[stack].length; ++i)
-				if (subscription[stack][i] === handle)
-					subscription[stack][i] = false;
-		}
-
-		/**
-		 *  Remove specified handler (and all disabled handlers) from specified stack
-		 *  @name    remove
-		 *  @type    function
-		 *  @access  internal
-		 *  @param   string stack name
-		 *  @param   function handler [optional, default null - remove the entire stack]
-		 *  @return  array removed handlers
-		 */
-		function remove(stack, handle) {
-			var out = [],
-				keep = [],
-				i;
-
-			ensureSubscriptionStack(stack);
-			for (i = 0; i < subscription[stack].length; ++i)
-				(!subscription[stack][i] || subscription[stack][i] === handle ? out : keep).push(subscription[stack][i]);
-			subscription[stack] = keep;
-			return out;
-		}
-
-		/**
-		 *  Flush specified stack
-		 *  @name    flush
-		 *  @type    function
-		 *  @access  internal
-		 *  @param   string stack name
-		 *  @return  array removed handlers (false if the stack did not exist);
-		 */
-		function flush(stack) {
-			var out = false;
-
-			if (!isType(undef, subscription[stack])) {
-				out = subscription[stack];
-				delete subscription[stack];
-			}
-
-			return out;
-		}
-
-		/**
-		 *  Trigger the handlers in specified stack
-		 *  @name    trigger
-		 *  @type    function
-		 *  @access  internal
-		 *  @param   string stack name
-		 *  @param   mixed variable1
-		 *  @param   mixed ...
-		 *  @param   mixed variableN
-		 *  @return  void
-		 */
-		function trigger(stack) {
-			var arg = konflux.array.cast(arguments),
-				ref = unique(),
-				part = stack.split('.'),
-				wildcard = false,
-				name, i;
-
-			while (part.length >= 0) {
-				active[ref] = true;
-				name = part.join('.') + (wildcard ? (part.length ? '.' : '') + '*' : '');
-				wildcard = true;
-
-				if (undef !== typeof subscription[name])
-					for (i = 0; i < subscription[name].length; ++i) {
-						if (!active[ref])
-							break;
-
-						if (subscription[name][i]) {
-							arg[0] = new KonfluxObservation(stack, subscription[name][i], ref);
-							subscription[name][i].apply(subscription[name][i], arg);
-						}
-					}
-
-				if (!part.pop())
-					break;
-			}
-
-			delete active[ref];
-		}
-
-		/**
-		 *  Subscribe a handler to an observer stack
-		 *  @name    subscribe
-		 *  @type    method
-		 *  @access  public
-		 *  @param   string stack name
-		 *  @param   function handle
-		 *  @param   function callback [optional, default undefined]
-		 *  @return  KonfluxObserver reference
-		 */
-		observer.subscribe = function(stack, handle, callback) {
-			var list = stack.split(/[\s,]+/),
-				result = true,
-				i;
-
-			for (i = 0; i < list.length; ++i)
-				result = (add(list[i], handle) ? true : false) && result;
-
-			if (callback)
-				callback.apply(observer, [result]);
-
-			return observer;
-		};
-
-		/**
-		 *  Unsubscribe a handler from an observer stack
-		 *  @name    unsubscribe
-		 *  @type    method
-		 *  @access  public
-		 *  @param   string stack name
-		 *  @param   function handle
-		 *  @param   function callback [optional, default undefined]
-		 *  @return  KonfluxObserver reference
-		 */
-		observer.unsubscribe = function(stack, handle, callback) {
-			var list = stack.split(/[\s,]+/),
-				result = [],
-				i;
-
-			for (i = 0; i < list.length; ++i)
-				result = result.concat(handle ? remove(list[i], handle) : flush(list[i]));
-
-			if (callback)
-				callback.apply(observer, [result]);
-
-			return observer;
-		};
-
-		/**
-		 *  Notify all subscribers to a stack
-		 *  @name    notify
-		 *  @type    method
-		 *  @access  public
-		 *  @param   string stack name
-		 *  @param   mixed  variable1
-		 *  @param   mixed  ...
-		 *  @param   mixed  variableN
-		 *  @return  void
-		 */
-		observer.notify = function() {
-			var arg = konflux.array.cast(arguments),
-				list = arg.shift().split(/[\s,]+/),
-				i;
-
-			for (i = 0; i < list.length; ++i)
-				trigger.apply(observer, [list[i]].concat(arg));
-		};
-	}
+	//= include core/observer.js
 
 	/**
 	 *  Storage object, a simple wrapper for localStorage
@@ -1872,7 +1292,7 @@
 		/*jshint validthis: true*/
 		var ls = this,
 			maxSize = 2048,
-			storage = !isType(undef, window.localStorage) ? window.localStorage : false,
+			storage = konflux.isType('undefined', window.localStorage) ? window.localStorage : false,
 			fragmentPattern = /^\[fragment:([0-9]+),([0-9]+),([a-z0-9_]+)\]$/;
 
 		/**

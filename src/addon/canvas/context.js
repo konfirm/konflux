@@ -12,7 +12,7 @@
 function kxCanvasContext(canvas, defaults) {
 	'use strict';
 
-	/*global konflux, undef*/
+	/*global konflux, 'undefined'*/
 
 	/*jshint validthis: true*/
 	var context = this;
@@ -80,7 +80,7 @@ function kxCanvasContext(canvas, defaults) {
 	 */
 	function relayCanvasProperty(key, ro) {
 		return function(value) {
-			if (konflux.isType(undef, value)) {
+			if (konflux.isType('undefined', value)) {
 				return context.ctx2d.canvas[key];
 			}
 			if (!ro) {
@@ -103,7 +103,7 @@ function kxCanvasContext(canvas, defaults) {
 	 */
 	function relayProperty(key, ro) {
 		return function(value) {
-			if (konflux.isType(undef, value)) {
+			if (konflux.isType('undefined', value)) {
 				return context.ctx2d[key];
 			}
 			if (!ro) {
@@ -279,7 +279,7 @@ function kxCanvasContext(canvas, defaults) {
 			context.shadowBlur(blur);
 		}
 
-		if (!konflux.isType(undef, color)) {
+		if (!konflux.isType('undefined', color)) {
 			context.shadowColor(color);
 		}
 

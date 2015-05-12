@@ -6,22 +6,18 @@
  *    \/_/     More information: http://konfirm.net/konflux
  */
 
-/*jshint undef: true, curly: false, browser: true */
 //@dep: string
-;(function(konflux){
+;(function(konflux) {
 	'use strict';
 
-	var version = '$DEV$',
-		undef = 'undefined';
-
+	var version = '$DEV$';
 
 	/**
 	 *  Cookie object, making working with cookies a wee bit easier
 	 *  @module  cookie
 	 *  @note    available as konflux.cookie / kx.cookie
 	 */
-	function kxCookie()
-	{
+	function KonfluxCookie() {
 		/*jshint validthis: true*/
 		var cookie = this,
 			jar = {};
@@ -33,13 +29,11 @@
 		 *  @access  internal
 		 *  @return  void
 		 */
-		function init()
-		{
+		function init() {
 			var part = document.cookie.split(';'),
 				data;
 
-			while (part.length)
-			{
+			while (part.length) {
 				data = part.shift().split('=');
 				jar[konflux.string.trim(data.shift())] = konflux.string.trim(data.join('='));
 			}
@@ -61,33 +55,39 @@
 		 *           this means that setting an empty value (string '' | null | false) or
 		 *           an expiry time in the past, the cookie will be removed
 		 */
-		function setCookie(key, value, expire, path, domain, secure)
-		{
+		function setCookie(key, value, expire, path, domain, secure) {
 			var pairs = [key + '=' + (konflux.isType('number', value) ? value : value || '')],
 				date;
 
-			if (pairs[0].substr(-1) === '=')
+			if (pairs[0].substr(-1) === '=') {
 				expire = -1;
+			}
 
-			if (!konflux.isType(undef, expire) && expire)
+			if (!konflux.isType('undefined', expire) && expire) {
 				date = new Date(expire);
+			}
 
-			if (date)
-			{
-				if (date < (new Date()).getTime() && !konflux.isType(undef, jar[key]))
+			if (date) {
+				if (date < (new Date()).getTime() && !konflux.isType('undefined', jar[key])) {
 					delete jar[key];
+				}
 				pairs.push('expires=' + date);
 			}
-			if (!konflux.isType(undef, path) && path)
+
+			if (!konflux.isType('undefined', path) && path) {
 				pairs.push('path=' + path);
-			if (!konflux.isType(undef, domain) && domain)
+			}
+			if (!konflux.isType('undefined', domain) && domain) {
 				pairs.push('domain=' + domain);
-			if (!konflux.isType(undef, secure) && secure)
+			}
+			if (!konflux.isType('undefined', secure) && secure) {
 				pairs.push('secure');
+			}
 
 			document.cookie = pairs.join(';');
-			if (document.cookie.indexOf(pairs.shift()) >= 0)
+			if (document.cookie.indexOf(pairs.shift()) >= 0) {
 				jar[key] = value + '';
+			}
 		}
 
 		/**
@@ -98,9 +98,8 @@
 		 *  @param   string key
 		 *  @return  void
 		 */
-		function getCookie(key)
-		{
-			return !konflux.isType(undef, jar[key]) ? jar[key] : null;
+		function getCookie(key) {
+			return !konflux.isType('undefined', jar[key]) ? jar[key] : null;
 		}
 
 
@@ -122,14 +121,15 @@
 		 *  @note    It is not possible to set httpOnly cookies from javascript (as this defies the purpose)
 		 *  @return  void
 		 */
-		cookie.value = function(key, value, expire, path, domain, secure)
-		{
-			if (konflux.isType(undef, key))
+		cookie.value = function(key, value, expire, path, domain, secure) {
+			if (konflux.isType('undefined', key)) {
 				return jar;
+			}
 
 			//  if a second argument (value) was given, we update the cookie
-			if (arguments.length >= 2)
+			if (arguments.length >= 2) {
 				setCookie(key, value, expire, path, domain, secure);
+			}
 
 			return getCookie(key);
 		};
@@ -138,6 +138,6 @@
 	}
 
 	//  Append the cookie module to konflux
-	konflux.cookie = kxCookie;
+	konflux.cookie = KonfluxCookie;
 
 })(window.konflux);

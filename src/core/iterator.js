@@ -8,7 +8,7 @@
 function KonfluxIterator(collection) {
 	'use strict';
 
-	/*global konflux, isType, undef*/
+	/*global konflux*/
 
 	/*jshint validthis: true*/
 	var iterator = this,
@@ -54,7 +54,7 @@ function KonfluxIterator(collection) {
 	 *  @return  function relay
 	 */
 	function relay(member) {
-		if (isType('function', collection[member])) {
+		if (konflux.isType('function', collection[member])) {
 			return function() {
 				return collection[member].apply(collection, konflux.array.cast(arguments));
 			};
@@ -114,7 +114,7 @@ function KonfluxIterator(collection) {
 
 		//  and ensure it'll be an array
 		if (!(append instanceof Array)) {
-			append = isType('object', append) ? [append] : konflux.array.cast(append);
+			append = konflux.isType('object', append) ? [append] : konflux.array.cast(append);
 		}
 
 		//  if the appending variable holds an array, we concatenate it into the collection
@@ -149,7 +149,7 @@ function KonfluxIterator(collection) {
 			var list, result, keys, i;
 
 			//  always use the native implementation, if it exists
-			if (name in collection && isType('function', collection[name])) {
+			if (name in collection && konflux.isType('function', collection[name])) {
 				return new KonfluxIterator(collection[name].apply(collection, arguments));
 			}
 
@@ -222,7 +222,7 @@ function KonfluxIterator(collection) {
 	 *  @return  mixed value
 	 */
 	iterator.item = function(index) {
-		if ('item' in collection && isType('function', collection.item)) {
+		if ('item' in collection && konflux.isType('function', collection.item)) {
 			return collection.item(index);
 		}
 
@@ -241,7 +241,7 @@ function KonfluxIterator(collection) {
 			current = 0;
 		}
 
-		return undef !== typeof keys[current] ? iterator.item(keys[current]) : false;
+		return 'undefined' !== typeof keys[current] ? iterator.item(keys[current]) : false;
 	};
 
 	/**
@@ -309,7 +309,7 @@ function KonfluxIterator(collection) {
 	 *  @return  mixed value
 	 */
 	iterator.previous = function() {
-		current = Math.max(undef !== typeof current ? current - 1 : 0, -1);
+		current = Math.max('undefined' !== typeof current ? current - 1 : 0, -1);
 
 		return iterator.current();
 	};
@@ -332,7 +332,7 @@ function KonfluxIterator(collection) {
 	 *  @return  mixed value
 	 */
 	iterator.next = function() {
-		current = Math.min(undef !== typeof current ? current + 1 : 0, keys.length);
+		current = Math.min('undefined' !== typeof current ? current + 1 : 0, keys.length);
 
 		return iterator.current();
 	};

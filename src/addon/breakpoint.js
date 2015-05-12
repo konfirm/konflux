@@ -6,9 +6,9 @@
  *    \/_/     More information: http://konfirm.net/konflux
  */
 
-/*jshint undef: true, curly: false, browser: true, newcap: false*/
+/*jshint 'undefined': true, curly: false, browser: true, newcap: false*/
 //@dep: dom, browser, observer
-;(function(konflux){
+;(function(konflux) {
 	'use strict';
 
 	var version = '$DEV$';
@@ -20,8 +20,7 @@
 	 *  @module  breakpoint
 	 *  @note    available as konflux.breakpoint / kx.breakpoint
 	 */
-	function kxBreakpoint()
-	{
+	function KonfluxBreakpoint() {
 		/*jshint validthis: true*/
 		var breakpoint = this,
 			stack = {},
@@ -38,8 +37,7 @@
 		 *  @param   string property
 		 *  @return  bool   available
 		 */
-		function hasProperty(haystack, needle)
-		{
+		function hasProperty(haystack, needle) {
 			return needle in haystack;
 		}
 
@@ -50,21 +48,19 @@
 		 *  @access  internal
 		 *  @return  void
 		 */
-		function monitor()
-		{
+		function monitor() {
 			var now = konflux.time();
 
 			clearTimeout(timeout);
 
-			if (!tick || now - tick > 100)
-			{
+			if (!tick || now - tick > 100) {
 				tick = now;
 				update();
 			}
 
 			//  attempt to ease up on the load
-			timeout = setTimeout(function(){
-				var timer = konflux.browser.feature('requestAnimationFrame') || function(handle){
+			timeout = setTimeout(function() {
+				var timer = konflux.browser.feature('requestAnimationFrame') || function(handle) {
 					setTimeout(handle, 100);
 				};
 
@@ -79,36 +75,34 @@
 		 *  @access  internal
 		 *  @return  void
 		 */
-		function update()
-		{
+		function update() {
 			var bounds, matched, className, p;
 
-			for (p in stack)
-			{
+			for (p in stack) {
 				bounds = stack[p].element.getBoundingClientRect();
 
-				if (stack[p].width !== bounds.width)
-				{
+				if (stack[p].width !== bounds.width) {
 					stack[p].width = bounds.width;
 					className = stack[p].current;
 					matched = match(stack[p], stack[p].width);
 
-					if (matched !== stack[p].match)
-					{
+					if (matched !== stack[p].match) {
 						className = null;
 
 						className = stack[p].config[matched].join(' ');
-						if (matched && parseInt(matched, 10) <= stack[p].width && hasProperty(stack[p].config, matched))
+						if (matched && parseInt(matched, 10) <= stack[p].width && hasProperty(stack[p].config, matched)) {
 							stack[p].match = matched;
+						}
 					}
 
-					if (className !== stack[p].current)
-					{
-						if (!konflux.empty(stack[p].current))
+					if (className !== stack[p].current) {
+						if (!konflux.empty(stack[p].current)) {
 							konflux.style.removeClass(stack[p].element, stack[p].current);
+						}
 
-						if (!konflux.empty(className))
+						if (!konflux.empty(className)) {
 							konflux.style.addClass(stack[p].element, className);
+						}
 
 						stack[p].current = className;
 						konflux.observer.notify('breakpoint.change', stack[p].current, stack[p].element);
@@ -125,11 +119,10 @@
 		 *  @param   DOMElement target
 		 *  @return  object     config
 		 */
-		function getStack(target)
-		{
+		function getStack(target) {
 			var ref = konflux.dom.reference(target);
 
-			if (!hasProperty(stack, ref))
+			if (!hasProperty(stack, ref)) {
 				stack[ref] = {
 					match: null,
 					width: null,
@@ -137,6 +130,7 @@
 					element: target,
 					config: {}
 				};
+			}
 
 			return stack[ref];
 		}
@@ -150,19 +144,15 @@
 		 *  @param   int    browser width
 		 *  @return  object config
 		 */
-		function match(refStack, width)
-		{
+		function match(refStack, width) {
 			var found, delta, min, p;
 
-			if (hasProperty(refStack, 'config'))
-			{
+			if (hasProperty(refStack, 'config')) {
 				width = Math.round(width);
-				for (p in refStack.config)
-				{
+				for (p in refStack.config) {
 					p = parseInt(p, 10);
 					min = !min ? p : Math.min(min, p);
-					if (p <= width && (!delta || width - p <= delta))
-					{
+					if (p <= width && (!delta || width - p <= delta)) {
 						found = p;
 						delta = width - p;
 					}
@@ -183,18 +173,18 @@
 		 *  @param   string     class(es)
 		 *  @return  void
 		 */
-		function add(target, width, className)
-		{
+		function add(target, width, className) {
 			var refStack = getStack(target);
 
 			clearTimeout(timeout);
 
-			if (!hasProperty(refStack.config, width))
+			if (!hasProperty(refStack.config, width)) {
 				refStack.config[width] = [];
+			}
 
 			refStack.config[width].push(className);
 
-			timeout = setTimeout(function(){
+			timeout = setTimeout(function() {
 				monitor();
 			}, 5);
 		}
@@ -208,17 +198,16 @@
 		 *  @param   number     width
 		 *  @param   string     class(es)
 		 *  @param   DOMElement target [optional, default document.body]
-		 *  @return  kxBreakpoint object
+		 *  @return  KonfluxBreakpoint object
 		 */
-		breakpoint.add = function(width, className, target)
-		{
+		breakpoint.add = function(width, className, target) {
 			add(target || document.body, width, className);
+
 			return breakpoint;
 		};
 
-		breakpoint.remove = function()
-		{
-			//  to be implemented
+		breakpoint.remove = function() {
+			//  TODO: implemented
 		};
 
 		/**
@@ -231,21 +220,22 @@
 		 *  @param   bool   allow to round the ratio to get to a matching ratio
 		 *  @param   return bool matched
 		 */
-		breakpoint.ratio = function(ratio, className, round)
-		{
-			if (!pixelRatio)
+		breakpoint.ratio = function(ratio, className, round) {
+			if (!pixelRatio) {
 				pixelRatio = konflux.browser.feature('devicePixelRatio') || 1;
+			}
 
-			if (ratio === pixelRatio || (round && Math.round(ratio) === pixelRatio))
-			{
+			if (ratio === pixelRatio || (round && Math.round(ratio) === pixelRatio)) {
 				konflux.style.addClass(document.body, className);
+
 				return true;
 			}
+
 			return false;
 		};
 	}
 
 	//  Append the breakpoint module to konflux
-	konflux.breakpoint = new kxBreakpoint();
+	konflux.register('breakpoint', new KonfluxBreakPoint());
 
 })(window.konflux);

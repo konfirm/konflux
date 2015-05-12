@@ -3,10 +3,10 @@
  *  @module  ajax
  *  @note    available as konflux.ajax / kx.ajax
  */
-function kxAjax() {
+function KonfluxAjax() {
 	'use strict';
 
-	/*global konflux, XMLHttpRequest, combine, isType, type, undef, File, Blob, FormData*/
+	/*global konflux, XMLHttpRequest, combine, type, File, Blob, FormData*/
 
 	/*jshint validthis: true*/
 	var ajax = this,
@@ -78,15 +78,15 @@ function kxAjax() {
 
 		xhr.onload = xhrComplete();
 
-		if ('progress' in config && isType('function', config.progress)) {
+		if ('progress' in config && konflux.isType('function', config.progress)) {
 			konflux.event.add(xhr.upload, 'progress', config.progress);
 		}
 
-		if ('error' in config && isType('function', config.error)) {
+		if ('error' in config && konflux.isType('function', config.error)) {
 			konflux.event.add(xhr, 'error', config.error);
 		}
 
-		if ('abort' in config && isType('function', config.abort)) {
+		if ('abort' in config && konflux.isType('function', config.abort)) {
 			konflux.event.add(xhr, 'abort', config.abort);
 		}
 
@@ -177,21 +177,21 @@ function kxAjax() {
 	 *  @return  FormData (or kxFormData) object
 	 */
 	function prepareData(data, name, formData) {
-		var r = formData || (undef !== typeof FormData ? new FormData() : new kxFormData()),
+		var r = formData || ('undefined' !== typeof FormData ? new FormData() : new kxFormData()),
 			p;
 
-		if (undef !== typeof File && data instanceof File) {
+		if ('undefined' !== typeof File && data instanceof File) {
 			r.append(name, data, data.name);
 		}
-		else if (undef !== typeof Blob && data instanceof Blob) {
+		else if ('undefined' !== typeof Blob && data instanceof Blob) {
 			r.append(name, data, 'blob');
 		}
-		else if (data instanceof Array || (undef !== FileList && data instanceof FileList)) {
+		else if (data instanceof Array || ('undefined' !== FileList && data instanceof FileList)) {
 			for (p = 0; p < data.length; ++p) {
 				prepareData(data[p], (name || '') + '[' + p + ']', r);
 			}
 		}
-		else if (isType('object', data)) {
+		else if (konflux.isType('object', data)) {
 			for (p in data) {
 				prepareData(data[p], name ? name + '[' + encodeURIComponent(p) + ']' : encodeURIComponent(p), r);
 			}

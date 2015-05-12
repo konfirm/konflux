@@ -6,7 +6,7 @@
 function KonfluxDOM() {
 	'use strict';
 
-	/*global konflux, document, type, isType, hasProperty, undef, KonfluxIterator, elementReference*/
+	/*global konflux, document, type, hasProperty, KonfluxIterator, elementReference*/
 
 	/*jshint validthis: true*/
 	var dom = this;
@@ -32,7 +32,7 @@ function KonfluxDOM() {
 	function appendTo(target, source) {
 		var result, i;
 
-		if (isType('string', target)) {
+		if (konflux.isType('string', target)) {
 			target = document.querySelector(target);
 		}
 
@@ -218,7 +218,7 @@ function KonfluxDOM() {
 	 *  @return Array of added source elements
 	 */
 	dom.appendTo = function(target, source) {
-		return appendTo(target, isType('object', source) && !isType(undef, source.nodeType) ? source : createStructure(source, target));
+		return appendTo(target, konflux.isType('object', source) && !konflux.isType('undefined', source.nodeType) ? source : createStructure(source, target));
 	};
 
 	/**

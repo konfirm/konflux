@@ -1,7 +1,7 @@
 'use strict';
 
 var placeholder = [
-		'Math', 'Date', '\'object\'', '\'function\'', '\'length\''
+		'Math', 'Date', '\'object\'', '\'function\'', '\'length\'', '\'undefined\''
 	],
 	replacements = {
 		'[KX_LENGTH]': /\.length(?=\b)/g

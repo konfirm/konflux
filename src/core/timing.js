@@ -6,7 +6,7 @@
 function kxTiming() {
 	'use strict';
 
-	/*global buffer, undef, unique, kxDelay*/
+	/*global buffer, 'undefined', unique, kxDelay*/
 
 	/*jshint validthis: true*/
 	var timing = this,
@@ -23,7 +23,7 @@ function kxTiming() {
 	 *  @return  void
 	 */
 	function remove(reference) {
-		if (undef !== typeof stack[reference]) {
+		if ('undefined' !== typeof stack[reference]) {
 			//  cancel the stack reference
 			stack[reference].cancel();
 

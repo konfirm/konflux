@@ -6,7 +6,7 @@
 function KonfluxNumber() {
 	'use strict';
 
-	/*global konflux, isType, undef*/
+	/*global konflux*/
 
 	/*jshint validthis: true*/
 	var number = this;
@@ -22,6 +22,7 @@ function KonfluxNumber() {
 	 */
 	number.even = function(input) {
 		input = +input;
+
 		return (input | 0) === input && input % 2 === 0;
 	};
 
@@ -35,6 +36,7 @@ function KonfluxNumber() {
 	 */
 	number.odd = function(input) {
 		input = +input;
+
 		return (input | 0) === input && !number.even(input);
 	};
 
@@ -52,6 +54,7 @@ function KonfluxNumber() {
 		input = +input;
 		a     = +a;
 		b     = +b;
+
 		return input >= Math.min(a, b) && input <= Math.max(a, b);
 	};
 
@@ -71,8 +74,8 @@ function KonfluxNumber() {
 		var multiplier = precision ? Math.pow(10, precision) : 0;
 
 		//  check whether default values need to be assigned
-		point     = !isType(undef, point) ? point : '.';
-		separator = !isType(undef, separator) || arguments.length < 3 ? separator : ',';
+		point     = !konflux.isType('undefined', point) ? point : '.';
+		separator = !konflux.isType('undefined', separator) || arguments.length < 3 ? separator : ',';
 		//  format the number
 		input = +(('' + input).replace(/[,\.]+/, '.'));
 		//  round the last desired decimal

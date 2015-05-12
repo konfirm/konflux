@@ -6,7 +6,7 @@
 function KonfluxBrowser() {
 	'use strict';
 
-	/*global konflux, window, document, navigator, hasProperty, isType, undef*/
+	/*global konflux, window, document, navigator, hasProperty*/
 
 	/*jshint validthis: true*/
 	var browser = this,
@@ -55,7 +55,7 @@ function KonfluxBrowser() {
 	 *  @return  boolean  has feature
 	 */
 	function hasFeature(feature) {
-		return !isType(undef, support[feature]) ? support[feature] : hasProperty(window, feature) || hasProperty(document, feature);
+		return !konflux.isType('undefined', support[feature]) ? support[feature] : hasProperty(window, feature) || hasProperty(document, feature);
 	}
 
 	/**
@@ -149,7 +149,7 @@ function KonfluxBrowser() {
 	 *  @note    this public implementation caches the result
 	 */
 	browser.ie = function(min) {
-		if (isType(undef, ieVersion)) {
+		if (konflux.isType('undefined', ieVersion)) {
 			ieVersion = detectIE();
 		}
 

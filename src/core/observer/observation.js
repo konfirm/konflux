@@ -1,14 +1,14 @@
 /**
  *  Observation object, instances of this are be provided to all observer notification subscribers
- *  @name    kxObservation
+ *  @name    KonfluxObservation
  *  @type    module
  *  @access  internal
  *  @param   string type
  *  @param   function handle
  *  @param   string reference
- *  @return  kxObservation object
+ *  @return  KonfluxObservation object
  */
-function kxObservation(type, handle, reference) {
+function KonfluxObservation(type, handle, reference) {
 	'use strict';
 
 	/*global time, elapsed, disable, active*/
@@ -18,8 +18,8 @@ function kxObservation(type, handle, reference) {
 
 	observation.type      = type;
 	observation.reference = reference;
-	observation.timeStamp = time();
-	observation.timeDelta = elapsed();
+	observation.timeStamp = konflux.time();
+	observation.timeDelta = konflux.elapsed();
 
 	/**
 	 *  Unsubscribe from the current observer stack

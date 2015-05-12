@@ -6,7 +6,7 @@
  *    \/_/     More information: http://konfirm.net/konflux
  */
 
-/*jshint undef: true, newcap: false, forin: false, maxstatements: 10, maxparams: 4, browser: true */
+/*jshint 'undefined': true, newcap: false, forin: false, maxstatements: 10, maxparams: 4, browser: true */
 //@dep: polygon
 ;(function(konflux){
     'use strict';

@@ -6,7 +6,7 @@
 function KonfluxString() {
 	'use strict';
 
-	/*global konflux, isType*/
+	/*global konflux*/
 
 	/*jshint validthis: true*/
 	var string = this;
@@ -372,6 +372,6 @@ function KonfluxString() {
 		var chars = '.\\+*?[^]$(){}=!<>|:-'.split(''),
 			pattern = new RegExp('[' + chars.concat(delimeter ? [delimeter] : []).join('\\') + ']', 'g');
 
-		return isType('string', input) ? input.replace(pattern, '\\$&') : '';
+		return konflux.isType('string', input) ? input.replace(pattern, '\\$&') : '';
 	};
 }

@@ -6,7 +6,7 @@
 function kxURL() {
 	'use strict';
 
-	/*global window, isType, undef*/
+	/*global window*/
 
 	/*jshint validthis: true*/
 	var url = this;
@@ -30,7 +30,7 @@ function kxURL() {
 
 		if (result.query) {
 			result.query.replace(/(?:^|&)([^&=]*)=?([^&]*)/g, function(a, b, c) {
-				if (!isType('object', result.query)) {
+				if (konflux.isType('object', result.query)) {
 					result.query = {};
 				}
 
@@ -49,7 +49,7 @@ function kxURL() {
 	 *  @type    object
 	 *  @access  public
 	 */
-	url.current = !isType(undef, window.location.href) ? parse(window.location.href) : false;
+	url.current = konflux.isType('undefined', window.location.href) ? parse(window.location.href) : false;
 
 	/**
 	 *  Parse given URL into its URI components

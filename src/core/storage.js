@@ -6,12 +6,12 @@
 function kxStorage() {
 	'use strict';
 
-	/*global konflux, window, isType, undef, localStorage*/
+	/*global konflux, window, localStorage*/
 
 	/*jshint validthis: true*/
 	var ls = this,
 		maxSize = 2048,
-		storage = !isType(undef, window.localStorage) ? window.localStorage : false,
+		storage = konflux.isType('undefined', window.localStorage) ? window.localStorage : false,
 		fragmentPattern = /^\[fragment:([0-9]+),([0-9]+),([a-z0-9_]+)\]$/;
 
 	/**

@@ -3,10 +3,10 @@
  *  @module  observer
  *  @note    available as konflux.observer / kx.observer
  */
-function kxObserver() {
+function KonfluxObserver() {
 	'use strict';
 
-	/*global konflux, kxObservation, buffer, isType, unique, undef*/
+	/*global konflux, KonfluxObservation, buffer, unique*/
 
 	/*jshint validthis: true*/
 	var observer = this,
@@ -24,7 +24,7 @@ function kxObserver() {
 	 *  @return  void
 	 */
 	function ensureSubscriptionStack(stack) {
-		if (undef === typeof subscription[stack]) {
+		if (typeof subscription[stack] === 'undefined') {
 			subscription[stack] = [];
 		}
 	}
@@ -101,7 +101,7 @@ function kxObserver() {
 	function flush(stack) {
 		var out = false;
 
-		if (!isType(undef, subscription[stack])) {
+		if (konflux.isType('undefined', subscription[stack])) {
 			out = subscription[stack];
 			delete subscription[stack];
 		}
@@ -133,14 +133,14 @@ function kxObserver() {
 			name = part.join('.') + (wildcard ? (part.length ? '.' : '') + '*' : '');
 			wildcard = true;
 
-			if (undef !== typeof subscription[name]) {
+			if (typeof subscription[name] !== 'undefined') {
 				for (i = 0; i < subscription[name].length; ++i) {
 					if (!active[ref]) {
 						break;
 					}
 
 					if (subscription[name][i]) {
-						arg[0] = new kxObservation(stack, subscription[name][i], ref);
+						arg[0] = new KonfluxObservation(stack, subscription[name][i], ref);
 						subscription[name][i].apply(subscription[name][i], arg);
 					}
 				}
@@ -162,7 +162,7 @@ function kxObserver() {
 	 *  @param   string stack name
 	 *  @param   function handle
 	 *  @param   function callback [optional, default undefined]
-	 *  @return  kxObserver reference
+	 *  @return  KonfluxObserver reference
 	 */
 	observer.subscribe = function(stack, handle, callback) {
 		var list = stack.split(/[\s,]+/),
@@ -188,7 +188,7 @@ function kxObserver() {
 	 *  @param   string stack name
 	 *  @param   function handle
 	 *  @param   function callback [optional, default undefined]
-	 *  @return  kxObserver reference
+	 *  @return  KonfluxObserver reference
 	 */
 	observer.unsubscribe = function(stack, handle, callback) {
 		var list = stack.split(/[\s,]+/),

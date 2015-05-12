@@ -6,7 +6,7 @@
 function kxStyle() {
 	'use strict';
 
-	/*global konflux, window, document, unique, isType, undef, type, combine*/
+	/*global konflux, window, document, unique, type, combine*/
 
 	/*jshint validthis: true*/
 	var style = this;
@@ -422,10 +422,10 @@ function kxStyle() {
 	 *  @return  array  stylesheets
 	 */
 	style.sheet = function(target, editable) {
-		var list = getStylesheet(isType('string', target) ? target : null, editable === false ? true : false),
+		var list = getStylesheet(konflux.isType('string', target) ? target : null, editable === false ? true : false),
 			i;
 
-		if (!isType(undef, target.nodeName)) {
+		if (konflux.isType('undefined', target.nodeName)) {
 			for (i = 0; i < list.length; ++i) {
 				if (list[i].ownerNode === target) {
 					return [list[i]];
@@ -463,7 +463,7 @@ function kxStyle() {
 		var style = createStylesheet(url, before);
 
 		//  if style is a StyleSheet object, it has the ownerNode property containing the actual DOMElement in which it resides
-		if (!isType(undef, style.ownerNode)) {
+		if (konflux.isType('undefined', style.ownerNode)) {
 			style = style.ownerNode;
 
 			//  it is safe to assume here that the stylesheet was loaded, hence we need to apply the callback
@@ -494,7 +494,7 @@ function kxStyle() {
 	 */
 	style.isEditable = function(stylesheet) {
 		var list = getLocalStylesheets(),
-			node = !isType(undef, stylesheet.ownerNode) ? stylesheet.ownerNode : stylesheet,
+			node = konflux.isType('undefined', stylesheet.ownerNode) ? stylesheet.ownerNode : stylesheet,
 			i;
 		for (i = 0; i < list.length; ++i) {
 			if (list[i].ownerNode === node) {
@@ -522,22 +522,22 @@ function kxStyle() {
 			find, p, pr;
 
 		//  in case the selector is not a string but a DOMElement, we go out and create a selector from it
-		if (isType('object', selector) && 'nodeType' in selector) {
+		if (konflux.isType('object', selector) && 'nodeType' in selector) {
 			selector = style.selector(selector, skipNode) || style.selector(selector);
 		}
 
 		//  make the rules into an object
-		if (isType('string', rules)) {
+		if (konflux.isType('string', rules)) {
 			rules = getStyleProperties(rules);
 		}
 
 		//  if rules isn't an object, we exit right here
-		if (!isType('object', rules)) {
+		if (konflux.isType('object', rules)) {
 			return false;
 		}
 
 		//  if no sheet was provided, or a string reference to a sheet was provided, resolve it
-		if (!sheet || isType('string', sheet)) {
+		if (!sheet || konflux.isType('string', sheet)) {
 			sheet = getStylesheet(sheet || 'last');
 		}
 

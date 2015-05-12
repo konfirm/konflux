@@ -8,7 +8,7 @@
 function kxFormData() {
 	'use strict';
 
-	/*global isType*/
+	/*global  konflux*/
 
 	/*jshint validthis: true*/
 	var formdata = this,
@@ -24,7 +24,7 @@ function kxFormData() {
 	 *  @return  kxFormData reference
 	 */
 	formdata.append = function(key, value) {
-		if (!isType('object', value)) {
+		if (konflux.isType('object', value)) {
 			data[key] = value;
 		}
 
