@@ -6,7 +6,7 @@
 function kxStyle() {
 	'use strict';
 
-	/*global konflux, window, document, unique, type, combine*/
+	/*global konflux, window, document, combine*/
 
 	/*jshint validthis: true*/
 	var style = this;
@@ -191,7 +191,7 @@ function kxStyle() {
 		if (!element) {
 			element = document.createElement(url ? 'link' : 'style');
 			element.setAttribute('type', 'text/css');
-			element.setAttribute('title', name || 'konflux.style.' + unique());
+			element.setAttribute('title', name || 'konflux.style.' + konflux.unique());
 
 			if (/link/i.test(element.nodeName)) {
 				element.setAttribute('rel', 'stylesheet');

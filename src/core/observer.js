@@ -6,12 +6,12 @@
 function KonfluxObserver() {
 	'use strict';
 
-	/*global konflux, KonfluxObservation, buffer, unique*/
+	/*global konflux, KonfluxObservation*/
 
 	/*jshint validthis: true*/
 	var observer = this,
-		subscription = buffer('observer.subscriptions'),
-		active = buffer('observer.active');
+		subscription = konflux.buffer('observer.subscriptions'),
+		active = konflux.buffer('observer.active');
 
 	//= include observer/observation.js
 
@@ -122,7 +122,7 @@ function KonfluxObserver() {
 	 */
 	function trigger(stack) {
 		var arg = konflux.array.cast(arguments),
-			ref = unique(),
+			ref = konflux.unique(),
 			part = stack.split('.'),
 			wildcard = false,
 			name, i;

@@ -6,11 +6,11 @@
 function kxTiming() {
 	'use strict';
 
-	/*global buffer, 'undefined', unique, kxDelay*/
+	/*global 'undefined', kxDelay*/
 
 	/*jshint validthis: true*/
 	var timing = this,
-		stack = buffer('timing.delay');
+		stack = konflux.buffer('timing.delay');
 
 	//= include ['timing/delay.js']
 
@@ -47,7 +47,7 @@ function kxTiming() {
 			remove(reference);
 		}
 		else {
-			reference = handler.toString() || unique();
+			reference = handler.toString() || konflux.unique();
 		}
 
 		stack[reference] = new kxDelay(handler, delay || 0, reference);

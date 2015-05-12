@@ -7,12 +7,12 @@
 function kxEventDelegate(unifier) {
 	'use strict';
 
-	/*global konflux, buffer*/
+	/*global konflux*/
 
 	/*jshint validthis: true*/
 	var delegation = this,
 		separator = '!',
-		store = buffer('event.store');
+		store = konflux.buffer('event.store');
 
 	/**
 	 *  Unify the event type into an object alway containing the name and the namespace

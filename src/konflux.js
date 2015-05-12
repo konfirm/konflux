@@ -16,63 +16,9 @@
 		navigator = window.navigator,
 
 		//  Internal properties
-
-		//  singleton-like container, providing 'static' objects
-		_buffer  = {},
-
-		//  internal counter, used to create unique values
-		_count = 0,
 		konflux;
 
 	//  Internal functions
-
-	/**
-	 *  Obtain a reference to a specific buffer object, creates one if it does not exist
-	 *  @name    buffer
-	 *  @type    function
-	 *  @access  internal
-	 *  @param   string object name
-	 *  @return  object buffer
-	 */
-	function buffer(key) {
-		if ('undefined' === typeof _buffer[key])
-			_buffer[key] = {};
-
-		return _buffer[key];
-	}
-
-	/**
-	 *  Shorthand method for creating a combined version of several objects
-	 *  @name    combine
-	 *  @type    function
-	 *  @access  internal
-	 *  @param   object variable1
-	 *  @param   object ...
-	 *  @param   object variableN
-	 *  @return  object combined
-	 */
-	function combine() {
-		var obj = {},
-			i, p;
-
-		for (i = 0; i < arguments.length; ++i)
-			if (konflux.isType('object', arguments[i]))
-				for (p in arguments[i])
-					obj[p] = p in obj && konflux.isType('object', obj[p]) ? combine(arguments[i][p], obj[p]) : arguments[i][p];
-
-		return obj;
-	}
-
-	/**
-	 *  Obtain an unique key, the key is guaranteed to be unique within the browser runtime
-	 *  @name    unique
-	 *  @type    function
-	 *  @access  internal
-	 *  @return  string key
-	 */
-	function unique() {
-		return (++_count + konflux.time() % 86400000).toString(36);
-	}
 
 	/**
 	 *  Get the unique reference for given DOM element, adds it if it does not yet exist
@@ -111,7 +57,7 @@
 		}
 
 		//  if no reference was set yet, do so now
-		reference = unique();
+		reference = konflux.unique();
 
 		if (hidden) {
 			element[name] = reference;
@@ -121,50 +67,6 @@
 		}
 
 		return reference;
-	}
-
-	/**
-	 *  Verify whether given argument is empty
-	 *  @name    empty
-	 *  @type    function
-	 *  @access  internal
-	 *  @param   mixed variable to check
-	 *  @return  bool  empty
-	 *  @note    The function follows PHP's empty function; null, undefined, 0, '', '0', {}, [] and false are all considered empty
-	 */
-	function empty(p) {
-		var types = {
-				array:   function(a) {
-					return a.length > 0;
-				},
-
-				object:  function(o) {
-					for (o in o) {
-						return true;
-					}
-
-					return false;
-				},
-
-				boolean: function(b) {
-					return b;
-				},
-
-				number:  function(n) {
-					return n !== 0;
-				},
-
-				string:  function(s) {
-					return !/^0?$/.test(s);
-				}
-			},
-			t = kx.type(p);
-
-		if (konflux.isType('function', types[t]) && types[t](p)) {
-			return false;
-		}
-
-		return true;
 	}
 
 	/**
@@ -211,11 +113,76 @@
 	function Konflux() {
 		/*jshint validthis: true*/
 		var kx = this,
-			timestamp;
+			counter = 0,
+			timestamp, buffer;
 
 		function init() {
 			timestamp = kx.time();
 		}
+
+		/**
+		 *  Verify whether given argument is empty
+		 *  @name    empty
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   mixed variable to check
+		 *  @return  bool  empty
+		 *  @note    The function follows PHP's empty function; null, undefined, 0, '', '0', {}, [] and false are all considered empty
+		 */
+		function empty(p) {
+			var types = {
+					array:   function(a) {
+						return a.length > 0;
+					},
+
+					object:  function(o) {
+						for (o in o) {
+							return true;
+						}
+
+						return false;
+					},
+
+					boolean: function(b) {
+						return b;
+					},
+
+					number:  function(n) {
+						return n !== 0;
+					},
+
+					string:  function(s) {
+						return !/^0?$/.test(s);
+					}
+				},
+				t = kx.type(p);
+
+			if (konflux.isType('function', types[t]) && types[t](p)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		/**
+		 *  Obtain a reference to a specific buffer object, creates one if it does not exist
+		 *  @name    buffer
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string object name
+		 *  @return  object buffer
+		 */
+		kx.buffer = function(name) {
+			if (!buffer) {
+				buffer = {};
+			}
+
+			if (typeof buffer[name] === 'undefined') {
+				buffer[name] = {};
+			}
+
+			return buffer[name];
+		};
 
 		/**
 		 *  Obtain the milliseconds since the UNIX Epoch (Jan 1, 1970 00:00:00.000)
@@ -261,7 +228,9 @@
 		 *  @access  public
 		 *  @return  string key
 		 */
-		kx.unique = unique;
+		kx.unique = function() {
+			return (++counter + konflux.time() % 86400000).toString(36);
+		};
 
 		/**
 		 *  Shorthand method for creating a combined version of several objects
@@ -273,7 +242,20 @@
 		 *  @param   object variableN
 		 *  @return  function constructor
 		 */
-		kx.combine = combine;
+		kx.combine = function() {
+			var obj = {},
+				i, p;
+
+			for (i = 0; i < arguments.length; ++i) {
+				if (kx.isType('object', arguments[i])) {
+					for (p in arguments[i]) {
+						obj[p] = p in obj && kx.isType('object', obj[p]) ? kx.combine(arguments[i][p], obj[p]) : arguments[i][p];
+					}
+				}
+			}
+
+			return obj;
+		}
 
 		/**
 		 *  Verify whether given arguments are empty
@@ -691,7 +673,7 @@
 			if (!element) {
 				element = document.createElement(url ? 'link' : 'style');
 				element.setAttribute('type', 'text/css');
-				element.setAttribute('title', name || 'konflux.style.' + unique());
+				element.setAttribute('title', name || 'konflux.style.' + konflux.unique());
 
 				if (/link/i.test(element.nodeName)) {
 					element.setAttribute('rel', 'stylesheet');
@@ -1137,7 +1119,7 @@
 	function KonfluxTiming() {
 		/*jshint validthis: true*/
 		var timing = this,
-			stack = buffer('timing.delay'),
+			stack = konflux.buffer('timing.delay'),
 			raf;
 
 		/**
@@ -1241,7 +1223,7 @@
 			if (reference)
 				remove(reference);
 			else
-				reference = handler.toString() || unique();
+				reference = handler.toString() || konflux.unique();
 			stack[reference] = new KonfluxDelay(handler, delay || 0, reference);
 
 			return stack[reference];

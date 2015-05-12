@@ -6,11 +6,11 @@
 function KonfluxEvent() {
 	'use strict';
 
-	/*global konflux, kxEventDelegate, window, document, buffer, deprecate*/
+	/*global konflux, kxEventDelegate, window, document, deprecate*/
 
 	/*jshint validthis: true*/
 	var event = this,
-		queue = buffer('event.queue'),
+		queue = konflux.buffer('event.queue'),
 		delegate, touch;
 
 	//= include event/delegate.js
