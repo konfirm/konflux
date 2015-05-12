@@ -3,16 +3,15 @@
  *  @module  timing
  *  @note    available as konflux.timing / kx.timing
  */
-function kxTiming() {
+function KonfluxTiming() {
 	'use strict';
-
-	/*global 'undefined', kxDelay*/
 
 	/*jshint validthis: true*/
 	var timing = this,
-		stack = konflux.buffer('timing.delay');
+		stack = konflux.buffer('timing.delay'),
+		raf;
 
-	//= include ['timing/delay.js']
+	//= include timing/delay.js
 
 	/**
 	 *  Remove timer object by their reference
@@ -40,17 +39,14 @@ function kxTiming() {
 	 *  @param   function handle
 	 *  @param   Number   delay
 	 *  @param   string   reference
-	 *  @return  kxDelay  object
+	 *  @return  KonfluxDelay  object
 	 */
 	function create(handler, delay, reference) {
-		if (reference) {
+		if (reference)
 			remove(reference);
-		}
-		else {
+		else
 			reference = handler.toString() || konflux.unique();
-		}
-
-		stack[reference] = new kxDelay(handler, delay || 0, reference);
+		stack[reference] = new KonfluxDelay(handler, delay || 0, reference);
 
 		return stack[reference];
 	}
@@ -74,7 +70,7 @@ function kxTiming() {
 	 *  @param   function handle
 	 *  @param   Number   delay
 	 *  @param   string   reference
-	 *  @return  kxDelay  object
+	 *  @return  KonfluxDelay  object
 	 */
 	timing.create = create;
 }

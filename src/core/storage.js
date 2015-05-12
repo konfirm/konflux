@@ -3,10 +3,10 @@
  *  @module  storage
  *  @note    available as konflux.storage / kx.storage
  */
-function kxStorage() {
+function KonfluxStorage() {
 	'use strict';
 
-	/*global konflux, window, localStorage*/
+	/*global konflux, window*/
 
 	/*jshint validthis: true*/
 	var ls = this,
@@ -179,7 +179,6 @@ function kxStorage() {
 
 		return false;
 	}
-
 
 	/**
 	 *  Get the data for given name

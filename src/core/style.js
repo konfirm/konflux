@@ -3,10 +3,10 @@
  *  @module  style
  *  @note    available as konflux.style / kx.style
  */
-function kxStyle() {
+function KonfluxStyle() {
 	'use strict';
 
-	/*global konflux, window, document, combine*/
+	/*global konflux, window, document*/
 
 	/*jshint validthis: true*/
 	var style = this;
@@ -117,7 +117,6 @@ function kxStyle() {
 				if (list.length > 0) {
 					match = [list[0]];
 				}
-
 				break;
 
 			//  get the last stylesheet from the list of selected stylesheets
@@ -125,7 +124,6 @@ function kxStyle() {
 				if (list.length > 0) {
 					match = [list[list.length - 1]];
 				}
-
 				break;
 
 			default:
@@ -137,7 +135,6 @@ function kxStyle() {
 				else if (!name) {
 					match = false;
 				}
-
 				//  search for the stylesheet(s) whose href matches the given name
 				else if (list.length > 0) {
 					for (i = 0; i < list.length; ++i) {
@@ -224,6 +221,7 @@ function kxStyle() {
 
 		for (i = 0; i < list.length; ++i) {
 			part = list[i].split(/\s*:\s*/);
+
 			if (part[0] !== '') {
 				rules[scriptProperty(part.shift())] = normalizeValue(part.join(':'));
 			}
@@ -254,20 +252,11 @@ function kxStyle() {
 	 */
 	function normalizeValue(value) {
 		var pattern = {
-				//  minimize whitespace
-				' ': /\s+/g,
-
-				//  unify quotes
-				'"': /["']/g,
-
-				//  unify whitespace around separators
-				',': /\s*,\s*/g,
-
-				//  remove leading 0 from decimals
-				'.': /\b0+\./g,
-
-				//  remove units from 0 value
-				0: /0(?:px|em|%|pt)\b/g
+				' ': /\s+/g,               //  minimize whitespace
+				'"': /["']/g,              //  unify quotes
+				',': /\s*,\s*/g,           //  unify whitespace around separators
+				'.': /\b0+\./g,            //  remove leading 0 from decimals
+				'0': /0(?:px|em|%|pt)\b/g  //  remove units from 0 value
 			},
 			p;
 
@@ -309,6 +298,7 @@ function kxStyle() {
 		var current = konflux.string.trim(element.className).split(/\s+/);
 
 		element.className = current.concat(konflux.array.diff(classes.split(/[,\s]+/), current)).join(' ');
+
 		return element.className;
 	};
 
@@ -375,13 +365,14 @@ function kxStyle() {
 	 *  @access  public
 	 *  @param   DOMElement target
 	 *  @param   object style rules
-	 *  @return  kxStyle reference
+	 *  @return  KonfluxStyle reference
 	 */
 	style.inline = function(target, rules) {
 		var p, q;
 
 		for (p in rules) {
 			q = hasProperty(p);
+
 			if (q) {
 				target.style[q] = rules[p];
 			}
@@ -446,6 +437,7 @@ function kxStyle() {
 	 */
 	style.create = function(name, before) {
 		var element = createStylesheet(false, before, name);
+
 		return element.sheet || false;
 	};
 
@@ -466,9 +458,7 @@ function kxStyle() {
 		if (konflux.isType('undefined', style.ownerNode)) {
 			style = style.ownerNode;
 
-			//  it is safe to assume here that the stylesheet was loaded, hence we need to apply the callback
-			//  (with a slight delay, so the order of returning and execution of the callback is the same for
-			//  both load scenario's)
+			//  it is safe to assume here that the stylesheet was loaded, hence we need to apply the callback (with a slight delay, so the order of returning and execution of the callback is the same for both load scenario's)
 			if (callback) {
 				setTimeout(function() {
 					callback.apply(style, [style]);
@@ -496,6 +486,7 @@ function kxStyle() {
 		var list = getLocalStylesheets(),
 			node = konflux.isType('undefined', stylesheet.ownerNode) ? stylesheet.ownerNode : stylesheet,
 			i;
+
 		for (i = 0; i < list.length; ++i) {
 			if (list[i].ownerNode === node) {
 				return true;
@@ -504,7 +495,6 @@ function kxStyle() {
 
 		return false;
 	};
-
 
 	/**
 	 *  Create and add a new style rule
@@ -606,11 +596,11 @@ function kxStyle() {
 		}
 
 		for (i = 0; i < sheet.length; ++i) {
-			rules = konflix.type(sheet[i].cssRules) ? sheet[i].cssRules : sheet[i].rules;
+			rules = konflux.type(sheet[i].cssRules) ? sheet[i].cssRules : sheet[i].rules;
 			if (rules && rules.length) {
 				for (j = 0; j < rules.length; ++j) {
 					if ('selectorText' in rules[j] && (!selector || normalizeSelector(rules[j].selectorText) === selector)) {
-						match = combine(match, getStyleProperties(rules[j].style.cssText));
+						match = konflux.combine(match, getStyleProperties(rules[j].style.cssText));
 					}
 				}
 			}
