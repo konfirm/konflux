@@ -77,6 +77,12 @@ function Project() {
 			plug.prototype.buffer[name] = require('gulp-' + name);
 		}
 
+		//  this may be an a-typical gulp plugin (e.g. sourcemaps) which provides no stream, the implementer probably
+		//  knows what to do with this
+		if (typeof plug.prototype.buffer[name] !== 'function') {
+			return plug.prototype.buffer[name];
+		}
+
 		stream = plug.prototype.buffer[name].apply(null, Array.prototype.slice.call(arguments, 1));
 
 		//  always register an error listener
