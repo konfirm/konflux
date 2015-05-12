@@ -27,6 +27,7 @@
     "gulp-rename": "^1.2.2",
     "gulp-replace": "^0.5.3",
     "gulp-size": "^1.2.1",
+    "gulp-sourcemaps": "^1.5.2",
     "gulp-uglify": "^1.2.0",
     "polymorphic": "^1.2.3",
     "submerge": "^1.0.3"

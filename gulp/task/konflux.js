@@ -4,7 +4,7 @@ var placeholder = [
 		'Math', 'Date', '\'object\'', '\'function\'', '\'length\''
 	],
 	replacements = {
-		'[KXLENGTH]': /\.length(?=\b)/g
+		'[KX_LENGTH]': /\.length(?=\b)/g
 	};
 
 function replacement(input) {
@@ -13,6 +13,7 @@ function replacement(input) {
 
 module.exports = function(project, stream, done) {
 	stream
+
 		//  resolve script inclusion
 		.pipe(project.plugin('include'))
 
@@ -39,10 +40,6 @@ module.exports = function(project, stream, done) {
 		.pipe(project.plugin('replace', /var version/, 'var ' + placeholder.map(function(key) {
 			return replacement(key) + '=' + key;
 		}).join(',') + ', version'))
-
-		.pipe(project.plugin('rename', function(file) {
-			file.basename += '.prep';
-		}))
 
 		//  display the file size
 		.pipe(project.plugin('size', {title: 'horrify'}))

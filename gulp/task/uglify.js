@@ -3,6 +3,9 @@
 module.exports = function(project, stream, done) {
 	return stream
 
+		//  start tracking sourcemaps
+//		.pipe(project.plugin('sourcemaps').init())
+
 		//  rename the file to <filename>.min<.ext>
 		.pipe(project.plugin('rename', project.min))
 
@@ -17,6 +20,9 @@ module.exports = function(project, stream, done) {
 
 		//  display the file size
 		.pipe(project.plugin('size', {title: 'strict strip'}))
+
+		//  write the sourcemaps
+//		.pipe(project.plugin('sourcemaps').write('./'))
 
 		//  write the file
 		.pipe(project.output(done))
