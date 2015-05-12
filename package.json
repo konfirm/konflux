@@ -1,21 +1,20 @@
 {
-  "name": "project-template",
-  "version": "1.0.0",
+  "name": "konflux",
+  "private": true,
+  "version": "1.0.0-alpha",
   "description": "Project template for gulp based development flows",
   "private": true,
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "gulp",
-    "project"
+    "konflux"
   ],
   "author": "Rogier Spieker",
-  "homepage": "https://github.com/rspieker/project-template",
+  "homepage": "https://github.com/konfirm/konflux",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/rspieker/project-template/issues"
+    "url": "https://github.com/konfirm/konflux/issues"
   },
   "devDependencies": {
     "del": "^1.1.1",

@@ -103,6 +103,10 @@ function Project() {
 		return stream;
 	}
 
+	project.config = function(key) {
+		return key ? config[key] || null : config;
+	};
+
 	project.task = function(name, watch, build) {
 		var file = __dirname + '/task/' + name + '/index.js';
 

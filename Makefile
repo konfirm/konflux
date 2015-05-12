@@ -6,3 +6,5 @@ commit-count:
 credits:
 	@$(MAKE) commit-count | sed 's/^ *[0-9]* //';
 
+authors:
+	@$(MAKE) credits > AUTHORS;
