@@ -3,7 +3,7 @@
  *  @module  number
  *  @note    available as konflux.number / kx.number
  */
-function kxNumber() {
+function KonfluxNumber() {
 	'use strict';
 
 	/*global konflux, isType, undef*/

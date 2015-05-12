@@ -1,12 +1,12 @@
 /**
- *  kxPoint object, handling the (heavy) lifting of working with points
+ *  KonfluxPoint object, handling the (heavy) lifting of working with points
  *  @module  point
  *  @factory konflux.point
  *  @param   number x position
  *  @param   number y position
  *  @note    available as konflux.point / kx.point
  */
-function kxPoint(x, y) {
+function KonfluxPoint(x, y) {
 	'use strict';
 
 	/*jshint validthis: true*/
@@ -22,7 +22,7 @@ function kxPoint(x, y) {
 	 *  @access  public
 	 *  @param   number x
 	 *  @param   number y
-	 *  @return  kxPoint  point
+	 *  @return  KonfluxPoint  point
 	 */
 	point.to = function(x, y) {
 		point.x = x;
@@ -37,7 +37,7 @@ function kxPoint(x, y) {
 	 *  @type    method
 	 *  @access  public
 	 *  @param   number grid [optional, default 1 - round the position x and y]
-	 *  @return  kxPoint  point
+	 *  @return  KonfluxPoint  point
 	 */
 	point.snap = function(grid) {
 		point.x = grid ? Math.round(point.x / grid) * grid : Math.round(point.x);
@@ -51,10 +51,10 @@ function kxPoint(x, y) {
 	 *  @name    clone
 	 *  @type    method
 	 *  @access  public
-	 *  @return  kxPoint  point
+	 *  @return  KonfluxPoint  point
 	 */
 	point.clone = function() {
-		return new kxPoint(point.x, point.y);
+		return new KonfluxPoint(point.x, point.y);
 	};
 
 	/**
@@ -64,7 +64,7 @@ function kxPoint(x, y) {
 	 *  @access  public
 	 *  @param   number x
 	 *  @param   number y
-	 *  @return  kxPoint  point
+	 *  @return  KonfluxPoint  point
 	 */
 	point.move = function(x, y) {
 		point.x += x;
@@ -78,7 +78,7 @@ function kxPoint(x, y) {
 	 *  @name    equal
 	 *  @type    method
 	 *  @access  public
-	 *  @param   kxPoint point
+	 *  @param   KonfluxPoint point
 	 *  @param   bool    round
 	 *  @return  bool    equal
 	 */
@@ -107,10 +107,10 @@ function kxPoint(x, y) {
 	 *  @type    method
 	 *  @access  public
 	 *  @param   object point
-	 *  @return  kxPoint
+	 *  @return  KonfluxPoint
 	 */
 	point.subtract = function(p) {
-		return new kxPoint(point.x - p.x, point.y - p.y);
+		return new KonfluxPoint(point.x - p.x, point.y - p.y);
 	};
 
 	/**
@@ -119,10 +119,10 @@ function kxPoint(x, y) {
 	 *  @type    method
 	 *  @access  public
 	 *  @param   object point
-	 *  @return  kxPoint
+	 *  @return  KonfluxPoint
 	 */
 	point.add = function(p) {
-		return new kxPoint(point.x + p.x, point.y + p.y);
+		return new KonfluxPoint(point.x + p.x, point.y + p.y);
 	};
 
 	/**
@@ -154,10 +154,10 @@ function kxPoint(x, y) {
 	 *  @name    max
 	 *  @type    method
 	 *  @access  public
-	 *  @param   kxPoint point1
-	 *  @param   kxPoint ...
-	 *  @param   kxPoint pointN
-	 *  @return  kxPoint
+	 *  @param   KonfluxPoint point1
+	 *  @param   KonfluxPoint ...
+	 *  @param   KonfluxPoint pointN
+	 *  @return  KonfluxPoint
 	 */
 	point.max = function() {
 		var x = point.x,
@@ -169,7 +169,7 @@ function kxPoint(x, y) {
 			y = Math.max(y, arguments[i].y);
 		}
 
-		return new kxPoint(x, y);
+		return new KonfluxPoint(x, y);
 	};
 
 	/**
@@ -177,10 +177,10 @@ function kxPoint(x, y) {
 	 *  @name    min
 	 *  @type    method
 	 *  @access  public
-	 *  @param   kxPoint point1
-	 *  @param   kxPoint ...
-	 *  @param   kxPoint pointN
-	 *  @return  kxPoint
+	 *  @param   KonfluxPoint point1
+	 *  @param   KonfluxPoint ...
+	 *  @param   KonfluxPoint pointN
+	 *  @return  KonfluxPoint
 	 */
 	point.min = function() {
 		var x = point.x,
@@ -192,7 +192,7 @@ function kxPoint(x, y) {
 			y = Math.min(y, arguments[i].y);
 		}
 
-		return new kxPoint(x, y);
+		return new KonfluxPoint(x, y);
 	};
 
 	/**
@@ -201,12 +201,12 @@ function kxPoint(x, y) {
 	 *  @type    method
 	 *  @access  public
 	 *  @param   number angle [optional, default 30 degrees]
-	 *  @return  kxPoint
+	 *  @return  KonfluxPoint
 	 */
 	point.iso = function(angle) {
 		angle = (angle || 30) * Math.PI / 180;
 
-		return new kxPoint(
+		return new KonfluxPoint(
 			point.x - point.y,
 			(point.x + point.y) * angle
 		);
@@ -217,11 +217,11 @@ function kxPoint(x, y) {
 	 *  @name    mid
 	 *  @type    method
 	 *  @access  public
-	 *  @param   kxPoint p
-	 *  @return  kxPoint mid
+	 *  @param   KonfluxPoint p
+	 *  @return  KonfluxPoint mid
 	 */
 	point.mid = function(p) {
-		return new kxPoint(
+		return new KonfluxPoint(
 			(point.x + p.x) * 0.5,
 			(point.y + p.y) * 0.5
 		);

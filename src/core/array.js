@@ -3,7 +3,7 @@
  *  @module  array
  *  @note    available as konflux.array / kx.array
  */
-function kxArray() {
+function KonfluxArray() {
 	'use strict';
 
 	/*global type*/
@@ -42,6 +42,7 @@ function kxArray() {
 	function diff(a, b) {
 		var ret = [],
 			i;
+
 		for (i = 0; i < a.length; ++i) {
 			if (contains(b, a[i]) === false) {
 				ret.push(a[i]);
@@ -79,13 +80,7 @@ function kxArray() {
 	 *  @return  array shuffled
 	 */
 	function shuffle(a) {
-		for (var j, x, i = a.length; i; --i) {
-			j = (Math.random() * i) | 0;
-			x = a[--i];
-			a[i] = a[j];
-			a[j] = x;
-		}
-
+		for (var j, x, i = a.length; i; j = (Math.random() * i) | 0, x = a[--i], a[i] = a[j], a[j] = x);
 		return a;
 	}
 

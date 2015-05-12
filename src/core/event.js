@@ -3,7 +3,7 @@
  *  @module  event
  *  @note    available as konflux.event / kx.event
  */
-function kxEvent() {
+function KonfluxEvent() {
 	'use strict';
 
 	/*global konflux, kxEventDelegate, window, document, buffer, isType, deprecate, undef*/
@@ -612,7 +612,7 @@ function kxEvent() {
 	 *  @param   mixed [one of: function handler or string CSSSelector]
 	 *  @param   mixed [one of: function handler or bool capture]
 	 *  @param   mixed [one of: bool capture or null]
-	 *  @return  kxEvent reference
+	 *  @return  KonfluxEvent reference
 	 *
 	 *  @note    event.add(target, event, handler [,capture]) - add event handler(s) to target(s)
 	 *  @note    event.add(target, event, filter, handler [,capture]) - add event handler(s) to a selection of elements in target(s) matching given filter
@@ -636,7 +636,7 @@ function kxEvent() {
 	 *  @param   mixed [one of: string events, Array events, kxIterator events, function handler, null]
 	 *  @param   mixed [one of: string CSSSelector, function handler, null]
 	 *  @param   mixed [one of: function handler, null]
-	 *  @return  kxEvent reference
+	 *  @return  KonfluxEvent reference
 	 *
 	 *  @note    event.remove(target)  - remove all event handling from given target(s)
 	 *  @note    event.remove(handler) - remove any event handling using given handler from any target
@@ -679,7 +679,7 @@ function kxEvent() {
 	 *  @param   DOMElement target
 	 *  @param   string event type
 	 *  @param   function handler
-	 *  @return  kxEvent reference
+	 *  @return  KonfluxEvent reference
 	 *  @alias   event.add
 	 *  @note    This method is deprecated and will be removed in a future release, use event.add instead
 	 */
@@ -697,7 +697,7 @@ function kxEvent() {
 	 *  @param   string event type(s)
 	 *  @param   string filter
 	 *  @param   function handler
-	 *  @return  kxEvent reference
+	 *  @return  KonfluxEvent reference
 	 *  @alias   event.add
 	 *  @note    This method is deprecated and will be removed in a future release, use event.add instead
 	 */

@@ -1,12 +1,13 @@
 /*
  *       __    Konflux (version $DEV$ - $DATE$) - a javascript helper library
  *      /\_\
- *   /\/ / /   Copyright 2012-2014, Konfirm (Rogier Spieker)
+ *   /\/ / /   Copyright 2012-2015, Konfirm (Rogier Spieker)
  *   \  / /    Released under the MIT license
  *    \/_/     More information: http://konfirm.net/konflux
  */
 
 /*jshint browser: true, undef: true, unused: true, curly: false, newcap: false, forin: false, devel: true */
+/*global File, FileList, FormData */
 ;(function(window, undefined) {
 	'use strict';
 
@@ -16,9 +17,15 @@
 		undef = 'undefined',
 
 		//  Internal properties
-		_buffer  = {}, //  singleton-like container, providing 'static' objects
-		_count = 0,    //  internal counter, used to create unique values
-		_timestamp,    //  rough execution start time
+
+		//  singleton-like container, providing 'static' objects
+		_buffer  = {},
+
+		//  internal counter, used to create unique values
+		_count = 0,
+
+		//  rough execution start time
+		_timestamp,
 		konflux;
 
 	//  Internal functions
@@ -32,9 +39,8 @@
 	 *  @return  object buffer
 	 */
 	function buffer(key) {
-		if (undef === typeof _buffer[key]) {
+		if (undef === typeof _buffer[key])
 			_buffer[key] = {};
-		}
 
 		return _buffer[key];
 	}
@@ -64,13 +70,10 @@
 		var obj = {},
 			i, p;
 
-		for (i = 0; i < arguments.length; ++i) {
-			if (isType('object', arguments[i])) {
-				for (p in arguments[i]) {
+		for (i = 0; i < arguments.length; ++i)
+			if (isType('object', arguments[i]))
+				for (p in arguments[i])
 					obj[p] = p in obj && isType('object', obj[p]) ? combine(arguments[i][p], obj[p]) : arguments[i][p];
-				}
-			}
-		}
 
 		return obj;
 	}
@@ -137,15 +140,14 @@
 		//  we don't ever contaminate the window object, document, documentElement or body element
 		for (p in prepare) {
 			if (element === prepare[p]) {
-				reference = p;
-				break;
+				return p;
 			}
 		}
 
 		if (!element || !('nodeType' in element) || element.nodeType !== 1) {
 			return false;
 		}
-		else if (!reference) {
+		else {
 			return hidden ? (name in element ? element[name] : null) : element.getAttribute('data-' + name);
 		}
 
@@ -291,8 +293,6 @@
 	//  use the time() function to obtain the starting time
 	_timestamp = time();
 
-
-
 	/**
 	 *  The Konflux object itself
 	 *  @name    Konflux
@@ -409,7 +409,7 @@
 		 *  @return DOMNodeList (empty Array if the dom module is not available)
 		 */
 		kx.select = function(selector, parent) {
-			return 'dom' in konflux ? konflux.dom.select(selector, parent) : new kxIterator([]);
+			return 'dom' in konflux ? konflux.dom.select(selector, parent) : new KonfluxIterator([]);
 		};
 
 		/**
@@ -425,60 +425,1712 @@
 				prop = ['version', 'date', 'revision', 'type'],
 				result = {};
 
-			while (prop.length && match.length)
+			while (prop.length && match.length) {
 				result[prop.shift()] = match.shift();
+			}
 
 			return info ? result : result.version;
 		};
 
 		/**
-		 *  Create a kxPoint instance
+		 *  Create a KonfluxPoint instance
 		 *  @name   point
 		 *  @type   method
 		 *  @access public
 		 *  @param  number x position
 		 *  @param  number y position
-		 *  @return kxPoint point
+		 *  @return KonfluxPoint point
 		 *  @note   As of konflux version > 0.3.1 the points are created without the new keyword
 		 *          ('new konflux.point(X, Y)' can now be 'konflux.point(X, Y)')
 		 */
 		kx.point = function(x, y) {
-			return kxPoint(x, y);
+			return new KonfluxPoint(x, y);
 		};
 
 		/**
-		 *  Create a kxIterator instance
+		 *  Create a KonfluxIterator instance
 		 *  @name   iterator
 		 *  @type   method
 		 *  @access public
 		 *  @param  mixed collection
-		 *  @return kxIterator iterator
+		 *  @return KonfluxIterator iterator
 		 */
 		kx.iterator = function(collection) {
-			return collection instanceof kxIterator ? collection : new kxIterator(collection);
+			return collection instanceof KonfluxIterator ? collection : new KonfluxIterator(collection);
 		};
 
 		return this;
 	}
+
 	konflux = new Konflux();
 
-	/*global kxObserver, kxBrowser, kxURL, kxAjax, kxStyle, kxNumber, kxString, kxArray, kxDOM, kxEvent, kxTiming, kxStorage*/
+	//= include core/iterator.js
+	//= include core/browser.js
+	//= include core/number.js
+	//= include core/string.js
+	//= include core/array.js
+	//= include core/dom.js
+	//= include core/event.js
+	//= include core/point.js
 
-	//= include ['core/*.js']
+	/**
+	 *  Handle AJAX requests
+	 *  @module  ajax
+	 *  @note    available as konflux.ajax / kx.ajax
+	 */
+	function KonfluxAjax() {
+		/*jshint validthis: true*/
+		var ajax = this,
+			stat = {},
+			header = false;
+
+		/**
+		 *  FormData stub, in case a browser doesn't feature the FormData object
+		 *  @name    KonfluxFormData
+		 *  @type    module
+		 *  @access  internal
+		 *  @return  KonfluxFormData object
+		 */
+		function KonfluxFormData() {
+			/*jshint validthis: true*/
+			var formdata = this,
+				data = {};
+
+			/**
+			 *  Append a key/value pair to the KonfluxFormData instance
+			 *  @name    append
+			 *  @type    method
+			 *  @access  public
+			 *  @param   string key
+			 *  @param   mixed  value (can be anything but an object)
+			 *  @return  KonfluxFormData reference
+			 */
+			formdata.append = function(key, value) {
+				if (!isType('object', value))
+					data[key] = value;
+
+				return formdata;
+			};
+
+			/**
+			 *  Serialize the KonfluxFormData instance into a string
+			 *  @name    serialize
+			 *  @type    method
+			 *  @access  public
+			 *  @return  string  urlencoded data
+			 */
+			formdata.serialize = function() {
+				var r = [],
+					p;
+
+				for (p in data)
+					r.push(p + '=' + encodeURIComponent(data[p]));
+
+				return r.join('&');
+			};
+		}
+
+		/**
+		 *  Convenience method to make KonfluxFormData serialization work if used as string
+		 *  @name    toString
+		 *  @type    method
+		 *  @access  public
+		 *  @return  string urlencodes data
+		 *  @note    This method is autmatically called when the KonfluxFormData instance is used as string (e.g. KonfluxFormDataInstance + '')
+		 */
+		KonfluxFormData.prototype.toString = function() {
+			return this.serialize();
+		};
+
+		/**
+		 *  Obtain the default headers
+		 *  @name    getHeader
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string url
+		 *  @return  object headers
+		 */
+		function getHeader(url) {
+			if (!header)
+				header = {
+					'X-Konflux': 'konflux/' + konflux.string.ascii(konflux.version())
+				};
+
+			// Since browsers "preflight" requests for cross-site HTTP requests with
+			// custom headers we should not try to send them, or request will fail
+			// silently
+			//
+			// For more information, please refer to:
+			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS#Preflighted_requests
+
+			return konflux.url.isLocal(url) ? header : {};
+		}
+
+		/**
+		 *  Obtain a new XHR object
+		 *  @name    getXMLHTTPRequest
+		 *  @type    function
+		 *  @access  internal
+		 *  @return  object XMLHttpRequest
+		 */
+		function getXMLHTTPRequest() {
+			var xhr     = new XMLHttpRequest();
+			xhr.__kxref = konflux.unique();
+			return xhr;
+		}
+
+		/**
+		 *  Request a resource using XHR
+		 *  @name    request
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   object config
+		 *  @return  object XMLHttpRequest
+		 */
+		function request(config) {
+			var url   = 'url' in config ? config.url : (konflux.url ? konflux.url.path : null),
+				type  = 'type' in config ? config.type.toUpperCase() : 'GET',
+				data  = 'data' in config ? prepareData(config.data) : '',
+				async = 'async' in config ? config.async : true,
+				headers = 'header' in config ? combine(config.header, getHeader(url)) : getHeader(url),
+				xhr   = getXMLHTTPRequest(),
+				p;
+
+			if (!/^(POST|PUT)$/.test(type)) {
+				url += 'data' in config && config.data !== '' ? '?' + ('string' === typeof config.data ? config.data : data) : '';
+				data = null;
+			}
+
+			xhr.onload = function() {
+				var status = Math.floor(this.status * 0.01),
+					state = false;
+				++stat[type];
+
+				if (status === 2 && 'success' in config) {
+					state = 'success';
+					config.success.apply(this, process(this));
+				}
+				else if (status >= 4 && 'error' in config) {
+					state = 'error';
+					config.error.apply(this, process(this));
+				}
+
+				if ('complete' in config) {
+					state = !state ? 'complete' : state;
+					config.complete.apply(this, [this.status, this.statusText, this]);
+				}
+
+				if (state)
+					konflux.observer.notify('konflux.ajax.' + type.toLowerCase() + '.' + state, xhr, config);
+			};
+
+			if ('progress' in config && isType('function', config.progress))
+				konflux.event.add(xhr.upload, 'progress', config.progress);
+			if ('error' in config && isType('function', config.error))
+				konflux.event.add(xhr, 'error', config.error);
+			if ('abort' in config && isType('function', config.abort))
+				konflux.event.add(xhr, 'abort', config.abort);
+
+			xhr.open(type, url, async);
+			if (headers)
+				for (p in headers)
+					xhr.setRequestHeader(p, headers[p]);
+
+			xhr.send(data);
+			return xhr;
+		}
+
+		/**
+		 *  Process an XHR response
+		 *  @name    process
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   object XMLHttpRequest
+		 *  @return  array  response ([status, response text, XMLHttpRequest])
+		 */
+		function process(xhr) {
+			var contentType = xhr.getResponseHeader('content-type'),
+				result = [
+					xhr.status,
+					xhr.responseText,
+					xhr
+				],
+				match;
+
+			if (contentType && (match = contentType.match(/([^;]+)/)))
+				contentType = match[1];
+
+			switch (contentType) {
+				case 'application/json':
+					result[1] = JSON.parse(result[1]);
+					break;
+			}
+
+			return result;
+		}
+
+		/**
+		 *  Prepare data to be send
+		 *  @name    prepareData
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   mixed  data
+		 *  @param   string name
+		 *  @param   FormData (or KonfluxFormData) object
+		 *  @return  FormData (or KonfluxFormData) object
+		 */
+		function prepareData(data, name, formData) {
+			var r = formData || (undef !== typeof FormData ? new FormData() : new KonfluxFormData()),
+				p;
+
+			if (undef !== typeof File && data instanceof File)
+				r.append(name, data, data.name);
+			else if (undef !== typeof Blob && data instanceof Blob)
+				r.append(name, data, 'blob');
+			else if (data instanceof Array || (undef !== FileList && data instanceof FileList))
+				for (p = 0; p < data.length; ++p)
+					prepareData(data[p], (name || '') + '[' + p + ']', r);
+			else if (isType('object', data))
+				for (p in data)
+					prepareData(data[p], name ? name + '[' + encodeURIComponent(p) + ']' : encodeURIComponent(p), r);
+			else
+				r.append(name, data);
+
+			return r;
+		}
+
+		/**
+		 *  Obtain a handler function for given request, this handler is triggered by the konflux observer (konflux.ajax.<type>)
+		 *  @name    requestType
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string   type
+		 *  @return  function handler
+		 */
+		function requestType(t) {
+			var handler = function(config) {
+				switch (type(config)) {
+					case 'object':
+						config.type = t;
+						break;
+
+					case 'string':
+
+						//  we assume an URL
+						config = {
+							url: config,
+							type: t
+						};
+						break;
+
+					default:
+						config = {
+							type: t
+						};
+				}
+				return request(config);
+			};
+			stat[t.toUpperCase()] = 0;
+			konflux.observer.subscribe('konflux.ajax.' + t.toLowerCase(), function(ob, config) {
+				handler(config);
+			});
+
+			return handler;
+		}
+
+		/**
+		 *  Perform a request
+		 *  @name    request
+		 *  @type    method
+		 *  @access  public
+		 *  @param   object config
+		 *  @return  object XMLHttpRequest
+		 */
+		ajax.request = request;
+
+		/**
+		 *  Perform a GET request
+		 *  @name    get
+		 *  @type    method
+		 *  @access  public
+		 *  @param   object config
+		 *  @return  object XMLHttpRequest
+		 */
+		ajax.get = requestType('GET');
+
+		/**
+		 *  Perform a POST request
+		 *  @name    post
+		 *  @type    method
+		 *  @access  public
+		 *  @param   object config
+		 *  @return  object XMLHttpRequest
+		 */
+		ajax.post = requestType('POST');
+
+		/**
+		 *  Perform a PUT request
+		 *  @name    put
+		 *  @type    method
+		 *  @access  public
+		 *  @param   object config
+		 *  @return  object XMLHttpRequest
+		 */
+		ajax.put = requestType('PUT');
+
+		/**
+		 *  Perform a DELETE request
+		 *  @name    del
+		 *  @type    method
+		 *  @access  public
+		 *  @param   object config
+		 *  @return  object XMLHttpRequest
+		 */
+		ajax.del = requestType('DELETE');
+
+		/**
+		 *  Perform a PURGE request (mostly supported by caching servers such as Varnish)
+		 *  @name    purge
+		 *  @type    method
+		 *  @access  public
+		 *  @param   object config
+		 *  @return  object XMLHttpRequest
+		 */
+		ajax.purge = requestType('PURGE');
+	}
+
+	/**
+	 *  Handle URL's/URI's
+	 *  @module  url
+	 *  @note    available as konflux.url / kx.url
+	 */
+	function KonfluxURL() {
+		/*jshint validthis: true*/
+		var url = this;
+
+		/**
+		 *  Parse given URL into its URI components
+		 *  @name    parse
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string location
+		 *  @return  object result
+		 */
+		function parse(location) {
+			//  URL regex + key processing based on the work of Derek Watson's jsUri (http://code.google.com/p/jsuri/)
+			var match = /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/.exec(location),
+				prop = ['source', 'protocol', 'domain', 'userInfo', 'user', 'password', 'host', 'port', 'relative', 'path', 'directory', 'file', 'query', 'anchor'],
+				result = {};
+			while (prop.length)
+				result[prop.shift()] = match.length ? match.shift() : '';
+
+			if (result.query)
+				result.query.replace(/(?:^|&)([^&=]*)=?([^&]*)/g, function(a, b, c) {
+					if (!isType('object', result.query))
+						result.query = {};
+					if (b)
+						result.query[b] = c;
+				});
+			return result;
+		}
+
+		/**
+		 *  The parsed url for the URL of the current page
+		 *  @name    current
+		 *  @type    object
+		 *  @access  public
+		 */
+		url.current = !isType(undef, window.location.href) ? parse(window.location.href) : false;
+
+		/**
+		 *  Parse given URL into its URI components
+		 *  @name    parse
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string url
+		 *  @return  object result
+		 */
+		url.parse   = parse;
+
+		/**
+		 *  Determine whether given URL is on the same domain as the page itself
+		 *  @name    isLocal
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string location
+		 *  @return  bool   local
+		 */
+		url.isLocal = function(location) {
+			return url.current.domain === url.parse(location).domain;
+		};
+	}
+
+	/**
+	 *  Style(sheet) manipulation
+	 *  @module  style
+	 *  @note    available as konflux.style / kx.style
+	 */
+	function KonfluxStyle() {
+		/*jshint validthis: true*/
+		var style = this;
+
+		/**
+		 *  Obtain the script property notation for given property
+		 *  @name    scriptProperty
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string property
+		 *  @return  string script property
+		 *  @note    'background-color' => 'backgroundColor'
+		 */
+		function scriptProperty(property) {
+			var n = 0;
+
+			if (property === 'float')
+				return 'cssFloat';
+
+			while ((n = property.indexOf('-', n)) >= 0)
+				property = property.substr(0, n) + property.charAt(++n).toUpperCase() + property.substring(n + 1);
+			return property;
+		}
+
+		/**
+		 *  Obtain the CSS property notation for given property
+		 *  @name    cssProperty
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string property
+		 *  @return  string CSS property
+		 *  @note    'backgroundColor' => 'background-color'
+		 */
+		function cssProperty(property) {
+			if (property === 'cssFloat')
+				property = 'float';
+
+			return property.replace(/([A-Z])/g, '-$1').toLowerCase();
+		}
+
+		/**
+		 *  Determine whether or not the property is supported and try a vendor prefix, otherwise return false
+		 *  @name    hasProperty
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string  property
+		 *  @param   DOMNode target [optional, default undefined - document.body]
+		 *  @return  mixed  (one of: string (script)property, or false)
+		 */
+		function hasProperty(property, target) {
+			property = scriptProperty(property);
+			target   = target || document.body;
+
+			if (property in target.style)
+				return property;
+
+			property = konflux.browser.prefix() + konflux.string.ucFirst(property);
+			if (property in target.style)
+				return property;
+
+			return false;
+		}
+
+		/**
+		 *  Obtain all local stylesheets, where local is determined on a match of the domain
+		 *  @name    getLocalStylesheets
+		 *  @type    function
+		 *  @access  internal
+		 *  @return  array stylesheets
+		 */
+		function getLocalStylesheets() {
+			var all = document.styleSheets,
+				list = [],
+				i;
+
+			for (i = 0; i < all.length; ++i)
+				if (konflux.url.isLocal(all[i].href))
+					list.push(all[i]);
+
+			return list;
+		}
+
+		/**
+		 *  Obtain specific stylesheets
+		 *  @name    getStylesheet
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string name [optional, default 'all' - all stylesheets. Possible values 'first', 'last', 'all' or string filename]
+		 *  @param   bool   includeOffset [optional, default false - local stylesheets only]
+		 *  @return  array stylesheets
+		 */
+		function getStylesheet(name, includeOffsite) {
+			var list = includeOffsite ? document.styleSheets : getLocalStylesheets(),
+				match = [],
+				i;
+
+			switch (name) {
+				//  get the first stylesheet from the list of selected stylesheets
+				case 'first':
+					if (list.length > 0)
+						match = [list[0]];
+					break;
+
+				//  get the last stylesheet from the list of selected stylesheets
+				case 'last':
+					if (list.length > 0)
+						match = [list[list.length - 1]];
+					break;
+
+				default:
+
+					//  if no name was provided, return the entire list of (editable) stylesheets
+					if (name === 'all')
+						match = list;
+					else if (!name)
+						match = false;
+
+					//  search for the stylesheet(s) whose href matches the given name
+					else if (list.length > 0)
+						for (i = 0; i < list.length; ++i) {
+							if (list[i].href && list[i].href.substr(-name.length) === name)
+								match.push(list[i]);
+							else if (list[i].title && list[i].title === name)
+								match.push(list[i]);
+						}
+
+					break;
+			}
+
+			return match;
+		}
+
+		/**
+		 *  Obtain a stylesheet by its url or title
+		 *  @name    findStylesheet
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string url
+		 *  @param   string name
+		 *  @return  StyleSheet (bool false if not found)
+		 */
+		function findStylesheet(url, name) {
+			var match = getStylesheet(url, true);
+			if (name && match.length === 0)
+				match = getStylesheet(name, true);
+			return match.length > 0 ? match[0] : false;
+		}
+
+		/**
+		 *  Create a new stylesheet
+		 *  @name    createStylesheet
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string url
+		 *  @param   bool   before (effectively true for being the first stylesheet, anything else for last)
+		 *  @param   string name
+		 *  @return  style node
+		 */
+		function createStylesheet(url, before, name) {
+			var element = findStylesheet(url, name),
+				head = document.head || document.getElementsByTagName('head')[0];
+
+			if (!element) {
+				element = document.createElement(url ? 'link' : 'style');
+				element.setAttribute('type', 'text/css');
+				element.setAttribute('title', name || 'konflux.style.' + unique());
+
+				if (/link/i.test(element.nodeName)) {
+					element.setAttribute('rel', 'stylesheet');
+					element.setAttribute('href', url);
+				}
+
+				if (before && document.head.firstChild) {
+					head.insertBefore(element, head.firstChild);
+				}
+				else
+				{
+					head.appendChild(element);
+				}
+			}
+
+			return element;
+		}
+
+		/**
+		 *  Parse the style declarations' cssText into key/value pairs
+		 *  @name    getStyleProperties
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   CSS Rule
+		 *  @return  Object key value pairs
+		 */
+		function getStyleProperties(declaration) {
+			var list = declaration.split(/\s*;\s*/),
+				rules = {},
+				i, part;
+
+			for (i = 0; i < list.length; ++i) {
+				part = list[i].split(/\s*:\s*/);
+				if (part[0] !== '')
+					rules[scriptProperty(part.shift())] = normalizeValue(part.join(':'));
+			}
+
+			return rules;
+		}
+
+		/**
+		 *  Normalize given selector string
+		 *  @name    normalizeSelector
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string selector
+		 *  @return  string normalized selector
+		 */
+		function normalizeSelector(selector) {
+			return selector.split(/\s+/).join(' ').toLowerCase();
+		}
+
+		/**
+		 *  Normalize given CSS value
+		 *  @name    normalizeValue
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string value
+		 *  @return  string normalized value
+		 */
+		function normalizeValue(value) {
+			var pattern = {
+					' ': /\s+/g,               //  minimize whitespace
+					'"': /["']/g,              //  unify quotes
+					',': /\s*,\s*/g,           //  unify whitespace around separators
+					'.': /\b0+\./g,            //  remove leading 0 from decimals
+					'0': /0(?:px|em|%|pt)\b/g  //  remove units from 0 value
+				},
+				p;
+
+			for (p in pattern)
+				value = value.replace(pattern[p], p);
+
+			//  most browsers will recalculate hex color notation to rgb, so we do the same
+			pattern = value.match(/#([0-9a-f]+)/);
+			if (pattern && pattern.length > 0) {
+				pattern = pattern[1];
+				if (pattern.length % 3 !== 0)
+					pattern = konflux.string.pad(pattern, 6, '0');
+				else if (pattern.length === 3)
+					pattern = pattern[0] + pattern[0] + pattern[1] + pattern[1] + pattern[2] + pattern[2];
+
+				value = 'rgb(' + [
+					parseInt(pattern[0] + pattern[1], 16),
+					parseInt(pattern[2] + pattern[3], 16),
+					parseInt(pattern[4] + pattern[5], 16)
+				].join(',') + ')';
+			}
+
+			return value;
+		}
+
+		/**
+		 *  Add one or more css classes to given element
+		 *  @name    addClass
+		 *  @type    method
+		 *  @access  public
+		 *  @param   DOMelement element
+		 *  @param   string classes (separated by any combination of whitespace and/or comma
+		 *  @return  string classes
+		 */
+		style.addClass = function(element, classes) {
+			var current = konflux.string.trim(element.className).split(/\s+/);
+
+			element.className = current.concat(konflux.array.diff(classes.split(/[,\s]+/), current)).join(' ');
+			return element.className;
+		};
+
+		/**
+		 *  Remove one or more css classes from given element
+		 *  @name    removeClass
+		 *  @type    method
+		 *  @access  public
+		 *  @param   DOMElement element
+		 *  @param   string classes (separated by any combination of whitespace and/or comma
+		 *  @return  string classes
+		 */
+		style.removeClass = function(element, classes) {
+			var delta = konflux.string.trim(element.className).split(/\s+/),
+				classList = konflux.string.trim(classes).split(/[,\s]+/),
+				i, p;
+
+			for (i = 0; i < classList.length; ++i) {
+				p = konflux.array.contains(delta, classList[i]);
+				if (p !== false)
+					delta.splice(p, 1);
+			}
+
+			element.className = delta.join(' ');
+			return element.className;
+		};
+
+		/**
+		 *  Toggle one or more css classes on given element
+		 *  @name    toggleClass
+		 *  @type    method
+		 *  @access  public
+		 *  @param   DOMElement element
+		 *  @param   string classes (separated by any combination of whitespace and/or comma
+		 *  @return  string classes
+		 */
+		style.toggleClass = function(element, classes) {
+			var current = konflux.string.trim(element.className).split(/\s+/),
+				classList = konflux.string.trim(classes).split(/[,\s]+/),
+				i, p;
+
+			for (i = 0; i < classList.length; ++i) {
+				p = konflux.array.contains(current, classList[i]);
+				if (p !== false)
+					current.splice(p, 1);
+				else
+					current.push(classList[i]);
+			}
+
+			element.className = current.join(' ');
+			return element.className;
+		};
+
+		/**
+		 *  Apply style rules to target DOMElement
+		 *  @name    inline
+		 *  @type    method
+		 *  @access  public
+		 *  @param   DOMElement target
+		 *  @param   object style rules
+		 *  @return  KonfluxStyle reference
+		 */
+		style.inline = function(target, rules) {
+			var p, q;
+
+			for (p in rules) {
+				q = hasProperty(p);
+				if (q)
+					target.style[q] = rules[p];
+			}
+
+			return style;
+		};
+
+		/**
+		 *  Obtain a CSS selector for given element
+		 *  @name    selector
+		 *  @type    method
+		 *  @access  public
+		 *  @param   DOMElement target
+		 *  @param   bool       skipNode [optional, default false - include node name]
+		 *  @return  string selector
+		 */
+		style.selector = function(target, skipNode) {
+			var node = target.nodeName.toLowerCase(),
+				id = target.hasAttribute('id') ? '#' + target.getAttribute('id') : null,
+				classes = target.hasAttribute('class') ? '.' + konflux.string.trim(target.getAttribute('class')).split(/\s+/).join('.') : null,
+				select = '';
+
+			if (arguments.length === 1 || id || classes)
+				select = (skipNode ? '' : node) + (id || classes || '');
+
+			return konflux.string.trim((!id && target.parentNode && target !== document.body ? style.selector(target.parentNode, true) + ' ' : '') + select);
+		};
+
+		/**
+		 *  Obtain a stylesheet by its name or by a mnemonic (first, last, all)
+		 *  @name    sheet
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string target [optional, default 'all' - all stylesheets. Possible values 'first', 'last', 'all' or string filename]
+		 *  @param   bool   editable [optional, default true - only editable stylesheets]
+		 *  @return  array  stylesheets
+		 */
+		style.sheet = function(target, editable) {
+			var list = getStylesheet(isType('string', target) ? target : null, editable === false ? true : false),
+				i;
+
+			if (!isType(undef, target.nodeName))
+				for (i = 0; i < list.length; ++i)
+					if (list[i].ownerNode === target)
+						return [list[i]];
+
+			return list;
+		};
+
+		/**
+		 *  Create a new stylesheet, either as first or last
+		 *  @name    create
+		 *  @type    method
+		 *  @access  public
+		 *  @param   bool  before all other stylesheets
+		 *  @return  styleSheet
+		 */
+		style.create = function(name, before) {
+			var element = createStylesheet(false, before, name);
+			return element.sheet || false;
+		};
+
+		/**
+		 *  Load an external stylesheet, either as first or last
+		 *  @name    load
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string   url the url of the stylesheet to load
+		 *  @param   function callback
+		 *  @param   bool     before all other style sheets
+		 *  @return  style node (<link...> element)
+		 */
+		style.load = function(url, callback, before) {
+			var style = createStylesheet(url, before);
+
+			//  if style is a StyleSheet object, it has the ownerNode property containing the actual DOMElement in which it resides
+			if (!isType(undef, style.ownerNode)) {
+				style = style.ownerNode;
+
+				//  it is safe to assume here that the stylesheet was loaded, hence we need to apply the callback (with a slight delay, so the order of returning and execution of the callback is the same for both load scenario's)
+				if (callback)
+					setTimeout(function() {
+						callback.apply(style, [style]);
+					}, 1);
+			}
+			else if (callback) {
+				konflux.event.add(style, 'load', function(e) {
+					callback.apply(style, [e]);
+				});
+			}
+
+			return style;
+		};
+
+		/**
+		 *  Determine whether or not the given style (node) is editable
+		 *  @name    isEditable
+		 *  @type    method
+		 *  @access  public
+		 *  @param   Stylesheet object or DOMelement style/link
+		 *  @return  bool  editable
+		 */
+		style.isEditable = function(stylesheet) {
+			var list = getLocalStylesheets(),
+				node = !isType(undef, stylesheet.ownerNode) ? stylesheet.ownerNode : stylesheet,
+				i;
+			for (i = 0; i < list.length; ++i)
+				if (list[i].ownerNode === node)
+					return true;
+			return false;
+		};
+
+		/**
+		 *  Create and add a new style rule
+		 *  @name    add
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string selector
+		 *  @param   mixed  rules (one of; object {property: value} or string 'property: value')
+		 *  @param   mixed  sheet (either a sheet object or named reference, like 'first', 'last' or file name)
+		 *  @param   bool   skipNode [optional, default false - include node name]
+		 *  @return  int    index at which the rule was added
+		 */
+		style.add = function(selector, rules, sheet, skipNode) {
+			var rule = '',
+				find, p, pr;
+
+			//  in case the selector is not a string but a DOMElement, we go out and create a selector from it
+			if (isType('object', selector) && 'nodeType' in selector)
+				selector = style.selector(selector, skipNode) || style.selector(selector);
+
+			//  make the rules into an object
+			if (isType('string', rules))
+				rules = getStyleProperties(rules);
+
+			//  if rules isn't an object, we exit right here
+			if (!isType('object', rules))
+				return false;
+
+			//  if no sheet was provided, or a string reference to a sheet was provided, resolve it
+			if (!sheet || isType('string', sheet))
+				sheet = getStylesheet(sheet || 'last');
+
+			//  in case we now have a list of stylesheets, we either want one (if there's just one) or we add the style to all
+			if (sheet instanceof Array) {
+				if (sheet.length === 1) {
+					sheet = sheet[0];
+				}
+				else if (sheet.length <= 0) {
+					sheet = createStylesheet().sheet;
+				}
+				else
+				{
+					rule = true;
+					for (p = 0; p < sheet.length; ++p)
+						rule = rule && style.add(selector, rules, sheet[p]);
+					return rule;
+				}
+			}
+
+			//  populate the find buffer, so we can determine which style rules we actually need
+			find = style.find(selector, sheet);
+			for (p in rules)
+				if (!(p in find) || normalizeValue(find[p]) !== normalizeValue(rules[p])) {
+					pr = hasProperty(p);
+					if (pr)
+						rule += (rule !== '' ? ';' : '') + cssProperty(pr) + ':' + rules[p];
+				}
+
+			//  finally, add the rules to the stylesheet
+			if (sheet.addRule)
+				return sheet.addRule(selector, rule);
+			else if (sheet.insertRule)
+				return sheet.insertRule(selector + '{' + rule + '}', sheet.cssRules.length);
+
+			return false;
+		};
+
+		/**
+		 *  Find all style rules for given selector (in optionally given sheet)
+		 *  @name    find
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string selector
+		 *  @param   mixed  sheet [optional, either a sheet object or named reference, like 'first', 'last' or file name]
+		 *  @return  object style rules
+		 */
+		style.find = function(selector, sheet) {
+			var match = {},
+				rules, i, j;
+
+			if (selector)
+				selector = normalizeSelector(selector);
+
+			if (!sheet)
+				sheet = getStylesheet();
+			else if (!(sheet instanceof Array))
+				sheet = [sheet];
+
+			for (i = 0; i < sheet.length; ++i) {
+				rules = type(sheet[i].cssRules) ? sheet[i].cssRules : sheet[i].rules;
+				if (rules && rules.length)
+					for (j = 0; j < rules.length; ++j)
+						if ('selectorText' in rules[j] && (!selector || normalizeSelector(rules[j].selectorText) === selector))
+							match = combine(match, getStyleProperties(rules[j].style.cssText));
+			}
+
+			return match;
+		};
+
+		/**
+		 *  Get the given style property from element
+		 *  @name    get
+		 *  @type    method
+		 *  @access  public
+		 *  @param   DOMElement element
+		 *  @param   string     property
+		 *  @param   string     pseudo tag [optional, default undefined - no pseudo tag]
+		 *  @return  string     value
+		 */
+		style.get = function(element, property, pseudo) {
+			var value;
+
+			property = hasProperty(property);
+			if (property) {
+				if (element.currentStyle)
+					value = element.currentStyle(scriptProperty(property));
+				else if (window.getComputedStyle)
+					value = document.defaultView.getComputedStyle(element, pseudo || null).getPropertyValue(cssProperty(property));
+			}
+
+			return value;
+		};
+
+		/**
+		 *  Determine whether or not the property is supported and try a vendor prefix, otherwise return false
+		 *  @name    property
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string  property
+		 *  @param   DOMNode target [optional, default undefined - document.body]
+		 *  @return  mixed  (one of: string (script)property, or false)
+		 */
+		style.property = hasProperty;
+
+		/**
+		 *  Calculate the specificity of a selector
+		 *  @name    specificity
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string selector
+		 *  @return  string specificity ('0.0.0.0')
+		 */
+		style.specificity = function(selector) {
+			var result = [0, 0, 0, 0],
+				match = konflux.string.trim(selector.replace(/([#\.\:\[]+)/g, ' $1')).split(/[^a-z0-9\.\[\]'":\*\.#=_-]+/),
+				i;
+
+			for (i = 0; i < match.length; ++i)
+				++result[/^#/.test(match[i]) ? 1 : (/^(?:\.|\[|:[^:])/.test(match[i]) ? 2 : 3)];
+
+			return result.join('.');
+		};
+	}
+
+	/**
+	 *  Timing utils
+	 *  @module  timing
+	 *  @note    available as konflux.timing / kx.timing
+	 */
+	function KonfluxTiming() {
+		/*jshint validthis: true*/
+		var timing = this,
+			stack = buffer('timing.delay'),
+			raf;
+
+		/**
+				 *  Delay object, instances of this are be provided for all KonfluxTimings
+				 *  @name    KonfluxDelay
+				 *  @type    class
+				 *  @access  internal
+				 *  @param   function handle
+				 *  @param   Number   timeout
+				 *  @param   string   reference
+				 *  @return  KonfluxDelay  object
+				 */
+		function KonfluxDelay(handler, timeout, reference) {
+			/*jshint validthis: true*/
+			var delay = this,
+				timer = null;
+
+			/**
+			 *  Cancel the timer
+			 *  @name    cancel
+			 *  @type    function
+			 *  @access  internal
+			 *  @return  void
+			 */
+			function cancel() {
+				clearTimeout(timer);
+			}
+
+			/**
+			 *  Start the timer
+			 *  @name    start
+			 *  @type    function
+			 *  @access  internal
+			 *  @return  void
+			 */
+			function start() {
+				timer = setTimeout(function() {
+					if (!raf)
+						raf = konflux.browser.feature('requestAnimationFrame') || function(ready) {
+							setTimeout(ready, 16);
+						};
+					raf(cancel);
+
+					handler.call();
+				}, timeout);
+			}
+
+			//  expose
+			/**
+			 *  Cancel the timer
+			 *  @name    cancel
+			 *  @type    method
+			 *  @access  public
+			 *  @return  void
+			 */
+			delay.cancel = cancel;
+
+			/**
+			 *  Obtain the associated reference
+			 *  @name    reference
+			 *  @type    method
+			 *  @access  public
+			 *  @return  string reference
+			 */
+			delay.reference = function() {
+				return reference;
+			};
+
+			start();
+		}
+
+		/**
+		 *  Remove timer object by their reference
+		 *  @name    remove
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string reference
+		 *  @return  void
+		 */
+		function remove(reference) {
+			if (undef !== typeof stack[reference]) {
+				//  cancel the stack reference
+				stack[reference].cancel();
+
+				//  delete it
+				delete stack[reference];
+			}
+		}
+
+		/**
+		 *  Create a timer object to call given handler after given delay and store it with given reference
+		 *  @name    create
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   function handle
+		 *  @param   Number   delay
+		 *  @param   string   reference
+		 *  @return  KonfluxDelay  object
+		 */
+		function create(handler, delay, reference) {
+			if (reference)
+				remove(reference);
+			else
+				reference = handler.toString() || unique();
+			stack[reference] = new KonfluxDelay(handler, delay || 0, reference);
+
+			return stack[reference];
+		}
+
+		//  expose
+		/**
+		 *  Remove timer object by their reference
+		 *  @name    remove
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string reference
+		 *  @return  void
+		 */
+		timing.remove = remove;
+
+		/**
+		 *  Create a timer object to call given handler after given delay and store it with given reference
+		 *  @name    create
+		 *  @type    method
+		 *  @access  public
+		 *  @param   function handle
+		 *  @param   Number   delay
+		 *  @param   string   reference
+		 *  @return  KonfluxDelay  object
+		 */
+		timing.create = create;
+	}
+
+	/**
+	 *  Observer object, handles subscriptions to messages
+	 *  @module  observer
+	 *  @note    available as konflux.observer / kx.observer
+	 */
+	function KonfluxObserver() {
+		/*jshint validthis: true*/
+		var observer = this,
+			subscription = buffer('observer.subscriptions'),
+			active = buffer('observer.active');
+
+		/**
+		 *  Observation object, instances of this are be provided to all observer notification subscribers
+		 *  @name    KonfluxObservation
+		 *  @type    module
+		 *  @access  internal
+		 *  @param   string type
+		 *  @param   function handle
+		 *  @param   string reference
+		 *  @return  KonfluxObservation object
+		 */
+		function KonfluxObservation(type, handle, reference) {
+			/*jshint validthis: true*/
+			var observation = this;
+
+			observation.type      = type;
+			observation.reference = reference;
+			observation.timeStamp = time();
+			observation.timeDelta = elapsed();
+
+			/**
+			 *  Unsubscribe from the current observer stack
+			 *  @name    unsubscribe
+			 *  @type    method
+			 *  @access  public
+			 *  @return  void
+			 */
+			observation.unsubscribe = function() {
+				return disable(type, handle);
+			};
+			/**
+			 *  Stop the execution of this Observation
+			 *  @name    stop
+			 *  @type    method
+			 *  @access  public
+			 *  @return  void
+			 */
+			observation.stop = function() {
+				active[reference] = false;
+			};
+		}
+
+		/**
+		 *  Create the subscription stack if it does not exist
+		 *  @name    ensureSubscriptionStack
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string stack name
+		 *  @return  void
+		 */
+		function ensureSubscriptionStack(stack) {
+			if (undef === typeof subscription[stack])
+                subscription[stack] = [];
+		}
+
+		/**
+		 *  Add handler to specified stack
+		 *  @name    add
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string stack name
+		 *  @param   function handler
+		 *  @return  int total number of subscriptions in this stack
+		 */
+		function add(stack, handle) {
+			ensureSubscriptionStack(stack);
+			return subscription[stack].push(handle);
+		}
+
+		/**
+		 *  Disable a handler for specified stack
+		 *  @name    disable
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string stack name
+		 *  @param   function handler
+		 *  @return  void
+		 *  @note    this method is used from the Observation object, which would influence the number of
+		 *           subscriptions if the subscription itself was removed immediately
+		 */
+		function disable(stack, handle) {
+			var i;
+
+			for (i = 0; i < subscription[stack].length; ++i)
+				if (subscription[stack][i] === handle)
+					subscription[stack][i] = false;
+		}
+
+		/**
+		 *  Remove specified handler (and all disabled handlers) from specified stack
+		 *  @name    remove
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string stack name
+		 *  @param   function handler [optional, default null - remove the entire stack]
+		 *  @return  array removed handlers
+		 */
+		function remove(stack, handle) {
+			var out = [],
+				keep = [],
+				i;
+
+			ensureSubscriptionStack(stack);
+			for (i = 0; i < subscription[stack].length; ++i)
+				(!subscription[stack][i] || subscription[stack][i] === handle ? out : keep).push(subscription[stack][i]);
+			subscription[stack] = keep;
+			return out;
+		}
+
+		/**
+		 *  Flush specified stack
+		 *  @name    flush
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string stack name
+		 *  @return  array removed handlers (false if the stack did not exist);
+		 */
+		function flush(stack) {
+			var out = false;
+
+			if (!isType(undef, subscription[stack])) {
+				out = subscription[stack];
+				delete subscription[stack];
+			}
+
+			return out;
+		}
+
+		/**
+		 *  Trigger the handlers in specified stack
+		 *  @name    trigger
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string stack name
+		 *  @param   mixed variable1
+		 *  @param   mixed ...
+		 *  @param   mixed variableN
+		 *  @return  void
+		 */
+		function trigger(stack) {
+			var arg = konflux.array.cast(arguments),
+				ref = unique(),
+				part = stack.split('.'),
+				wildcard = false,
+				name, i;
+
+			while (part.length >= 0) {
+				active[ref] = true;
+				name = part.join('.') + (wildcard ? (part.length ? '.' : '') + '*' : '');
+				wildcard = true;
+
+				if (undef !== typeof subscription[name])
+					for (i = 0; i < subscription[name].length; ++i) {
+						if (!active[ref])
+							break;
+
+						if (subscription[name][i]) {
+							arg[0] = new KonfluxObservation(stack, subscription[name][i], ref);
+							subscription[name][i].apply(subscription[name][i], arg);
+						}
+					}
+
+				if (!part.pop())
+					break;
+			}
+
+			delete active[ref];
+		}
+
+		/**
+		 *  Subscribe a handler to an observer stack
+		 *  @name    subscribe
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string stack name
+		 *  @param   function handle
+		 *  @param   function callback [optional, default undefined]
+		 *  @return  KonfluxObserver reference
+		 */
+		observer.subscribe = function(stack, handle, callback) {
+			var list = stack.split(/[\s,]+/),
+				result = true,
+				i;
+
+			for (i = 0; i < list.length; ++i)
+				result = (add(list[i], handle) ? true : false) && result;
+
+			if (callback)
+				callback.apply(observer, [result]);
+
+			return observer;
+		};
+
+		/**
+		 *  Unsubscribe a handler from an observer stack
+		 *  @name    unsubscribe
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string stack name
+		 *  @param   function handle
+		 *  @param   function callback [optional, default undefined]
+		 *  @return  KonfluxObserver reference
+		 */
+		observer.unsubscribe = function(stack, handle, callback) {
+			var list = stack.split(/[\s,]+/),
+				result = [],
+				i;
+
+			for (i = 0; i < list.length; ++i)
+				result = result.concat(handle ? remove(list[i], handle) : flush(list[i]));
+
+			if (callback)
+				callback.apply(observer, [result]);
+
+			return observer;
+		};
+
+		/**
+		 *  Notify all subscribers to a stack
+		 *  @name    notify
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string stack name
+		 *  @param   mixed  variable1
+		 *  @param   mixed  ...
+		 *  @param   mixed  variableN
+		 *  @return  void
+		 */
+		observer.notify = function() {
+			var arg = konflux.array.cast(arguments),
+				list = arg.shift().split(/[\s,]+/),
+				i;
+
+			for (i = 0; i < list.length; ++i)
+				trigger.apply(observer, [list[i]].concat(arg));
+		};
+	}
+
+	/**
+	 *  Storage object, a simple wrapper for localStorage
+	 *  @module  storage
+	 *  @note    available as konflux.storage / kx.storage
+	 */
+	function KonfluxStorage() {
+		/*jshint validthis: true*/
+		var ls = this,
+			maxSize = 2048,
+			storage = !isType(undef, window.localStorage) ? window.localStorage : false,
+			fragmentPattern = /^\[fragment:([0-9]+),([0-9]+),([a-z0-9_]+)\]$/;
+
+		/**
+		 *  Combine stored fragments together into the original data string
+		 *  @name    combineFragments
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string data index
+		 *  @return  string data combined
+		 */
+		function combineFragments(data) {
+			var match = data ? data.match(fragmentPattern) : false,
+				part, fragment, length, variable, i;
+
+			if (match) {
+				fragment = parseInt(match[1], 10);
+				length   = parseInt(match[2], 10);
+				variable = match[3];
+				data     = '';
+
+				for (i = 0; i < fragment; ++i) {
+					part = storage.getItem(variable + i);
+					if (part !== null)
+						data += part;
+					else
+						return false;
+				}
+
+				if (!data || data.length !== length)
+					return false;
+			}
+
+			return data;
+		}
+
+		/**
+		 *  Split a large data string into several smaller fragments
+		 *  @name    createFragments
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string name
+		 *  @param   string data
+		 *  @return  bool   success
+		 */
+		function createFragments(name, data) {
+			var variable = '__' + name,
+				fragment = Math.ceil(data.length / maxSize),
+				i;
+
+			for (i = 0; i < fragment; ++i)
+				storage.setItem(variable + i, data.substring(i * maxSize, Math.min((i + 1) * maxSize, data.length)));
+
+			//  write the index
+			storage.setItem(name, '[fragment:' + fragment + ',' + data.length + ',' + variable + ']');
+		}
+
+		/**
+		 *  Remove all fragmented keys
+		 *  @name    dropFragments
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   array  match
+		 *  @return  void
+		 */
+		function dropFragments(match) {
+			var fragment = parseInt(match[1], 10),
+				variable = match[3],
+				i;
+
+			for (i = 0; i < fragment; ++i)
+				remove(variable + i);
+		}
+
+		/**
+		 *  Obtain all data from localStorage
+		 *  @name    getAll
+		 *  @type    function
+		 *  @access  internal
+		 *  @return  mixed  data
+		 */
+		function getAll() {
+			var result = null,
+				i, key;
+
+			if (storage) {
+				result = {};
+				for (i = 0; i < storage.length; ++i) {
+					key = storage.key(i);
+					result[key] = getItem(key);
+				}
+			}
+
+			return result;
+		}
+
+		/**
+		 *  Obtain the data for given name
+		 *  @name    getItem
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string name
+		 *  @return  mixed  data
+		 */
+		function getItem(name) {
+			var data = storage ? storage.getItem(name) : false;
+
+			if (data && data.match(fragmentPattern))
+				data = combineFragments(data);
+
+			if (data && data.match(/^[a-z0-9]+:.*$/i)) {
+				data = /([a-z0-9]+):(.*)/i.exec(data);
+				if (data.length > 2 && data[1] === konflux.string.checksum(data[2]))
+					return JSON.parse(data[2]);
+			}
+
+			return data ? data : false;
+		}
+
+		/**
+		 *  Set the data for given name
+		 *  @name    setItem
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string name
+		 *  @param   mixed  data
+		 *  @return  string data
+		 */
+		function setItem(name, data) {
+			data = JSON.stringify(data);
+			data = konflux.string.checksum(data) + ':' + data;
+
+			if (storage)
+				return data.length > maxSize ? createFragments(name, data) : storage.setItem(name, data);
+			return false;
+		}
+
+		/**
+		 *  Remove the data for given name
+		 *  @name    remove
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string name
+		 *  @return  bool   success
+		 */
+		function remove(name) {
+			var data, match;
+
+			if (storage) {
+				data = storage.getItem(name);
+				if (data && (match = data.match(fragmentPattern)))
+					dropFragments(match);
+				return storage.removeItem(name);
+			}
+
+			return false;
+		}
+
+		/**
+		 *  Get the data for given name
+		 *  @name    get
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string name [optional, default null - get all stored entries]
+		 *  @return  mixed  data
+		 */
+		ls.get = function(name) {
+			return name ? getItem(name) : getAll();
+		};
+
+		/**
+		 *  Set the data for given name
+		 *  @name    set
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string name
+		 *  @param   mixed  data
+		 *  @return  void
+		 */
+		ls.set = setItem;
+
+		/**
+		 *  Remove the data for given name
+		 *  @name    remove
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string name
+		 *  @return  bool   success
+		 */
+		ls.remove = remove;
+
+		/**
+		 *  Get the amount of stored keys
+		 *  @name    length
+		 *  @type    method
+		 *  @access  public
+		 *  @return  number stored keys
+		 */
+		ls.length = function() {
+			return storage ? storage.length : false;
+		};
+
+		/**
+		 *  Obtain all the keys
+		 *  @name    keys
+		 *  @type    method
+		 *  @access  public
+		 *  @return  Array  keys
+		 */
+		ls.keys = function() {
+			var key = getAll(),
+				list = [],
+				p;
+
+			for (p in key)
+				list.push(p);
+
+			return list;
+		};
+
+		/**
+		 *  Flush all stored items
+		 *  @name    flush
+		 *  @type    method
+		 *  @access  public
+		 *  @return  void
+		 */
+		ls.flush = function() {
+			var list = ls.keys(),
+				i;
+			for (i = 0; i < list.length; ++i)
+				remove(list[i]);
+		};
+
+		/**
+		 *  Obtain the (approximate) byte size of the entire storage
+		 *  @name    size
+		 *  @type    method
+		 *  @access  public
+		 *  @return  int size
+		 */
+		ls.size = function() {
+			return decodeURI(encodeURIComponent(JSON.stringify(localStorage))).length;
+		};
+	}
 
 	//  expose object instances
-	konflux.observer   = new kxObserver();
-	konflux.browser    = new kxBrowser();
-	konflux.url        = new kxURL();
-	konflux.ajax       = new kxAjax();
-	konflux.style      = new kxStyle();
-	konflux.number     = new kxNumber();
-	konflux.string     = new kxString();
-	konflux.array      = new kxArray();
-	konflux.dom        = new kxDOM();
-	konflux.event      = new kxEvent();
-	konflux.timing     = new kxTiming();
-	konflux.storage    = new kxStorage();
+	konflux.observer   = new KonfluxObserver();
+	konflux.browser    = new KonfluxBrowser();
+	konflux.url        = new KonfluxURL();
+	konflux.ajax       = new KonfluxAjax();
+	konflux.style      = new KonfluxStyle();
+	konflux.number     = new KonfluxNumber();
+	konflux.string     = new KonfluxString();
+	konflux.array      = new KonfluxArray();
+	konflux.dom        = new KonfluxDOM();
+	konflux.event      = new KonfluxEvent();
+	konflux.timing     = new KonfluxTiming();
+	konflux.storage    = new KonfluxStorage();
 
 	//  make konflux available on the global (window) scope both as 'konflux' and 'kx'
 	window.konflux = window.kx = konflux;

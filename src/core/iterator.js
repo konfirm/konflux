@@ -5,7 +5,7 @@
  *  @param   mixed collection
  *  @note    available as konflux.iterator / kx.iterator
  */
-function kxIterator(collection) {
+function KonfluxIterator(collection) {
 	'use strict';
 
 	/*global konflux, isType, undef*/
@@ -69,7 +69,7 @@ function kxIterator(collection) {
 	 *  @type    function
 	 *  @access  internal
 	 *  @param   string name
-	 *  @return  mixed  result (the property value if it was copied, kxIterator otherwise)
+	 *  @return  mixed  result (the property value if it was copied, KonfluxIterator otherwise)
 	 */
 	function property(name) {
 		//  Unfortunatly we have to fall back onto a try catch block, as the IE8 implementation does not
@@ -107,8 +107,8 @@ function kxIterator(collection) {
 			collection = konflux.array.cast(collection);
 		}
 
-		//  if we are trying to append a kxIterator instance, we want the underlying collection
-		if (append instanceof kxIterator) {
+		//  if we are trying to append a KonfluxIterator instance, we want the underlying collection
+		if (append instanceof KonfluxIterator) {
 			append = append.collection();
 		}
 
@@ -141,7 +141,7 @@ function kxIterator(collection) {
 	 *  @access  internal
 	 *  @param   string   name
 	 *  @param   function evaluation
-	 *  @param   bool     one [optional, default undefined (false-ish) - return a kxIterator]
+	 *  @param   bool     one [optional, default undefined (false-ish) - return a KonfluxIterator]
 	 *  @return  function implementation
 	 */
 	function implement(name, evaluate, one) {
@@ -150,7 +150,7 @@ function kxIterator(collection) {
 
 			//  always use the native implementation, if it exists
 			if (name in collection && isType('function', collection[name])) {
-				return new kxIterator(collection[name].apply(collection, arguments));
+				return new KonfluxIterator(collection[name].apply(collection, arguments));
 			}
 
 			list = collection instanceof Array ? [] : {};
@@ -262,14 +262,14 @@ function kxIterator(collection) {
 	};
 
 	/**
-	 *  Create a new kxIterator from the current containing only elements which received a true(-ish) result
+	 *  Create a new KonfluxIterator from the current containing only elements which received a true(-ish) result
 	 *  from the provided filter method
 	 *  @name    filter
 	 *  @type    method
 	 *  @access  public
 	 *  @param   function evaluate
 	 *  @param   object   thisArg 'this' [optional, default undefined]
-	 *  @return  kxIterator matches
+	 *  @return  KonfluxIterator matches
 	 */
 	iterator.filter = implement('filter', function(result, item) {
 		return !!result ? item : false;
@@ -282,20 +282,20 @@ function kxIterator(collection) {
 	 *  @access  public
 	 *  @param   function map
 	 *  @param   object   thisArg 'this' [optional, default undefined]
-	 *  @return  kxIterator found
+	 *  @return  KonfluxIterator found
 	 */
 	iterator.find = implement('find', function(result, item) {
 		return !!result ? item : false;
 	}, true);
 
 	/**
-	 *  Create a new kxIterator from the current containing items (possibly) modified by the map function
+	 *  Create a new KonfluxIterator from the current containing items (possibly) modified by the map function
 	 *  @name    map
 	 *  @type    method
 	 *  @access  public
 	 *  @param   function map
 	 *  @param   object   thisArg 'this' [optional, default undefined]
-	 *  @return  kxIterator mapped
+	 *  @return  KonfluxIterator mapped
 	 */
 	iterator.map = implement('map', function(result) {
 		return result;
@@ -344,7 +344,7 @@ function kxIterator(collection) {
 	 *  @access  public
 	 *  @param   function   callback
 	 *  @param   object     thisArg (value to use as this when executing callback)
-	 *  @return  kxIterator instance
+	 *  @return  KonfluxIterator instance
 	 */
 	iterator.each = function(callback, thisArg) {
 		var p;
@@ -371,7 +371,7 @@ function kxIterator(collection) {
 	 *  @param   mixed argument1
 	 *  @param   mixed ...
 	 *  @param   mixed argumentN
-	 *  @return  kxIterator instance
+	 *  @return  KonfluxIterator instance
 	 *  @note    Adding items to the collection will destroy the original collection and turn it into an array
 	 *  @note    Any scalar variable type (String, Number, Boolean and NULL) will added as is, any
 	 *           Array or Object will be disected and treated as array (if possible)

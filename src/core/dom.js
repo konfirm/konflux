@@ -3,10 +3,10 @@
  *  @module  dom
  *  @note    available as konflux.dom / kx.dom
  */
-function kxDOM() {
+function KonfluxDOM() {
 	'use strict';
 
-	/*global konflux, document, type, isType, hasProperty, undef, kxIterator, elementReference*/
+	/*global konflux, document, type, isType, hasProperty, undef, KonfluxIterator, elementReference*/
 
 	/*jshint validthis: true*/
 	var dom = this;
@@ -239,10 +239,10 @@ function kxDOM() {
 	 *  @access public
 	 *  @param  string     selector
 	 *  @param  DOMElement parent
-	 *  @return kxIterator nodeList
+	 *  @return KonfluxIterator nodeList
 	 */
 	dom.select = function(selector, parent) {
-		return new kxIterator((parent || document).querySelectorAll(selector));
+		return new KonfluxIterator((parent || document).querySelectorAll(selector));
 	};
 
 	/**

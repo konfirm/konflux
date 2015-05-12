@@ -3,7 +3,7 @@
  *  @module  string
  *  @note    available as konflux.string / kx.string
  */
-function kxString() {
+function KonfluxString() {
 	'use strict';
 
 	/*global konflux, isType*/

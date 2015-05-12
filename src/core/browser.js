@@ -3,7 +3,7 @@
  *  @module  browser
  *  @note    available as konflux.browser / kx.browser
  */
-function kxBrowser() {
+function KonfluxBrowser() {
 	'use strict';
 
 	/*global konflux, window, document, navigator, hasProperty, isType, undef*/
