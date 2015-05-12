@@ -1,0 +1,7 @@
+{
+	"copyright": "Konfirm ⓒ 2015",
+	"output": "build",
+	"sauce": [
+		"plumber"
+	]
+}
