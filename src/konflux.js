@@ -242,6 +242,39 @@
 		};
 
 		/**
+		 *  Provide feedback about deprecated features, once (per function, per browser view)
+		 *  @name    deprecate
+		 *  @type    function
+		 *  @access  public
+		 *  @param   string   message
+		 *  @param   function callback
+		 *  @param   object   scope [optional, default undefined - no scope]
+		 *  @return  void
+		 */
+		kx.deprecate = function(message, callback, scope) {
+			var shown;
+
+			return function() {
+				var method = ['info', 'warn', 'log'],
+					i;
+
+				if (!shown) {
+					shown = true;
+
+					for (i = 0 ; i < method.length; ++i) {
+						if (kx.isType('function', console[method[i]])) {
+							console[method[i]](kx.elapsed() + ' DEPRECATED: ' + message);
+							break;
+						}
+					}
+				}
+
+				return callback.apply(scope || null, arguments);
+			};
+		}
+
+
+		/**
 		 *  Register a module or function onto the kx object
 		 *  @name    register
 		 *  @access  public

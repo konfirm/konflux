@@ -741,6 +741,16 @@
 			queue.ready.push(handler);
 			return false;
 		};
+
+		//  Announce deprecation
+		event.listen = konflux.deprecate(
+			'konflux.event.listen is deprecated, use konflux.event.add instead (a drop-in replacement)',
+			event.add
+		);
+		event.live = konflux.deprecate(
+			'konflux.event.live is deprecated, use konflux.event.add instead (a drop-in replacement)',
+			event.add
+		);
 	}
 
 	konflux.register('event', new KonfluxEvent());

@@ -15,7 +15,7 @@ describe('Konflux.event', function(){
 		expect(verify).toEqual('bar');
 	});
 
-	it('sends the deprecated message for listen', function(){
+	it('sends the deprecated message for listen (once)', function(){
 		spyOn(console, 'info');
 		spyOn(console, 'warn');
 		spyOn(console, 'log');
@@ -28,8 +28,21 @@ describe('Konflux.event', function(){
 		else
 			expect(console.log).toHaveBeenCalled();
 	});
+	it('does not send the deprecated message for listen again', function(){
+		spyOn(console, 'info');
+		spyOn(console, 'warn');
+		spyOn(console, 'log');
+		konflux.event.listen();
 
-	it('sends the deprecated message for live', function(){
+		if ('info' in console)
+			expect(console.info).not.toHaveBeenCalled();
+		else if ('warn' in console)
+			expect(console.warn).not.toHaveBeenCalled();
+		else
+			expect(console.log).not.toHaveBeenCalled();
+	});
+
+	it('sends the deprecated message for live (once)', function(){
 		spyOn(console, 'info');
 		spyOn(console, 'warn');
 		spyOn(console, 'log');
@@ -41,6 +54,19 @@ describe('Konflux.event', function(){
 			expect(console.warn).toHaveBeenCalled();
 		else
 			expect(console.log).toHaveBeenCalled();
+	});
+	it('does not send the deprecated message for live again', function(){
+		spyOn(console, 'info');
+		spyOn(console, 'warn');
+		spyOn(console, 'log');
+		konflux.event.live();
+
+		if ('info' in console)
+			expect(console.info).not.toHaveBeenCalled();
+		else if ('warn' in console)
+			expect(console.warn).not.toHaveBeenCalled();
+		else
+			expect(console.log).not.toHaveBeenCalled();
 	});
 
 	it('hasTouch does not contradict konflux.browser.supports("touch")', function(){
