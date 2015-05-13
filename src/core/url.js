@@ -3,10 +3,10 @@
  *  @module  url
  *  @note    available as konflux.url / kx.url
  */
-function kxURL() {
+function KonfluxURL() {
 	'use strict';
 
-	/*global window*/
+	/*global konflux, window*/
 
 	/*jshint validthis: true*/
 	var url = this;

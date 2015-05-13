@@ -173,11 +173,11 @@ function KonfluxAjax() {
 	 *  @access  internal
 	 *  @param   mixed  data
 	 *  @param   string name
-	 *  @param   FormData (or kxFormData) object
-	 *  @return  FormData (or kxFormData) object
+	 *  @param   FormData (or KonfluxFormData) object
+	 *  @return  FormData (or KonfluxFormData) object
 	 */
 	function prepareData(data, name, formData) {
-		var r = formData || ('undefined' !== typeof FormData ? new FormData() : new kxFormData()),
+		var r = formData || ('undefined' !== typeof FormData ? new FormData() : new KonfluxFormData()),
 			p;
 
 		if ('undefined' !== typeof File && data instanceof File) {

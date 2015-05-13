@@ -6,10 +6,11 @@
  *    \/_/     More information: http://konfirm.net/konflux
  */
 
-/*jshint 'undefined': true, newcap: false, forin: false, maxstatements: 10, maxparams: 4, browser: true */
 //@dep: array, browser, iterator, style
 ;(function(konflux){
 	'use strict';
+
+	/*global window, document*/
 
 	var version = '$DEV$';
 
@@ -19,12 +20,10 @@
 	 *  @module  htmlsimplify
 	 *  @note    available as konflux.htmlsimplify / kx.htmlsimplify
 	 */
-	function kxHTMLSimplify(config)
-	{
+	function KonfluxHTMLSimplify(config) {
 		/*jshint validthis: true*/
 		var simplify = this,
 			settings;
-
 
 		/**
 		 *  initialize the module
@@ -33,8 +32,7 @@
 		 *  @access  internal
 		 *  @return  void
 		 */
-		function init()
-		{
+		function init() {
 			settings = konflux.combine(config || {}, defaults());
 		}
 
@@ -45,8 +43,7 @@
 		 *  @access  internal
 		 *  @return  object  default settings
 		 */
-		function defaults()
-		{
+		function defaults() {
 			return {
 				selector: ['a[href]', 'a[href][target]', 'br', 'code', 'div', 'p', 'q', 'time'],
 				style: [
@@ -74,30 +71,33 @@
 		 *  @return  bool    match
 		 *  @note    any option which is not of type array or string will be cast to string
 		 */
-		function styleMatch(value, option)
-		{
+		function styleMatch(value, option) {
 			var result = false,
 				match;
 
 			//  if option is an array, we call this function for each value
-			if (option instanceof Array)
-			{
+			if (option instanceof Array) {
 				konflux.iterator(option).each(function(){
-					if (!result)
+					if (!result) {
 						result = styleMatch(value, this);
+					}
 				});
+
 				return result;
 			}
 
 			//  we want to assume a string value for the options, hence we cast it to string
-			if ('string' !== typeof option)
+			if (!konflux.isType('string', option)) {
 				option += '';
+			}
 
 			//  see if we've received a range option (<number><direction>)
-			if ((match = option.match(/^([0-9]+)([+-])/)))
+			if ((match = option.match(/^([0-9]+)([+-])/))) {
 				result = Math[match[2] === '+' ? 'min' : 'max'].call(+value, +match[1]) === +match[1];
-			else if (value === option)
+			}
+			else if (value === option) {
 				result = true;
+			}
 
 			return result;
 		}
@@ -111,15 +111,15 @@
 		 *  @param   DOMNode  scope
 		 *  @return  DOMNode  scope
 		 */
-		function unifyStyle(source, scope)
-		{
-			konflux.iterator(settings.style).each(function(){
+		function unifyStyle(source, scope) {
+			konflux.iterator(settings.style).each(function() {
 				var value = konflux.style.get(source, this.property),
 					differ = value !== konflux.style.get(scope, this.property),
 					allow = 'allow' in this && konflux.array.contains(this.allow, source.nodeName.toLowerCase());
 
-				if (differ && styleMatch(value, this.value) && !allow)
+				if (differ && styleMatch(value, this.value) && !allow) {
 					scope = scope.appendChild(document.createElement(settings.replace[this.replace]));
+				}
 			});
 
 			return scope;
@@ -134,28 +134,29 @@
 		 *  @param   DOMNode  scope
 		 *  @return  DOMNode  scope
 		 */
-		function unify(source, scope)
-		{
+		function unify(source, scope) {
 			var match = konflux.browser.feature(['matches', 'matchesSelector'], source) || false,
 				attr = /\[([^\]]+)\]/g,
 				result;
 
 			//  triage, determine if the source element matches any of the allowed ones
-			if (match && match.apply(source, [settings.selector.join(',')]))
+			if (match && match.apply(source, [settings.selector.join(',')])) {
 				konflux.iterator(settings.selector).each(function(){
-
 					//  determine which selector matches (could be multiple)
-					if (match.apply(source, [this]))
-					{
+					if (match.apply(source, [this])) {
 						//  if the selector matches a node name, we shift the scope to this node
-						if ((result = this.match(/^([a-z]+)/i)) && !match.apply(scope, [result[1]]))
+						if ((result = this.match(/^([a-z]+)/i)) && !match.apply(scope, [result[1]])) {
 							scope = scope.appendChild(document.createElement(source.nodeName.toLowerCase()));
+						}
+
 						//  if the selector matches one or more attributes, we copy the attributes' full values
-						while ((result = attr.exec(this)))
+						while ((result = attr.exec(this))) {
 							scope.setAttribute(result[1], source.getAttribute(result[1]));
+						}
 					}
 
 				});
+			}
 
 			scope = unifyStyle(source, scope);
 
@@ -171,13 +172,11 @@
 		 *  @param   DOMNode  target
 		 *  @return  void
 		 */
-		function clean(source, target)
-		{
+		function clean(source, target) {
 			var i;
 
-			for (i = 0; i < source.childNodes.length; ++i)
-				switch (source.childNodes[i].nodeType)
-				{
+			for (i = 0; i < source.childNodes.length; ++i) {
+				switch (source.childNodes[i].nodeType) {
 					case 1:  //  DOMElement
 						clean(
 							source.childNodes[i],
@@ -190,6 +189,7 @@
 						target.appendChild(document.createTextNode(source.childNodes[i].textContent || source.childNodes[i].innerText));
 						break;
 				}
+			}
 		}
 
 
@@ -201,8 +201,7 @@
 		 *  @param   mixed  source [one of: string HTML or DOMNode source]
 		 *  @return  string HTML
 		 */
-		simplify.clean = function(source)
-		{
+		simplify.clean = function(source) {
 			var wrapper = document.createElement('div'),
 				cleaned = wrapper.appendChild(document.createElement('div')),
 				origin = wrapper.appendChild(document.createElement('div'));
@@ -226,6 +225,7 @@
 		init();
 	}
 
-	konflux.htmlsimplify = kxHTMLSimplify;
+	//  Append the module to konflux
+	konflux.register('htmlsimplify', KonfluxHTMLSimplify);
 
 })(window.konflux);

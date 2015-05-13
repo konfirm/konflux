@@ -13,15 +13,13 @@
 
     var version = '$DEV$';
 
-
 	/**
 	 *  Polygon shapes based on konflux.points
 	 *  @module  polygon
 	 *  @note    available as konflux.polygon / kx.polygon
 	 *  @note    All public methods from konflux.point are inherited by konflux.polygon (allowing konflux.polygon to move, snap, scale, etc)
 	 */
-	function kxPolygon()
-	{
+	function KonfluxPolygon() {
 		/*jshint validthis: true*/
 		var polygon = this,
 			points = arguments.length && arguments[0] instanceof Array ? arguments[0] : Array.prototype.slice.call(arguments);
@@ -34,13 +32,14 @@
 		 *  @access  internal
 		 *  @return  void
 		 */
-		function init()
-		{
+		function init() {
 			var p;
 
-			for (p in points[0])
-				if (typeof points[0][p] === 'function' && !(p in polygon))
+			for (p in points[0]) {
+				if (typeof points[0][p] === 'function' && !(p in polygon)) {
 					polygon[p] = bridge(p);
+				}
+			}
 		}
 
 		/**
@@ -51,14 +50,14 @@
 		 *  @param   string   method
 		 *  @return  function handler
 		 */
-		function bridge(method)
-		{
-			return function(){
+		function bridge(method) {
+			return function() {
 				var arg = Array.prototype.slice.call(arguments),
 					result = batch.apply(polygon, [method].concat(arg));
 
-				if ('length' in result && result.length > 0 && result[0].x && result[0].y)
-					result = result[0] === points[0] ? polygon : new kxPolygon(result);
+				if ('length' in result && result.length > 0 && result[0].x && result[0].y) {
+					result = result[0] === points[0] ? polygon : new KonfluxPolygon(result);
+				}
 
 				return result;
 			};
@@ -76,15 +75,15 @@
 		 *  @param   mixed   arg N
 		 *  @return  Array   result
 		 */
-		function batch()
-		{
+		function batch() {
 			var arg = Array.prototype.slice.call(arguments),
 				method = arg.shift(),
 				result = [],
 				i;
 
-			for (i = 0; i < points.length; ++i)
+			for (i = 0; i < points.length; ++i) {
 				result.push(points[i][method].apply(points[i], arg));
+			}
 
 			return result;
 		}
@@ -94,13 +93,13 @@
 		 *  @name    close
 		 *  @type    method
 		 *  @access  public
-		 *  @return  kxPolygon polygon
+		 *  @return  KonfluxPolygon polygon
 		 */
-		polygon.close = function()
-		{
+		polygon.close = function() {
 			//  make sure we have a closed shape, if the last point is not equal to the first, we clone it and add it to the stack
-			if (!points[0].equal(points[points.length - 1]))
+			if (!points[0].equal(points[points.length - 1])) {
 				points.push(points[0].clone());
+			}
 
 			return polygon;
 		};
@@ -112,8 +111,7 @@
 		 *  @access  public
 		 *  @return  Array  konflux.points
 		 */
-		polygon.points = function()
-		{
+		polygon.points = function() {
 			return points;
 		};
 
@@ -122,12 +120,11 @@
 		 *  @name    draw
 		 *  @type    method
 		 *  @access  public
-		 *  @param   kxCanvas  canvas
+		 *  @param   KonfluxCanvas  canvas
 		 *  @param   string    color [optional, default rgb(255, 128, 0) - orange]
-		 *  @return  kxPolygon polygon
+		 *  @return  KonfluxPolygon polygon
 		 */
-		polygon.draw = function(canvas, color)
-		{
+		polygon.draw = function(canvas, color) {
 			canvas
 				.fillStyle(color || 'rgb(255,128,0)')
 				.line(points)
@@ -142,22 +139,23 @@
 		 *  @name    clone
 		 *  @type    method
 		 *  @access  public
-		 *  @return  kxPolygon polygon
+		 *  @return  KonfluxPolygon polygon
 		 */
-		polygon.clone = function()
-		{
+		polygon.clone = function() {
 			var clone = [],
 				i;
-			for (i = 0; i < points.length; ++i)
-				clone.push(points[i].clone());
 
-			return new kxPolygon(clone);
+			for (i = 0; i < points.length; ++i) {
+				clone.push(points[i].clone());
+			}
+
+			return new KonfluxPolygon(clone);
 		};
 
 		init();
 	}
 
-	//  register the polygon library in konflux
-	konflux.polygon = kxPolygon;
+	//  Append the module to konflux
+	konflux.register('polygon', new KonfluxPolygon);
 
 })(window.konflux);

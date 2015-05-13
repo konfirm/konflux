@@ -9,10 +9,9 @@
 /*jshint 'undefined': true, newcap: false, forin: false, maxstatements: 10, maxparams: 4, browser: true */
 //@dep: polygon
 ;(function(konflux){
-    'use strict';
+	'use strict';
 
-    var version = '$DEV$';
-
+	var version = '$DEV$';
 
 	/**
 	 *  Isometric shapes based on konflux.polygon
@@ -20,13 +19,11 @@
 	 *  @note    available as konflux.iso / kx.iso
 	 *  @note    All public methods from konflux.polygon are inherited by konflux.iso (allowing konflux.iso to move, snap, scale, etc (all in 2d space!))
 	 */
-	function kxISO()
-	{
+	function KonfluxISO() {
 		/*jshint validthis: true*/
 		var iso = this,
 			arg = Array.prototype.slice.call(arguments),
 			poly = arg[0] instanceof konflux.polygon ? arg[0] : new konflux.polygon(arg);
-
 
 		/**
 		 *  Initialize the isometric polygon, inheriting all public methods konflux.polygon instances have
@@ -35,13 +32,14 @@
 		 *  @access  internal
 		 *  @return  void
 		 */
-		function init()
-		{
+		function init() {
 			var p;
 
-			for (p in poly)
-				if (typeof poly[p] === 'function' && !(p in iso))
+			for (p in poly) {
+				if (konflux.isType('function', poly[p]) && !(p in iso)) {
 					iso[p] = bridge(p);
+				}
+			}
 		}
 
 		/**
@@ -52,14 +50,14 @@
 		 *  @param   string   method
 		 *  @return  function handler
 		 */
-		function bridge(method)
-		{
-			return function(){
+		function bridge(method) {
+			return function() {
 				var arg = Array.prototype.slice.call(arguments),
 					result = poly[method].apply(poly, arg);
 
-				if (result instanceof konflux.polygon)
-					result = result === poly ? iso : new kxISO(result);
+				if (result instanceof konflux.polygon) {
+					result = result === poly ? iso : new KonfluxISO(result);
+				}
 
 				return result;
 			};
@@ -73,14 +71,14 @@
 		 *  @param   Array  konflux.polygon
 		 *  @return  Array  konflux.polygon sorted
 		 */
-		function zOrder(polyList)
-		{
+		function zOrder(polyList) {
 			polyList.sort(function(a, b){
 				var pa = a.points()[0].min.apply(null, a),
 					pb = b.points()[0].min.apply(null, b);
 
 				return (pa.x + pa.y) - (pb.x + pb.y);
 			});
+
 			return polyList;
 		}
 
@@ -89,14 +87,13 @@
 		 *  @name    draw
 		 *  @type    method
 		 *  @access  public
-		 *  @param   kxCanvas  canvas
+		 *  @param   KonfluxCanvas  canvas
 		 *  @param   string    color [optional, default rgb(255, 128, 0) - orange]
 		 *  @param   number    isometric angle [optional, default 30 degrees - the most common angle]
 		 *  @param   number    height [optional, default 20]
-		 *  @return  kxISO     iso
+		 *  @return  KonfluxISO     iso
 		 */
-		iso.draw = function(canvas, color, iso, height)
-		{
+		iso.draw = function(canvas, color, iso, height) {
 			var shape = iso ? poly.iso(iso || 30) : poly.clone(),
 				buffer = {left:[], right:[]},
 				points = shape.points(),
@@ -105,10 +102,8 @@
 
 			height = height ? height : (iso ? Math.min(iso * 0.2, 16) : false);
 
-			if (height > 0)
-			{
-				for (i = 0; i < length; ++i)
-				{
+			if (height > 0) {
+				for (i = 0; i < length; ++i) {
 					j = (i + 1) % length;
 					buffer[Math.floor(Math.abs(points[i].angle(points[j]))) === 2 ? 'left' : 'right'].push(new konflux.polygon(
 						points[i],
@@ -117,14 +112,15 @@
 						points[i].clone().move(0, height)
 					));
 				}
-				for (j in buffer)
-				{
+
+				for (j in buffer) {
 					buffer[j] = zOrder(buffer[j]);
-					for (i in buffer[j])
+					for (i in buffer[j]) {
 						buffer[j][i]
 							.draw(canvas, color)
 							.draw(canvas, j === 'left' ? 'rgba(0,0,0,.2)' : 'rgba(0,0,0,.1)')
 						;
+					}
 				}
 			}
 
@@ -138,17 +134,16 @@
 		 *  @name    clone
 		 *  @type    method
 		 *  @access  public
-		 *  @return  kxISO iso
+		 *  @return  KonfluxISO iso
 		 */
-		iso.clone = function()
-		{
-			return new kxISO(poly.clone());
+		iso.clone = function() {
+			return new KonfluxISO(poly.clone());
 		};
 
 		init();
 	}
 
-	//  register kxISO as konflux.iso
-	konflux.iso = kxISO;
+	//  Append the module to konflux
+	konflux.register('iso', KonfluxISO);
 
 })(window.konflux);

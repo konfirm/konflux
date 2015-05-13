@@ -184,8 +184,7 @@
 	 *  @module  logo
 	 *  @note    available as konflux.logo / kx.logo
 	 */
-	function kxLogo()
-	{
+	function KonfluxLogo() {
 		/*jshint validthis: true*/
 		var logo = this;
 
@@ -196,11 +195,12 @@
 		 *  @access  internal
 		 *  @return  string name
 		 */
-		function first()
-		{
+		function first() {
 			var p;
-			for (p in design)
+			for (p in design) {
 				return p;
+			}
+
 			return false;
 		}
 
@@ -213,9 +213,9 @@
 		 *  @param   array  design instructions
 		 *  @return  array  design instructions
 		 */
-		function add(name, config)
-		{
+		function add(name, config) {
 			design[name] = config;
+
 			return design[name];
 		}
 
@@ -227,20 +227,23 @@
 		 *  @param   string name
 		 *  @return  array  dimensions
 		 */
-		function size(name)
-		{
+		function size(name) {
 			var result = false,
 				p, i, j;
 
-			if (name in design)
-			{
+			if (name in design) {
 				result = konflux.point();
-				for (i = 0; i < design[name].length; ++i)
-					for (p in design[name][i])
-						for (j = 0; j < design[name][i][p].length; ++j)
-							if (design[name][i][p][j].x && design[name][i][p][j].y)
+				for (i = 0; i < design[name].length; ++i) {
+					for (p in design[name][i]) {
+						for (j = 0; j < design[name][i][p].length; ++j) {
+							if (design[name][i][p][j].x && design[name][i][p][j].y) {
 								result = result.max(design[name][i][p][j]);
+							}
+						}
+					}
+				}
 			}
+
 			return result;
 		}
 
@@ -252,14 +255,15 @@
 		 *  @param   string name
 		 *  @return  array  design instructions (bool false if the design did not exist)
 		 */
-		function remove(name)
-		{
+		function remove(name) {
 			var result = false;
-			if (name in design)
-			{
+
+			if (name in design) {
 				result = design[name];
+
 				delete design[name];
 			}
+
 			return result;
 		}
 
@@ -269,22 +273,26 @@
 		 *  @type    function
 		 *  @access  internal
 		 *  @param   string design (optional, default 'konflux', the first available design)
-		 *  @return  kxCanvasContext
+		 *  @return  KonfluxCanvasContext
 		 */
-		function render(name)
-		{
+		function render(name) {
 			var c, p, i;
+
 			name = name || first();
 
-			if (name in design)
-			{
+			if (name in design) {
 				c = size(name);
 				c = konflux.canvas.create(c.x, c.y);
-				for (i = 0; i < design[name].length; ++i)
-					for (p in design[name][i])
+
+				for (i = 0; i < design[name].length; ++i) {
+					for (p in design[name][i]) {
 						c[p].apply(null, design[name][i][p]);
+					}
+				}
+
 				return c;
 			}
+
 			return false;
 		}
 
@@ -297,10 +305,7 @@
 		 *  @param   array  design instructions
 		 *  @return  array  design instructions
 		 */
-		logo.add = function(name, config)
-		{
-			return add(name, config);
-		};
+		logo.add = add;
 
 		/**
 		 *  Remove a named design from the list of possible designs to render
@@ -310,10 +315,7 @@
 		 *  @param   string name
 		 *  @return  array  design instructions (bool false if the design did not exist)
 		 */
-		logo.remove = function(name)
-		{
-			return remove(name);
-		};
+		logo.remove = remove;
 
 		/**
 		 *  Render given design into an newly created canvas element and append it to target
@@ -321,11 +323,11 @@
 		 *  @type    method
 		 *  @access  public
 		 *  @param   string design
-		 *  @return  kxCanvasContext
+		 *  @return  KonfluxCanvasContext
 		 */
-		logo.append = function(target, design)
-		{
+		logo.append = function(target, design) {
 			var canvas = render(design);
+
 			return canvas ? canvas.append(target) : false;
 		};
 
@@ -337,9 +339,9 @@
 		 *  @param   string design
 		 *  @return  string dataURL
 		 */
-		logo.data = function(name)
-		{
+		logo.data = function(name) {
 			var canvas = render(name);
+
 			return canvas ? canvas.data() : false;
 		};
 
@@ -351,15 +353,15 @@
 		 *  @param   string design
 		 *  @return  DOMElement image
 		 */
-		logo.image = function(name)
-		{
+		logo.image = function(name) {
 			var img = document.createElement('img');
 			img.src = logo.data(name);
+
 			return img;
 		};
 	}
 
-	//  Append the logo module to konflux
-	konflux.logo = kxLogo;
+	//  Append the module to konflux
+	konflux.register('logo', KonfluxLogo);
 
 })(window.konflux);

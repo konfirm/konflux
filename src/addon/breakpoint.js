@@ -235,7 +235,7 @@
 		};
 	}
 
-	//  Append the breakpoint module to konflux
+	//  Append the module to konflux
 	konflux.register('breakpoint', new KonfluxBreakPoint());
 
 })(window.konflux);

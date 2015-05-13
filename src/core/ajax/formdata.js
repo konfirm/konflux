@@ -1,11 +1,11 @@
 /**
  *  FormData stub, in case a browser doesn't feature the FormData object
- *  @name    kxFormData
+ *  @name    KonfluxFormData
  *  @type    module
  *  @access  internal
- *  @return  kxFormData object
+ *  @return  KonfluxFormData object
  */
-function kxFormData() {
+function KonfluxFormData() {
 	'use strict';
 
 	/*global  konflux*/
@@ -15,13 +15,13 @@ function kxFormData() {
 		data = {};
 
 	/**
-	 *  Append a key/value pair to the kxFormData instance
+	 *  Append a key/value pair to the KonfluxFormData instance
 	 *  @name    append
 	 *  @type    method
 	 *  @access  public
 	 *  @param   string key
 	 *  @param   mixed  value (can be anything but an object)
-	 *  @return  kxFormData reference
+	 *  @return  KonfluxFormData reference
 	 */
 	formdata.append = function(key, value) {
 		if (konflux.isType('object', value)) {
@@ -32,7 +32,7 @@ function kxFormData() {
 	};
 
 	/**
-	 *  Serialize the kxFormData instance into a string
+	 *  Serialize the KonfluxFormData instance into a string
 	 *  @name    serialize
 	 *  @type    method
 	 *  @access  public
@@ -50,14 +50,14 @@ function kxFormData() {
 	};
 
 	/**
-	 *  Convenience method to make kxFormData serialization work if used as string
+	 *  Convenience method to make KonfluxFormData serialization work if used as string
 	 *  @name    toString
 	 *  @type    method
 	 *  @access  public
 	 *  @return  string urlencodes data
-	 *  @note    This method is autmatically called when a kxFormData instance is used as string (e.g. kxFormData + '')
+	 *  @note    This method is autmatically called when a KonfluxFormData instance is used as string (e.g. KonfluxFormData + '')
 	 */
-	kxFormData.toString = function() {
+	KonfluxFormData.toString = function() {
 		return formdata.serialize();
 	};
 }

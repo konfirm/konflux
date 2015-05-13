@@ -13,7 +13,7 @@
 
 	var version = '$DEV$';
 
-	/*global kxCanvasContext*/
+	/*global KonfluxCanvasContext*/
 	//= include canvas/context.js
 
 	/**
@@ -21,7 +21,7 @@
 	 *  @module  canvas
 	 *  @note    available as konflux.canvas / kx.canvas
 	 */
-	function kxCanvas() {
+	function KonfluxCanvas() {
 		/*jshint validthis: true*/
 		var canvas = this;
 
@@ -33,7 +33,7 @@
 		 *  @param   number width
 		 *  @param   number height
 		 *  @param   object default settings
-		 *  @return  object kxCanvasContext
+		 *  @return  object KonfluxCanvasContext
 		 */
 		canvas.create = function(width, height, defaults) {
 			var object = document.createElement('canvas');
@@ -50,10 +50,10 @@
 		 *  @access  public
 		 *  @param   DOMElement canvas
 		 *  @param   object default settings
-		 *  @return  object kxCanvasContext
+		 *  @return  object KonfluxCanvasContext
 		 */
 		canvas.init = function(object, defaults) {
-			return new kxCanvasContext(object, defaults);
+			return new KonfluxCanvasContext(object, defaults);
 		};
 
 		/**
@@ -62,16 +62,16 @@
 		 *  @type    method
 		 *  @access  public
 		 *  @param   DOMElement target
-		 *  @param   mixed source (one of: kxCanvasContext or number width)
+		 *  @param   mixed source (one of: KonfluxCanvasContext or number width)
 		 *  @param   number height (ignored if the second arguments is not a number)
-		 *  @return  object kxCanvasContext (bool false if the mixed source did not lead to an kxCanvasContext instance)
+		 *  @return  object KonfluxCanvasContext (bool false if the mixed source did not lead to an KonfluxCanvasContext instance)
 		 */
 		canvas.append = function(target, mixed) {
 			if (konflux.isType('number', mixed)) {
 				mixed = canvas.create(mixed, arguments.length > 2 ? arguments[2] : mixed);
 			}
 
-			if (mixed instanceof kxCanvasContext) {
+			if (mixed instanceof KonfluxCanvasContext) {
 				return mixed.append(target);
 			}
 
@@ -79,7 +79,7 @@
 		};
 	}
 
-	//  register kxCanvas as konflux.canvas
-	konflux.canvas = new kxCanvas();
+	//  Append the module to konflux
+	konflux.register('canvas', new KonfluxCanvas());
 
 })(window.konflux);
