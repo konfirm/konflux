@@ -6,7 +6,7 @@
 function KonfluxDOM() {
 	'use strict';
 
-	/*global konflux, document, type, KonfluxIterator, elementReference*/
+	/*global konflux, document, type, KonfluxIterator*/
 
 	/*jshint validthis: true*/
 	var dom = this;
@@ -197,6 +197,54 @@ function KonfluxDOM() {
 		};
 	}
 
+	/**
+	 *  Get the unique reference for given DOM element, adds it if it does not yet exist
+	 *  @name    elementReference
+	 *  @type    function
+	 *  @access  internal
+	 *  @param   DOMElement element
+	 *  @param   bool       hidden [optional, default false]
+	 *  @return  string unique reference
+	 *  @note    this function adds an attribute 'data-kxref' to the element if the reference is not hidden
+	 *           (the hidden option is not considered to be best practise)
+	 */
+	function elementReference(element, hidden) {
+		var name = 'kxref',
+			prepare = {
+				window: window,
+				document: document,
+				root: document.documentElement,
+				head: document.head,
+				body: document.body
+			},
+			reference, p;
+
+		//  we don't ever contaminate the window object, document, documentElement or body element
+		for (p in prepare) {
+			if (element === prepare[p]) {
+				return p;
+			}
+		}
+
+		if (!element || !('nodeType' in element) || element.nodeType !== 1) {
+			return false;
+		}
+		else {
+			return hidden ? (name in element ? element[name] : null) : element.getAttribute('data-' + name);
+		}
+
+		//  if no reference was set yet, do so now
+		reference = konflux.unique();
+
+		if (hidden) {
+			element[name] = reference;
+		}
+		else {
+			element.setAttribute('data-' + name, reference);
+		}
+
+		return reference;
+	}
 
 	/**
 	 *  Create a dom structure from given variable
