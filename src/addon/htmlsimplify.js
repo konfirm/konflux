@@ -7,13 +7,12 @@
  */
 
 //@dep: array, browser, iterator, style
-;(function(konflux){
+;(function(konflux) {
 	'use strict';
 
 	/*global window, document*/
 
 	var version = '$DEV$';
-
 
 	/**
 	 *  HTMLSimplify object, designed to rewrite (small) portions of HTML to a configurable format
@@ -77,7 +76,7 @@
 
 			//  if option is an array, we call this function for each value
 			if (option instanceof Array) {
-				konflux.iterator(option).each(function(){
+				konflux.iterator(option).each(function() {
 					if (!result) {
 						result = styleMatch(value, this);
 					}
@@ -141,7 +140,7 @@
 
 			//  triage, determine if the source element matches any of the allowed ones
 			if (match && match.apply(source, [settings.selector.join(',')])) {
-				konflux.iterator(settings.selector).each(function(){
+				konflux.iterator(settings.selector).each(function() {
 					//  determine which selector matches (could be multiple)
 					if (match.apply(source, [this])) {
 						//  if the selector matches a node name, we shift the scope to this node
@@ -177,21 +176,23 @@
 
 			for (i = 0; i < source.childNodes.length; ++i) {
 				switch (source.childNodes[i].nodeType) {
-					case 1:  //  DOMElement
+
+					//  DOMElement
+					case 1:
 						clean(
 							source.childNodes[i],
 							unify(source.childNodes[i], target)
 						);
 						break;
 
-					case 3:  //  DOMText
-					case 5:  //  CDATASection
+					//  DOMText, CDATASection
+					case 3:
+					case 5:
 						target.appendChild(document.createTextNode(source.childNodes[i].textContent || source.childNodes[i].innerText));
 						break;
 				}
 			}
 		}
-
 
 		/**
 		 *  Create a unified HTML string from given source
@@ -212,7 +213,7 @@
 				display: 'none'
 			});
 			document.body.appendChild(wrapper);
-			origin.innerHTML = 'string' === typeof source ? source : source.innerHTML;
+			origin.innerHTML = typeof source === 'string' ? source : source.innerHTML;
 
 			clean(origin, cleaned);
 

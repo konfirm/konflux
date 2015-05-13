@@ -1,4 +1,5 @@
 ;(function(konflux) {
+	'use strict';
 
 	/**
 	 *  Timing utils
@@ -6,12 +7,11 @@
 	 *  @note    available as konflux.timing / kx.timing
 	 */
 	function KonfluxTiming() {
-		'use strict';
-
 		/*jshint validthis: true*/
 		var timing = this,
-			stack = {},
-			raf;
+			stack = {};
+
+		/*global KonfluxTimingDelay*/
 
 		//= include timing/delay.js
 
@@ -24,7 +24,7 @@
 		 *  @return  void
 		 */
 		function remove(reference) {
-			if ('undefined' !== typeof stack[reference]) {
+			if (typeof stack[reference] !== 'undefined') {
 				//  cancel the stack reference
 				stack[reference].cancel();
 
@@ -41,14 +41,17 @@
 		 *  @param   function handle
 		 *  @param   Number   delay
 		 *  @param   string   reference
-		 *  @return  KonfluxDelay  object
+		 *  @return  KonfluxTimingDelay  object
 		 */
 		function create(handler, delay, reference) {
-			if (reference)
+			if (reference) {
 				remove(reference);
-			else
+			}
+			else {
 				reference = handler.toString() || konflux.unique();
-			stack[reference] = new KonfluxDelay(handler, delay || 0, reference);
+			}
+
+			stack[reference] = new KonfluxTimingDelay(handler, delay || 0, reference);
 
 			return stack[reference];
 		}
@@ -72,7 +75,7 @@
 		 *  @param   function handle
 		 *  @param   Number   delay
 		 *  @param   string   reference
-		 *  @return  KonfluxDelay  object
+		 *  @return  KonfluxTimingDelay  object
 		 */
 		timing.create = create;
 	}

@@ -6,24 +6,23 @@
  *    \/_/     More information: http://konfirm.net/konflux
  */
 
-/*jshint 'undefined': true, newcap: false, forin: false, maxstatements: 10, maxparams: 4, browser: true */
 //@dep: point
-;(function(konflux){
+;(function(konflux) {
 	'use strict';
 
-    var version = '$DEV$';
+	var version = '$DEV$';
 
 	/**
 	 *  Polygon shapes based on konflux.points
 	 *  @module  polygon
 	 *  @note    available as konflux.polygon / kx.polygon
-	 *  @note    All public methods from konflux.point are inherited by konflux.polygon (allowing konflux.polygon to move, snap, scale, etc)
+	 *  @note    All public methods from konflux.point are inherited by konflux.polygon
+	 *           (allowing konflux.polygon to move, snap, scale, etc)
 	 */
 	function KonfluxPolygon() {
 		/*jshint validthis: true*/
 		var polygon = this,
 			points = arguments.length && arguments[0] instanceof Array ? arguments[0] : Array.prototype.slice.call(arguments);
-
 
 		/**
 		 *  Initialize the polygon, inheriting all public methods konflux.point instances have

@@ -1,4 +1,5 @@
 ;(function(konflux) {
+	'use strict';
 
 	/**
 	 *  KonfluxPoint object, handling the (heavy) lifting of working with points
@@ -9,8 +10,6 @@
 	 *  @note    available as konflux.point / kx.point
 	 */
 	function KonfluxPoint(x, y) {
-		'use strict';
-
 		/*jshint validthis: true*/
 		var point = this;
 

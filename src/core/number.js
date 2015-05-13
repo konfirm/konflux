@@ -1,4 +1,5 @@
 ;(function(konflux) {
+	'use strict';
 
 	/**
 	 *  Number utils
@@ -6,13 +7,8 @@
 	 *  @note    available as konflux.number / kx.number
 	 */
 	function KonfluxNumber() {
-		'use strict';
-
-		/*global konflux*/
-
 		/*jshint validthis: true*/
 		var number = this;
-
 
 		/**
 		 *  Test wheter given input is an even number
@@ -78,10 +74,13 @@
 			//  check whether default values need to be assigned
 			point     = !konflux.isType('undefined', point) ? point : '.';
 			separator = !konflux.isType('undefined', separator) || arguments.length < 3 ? separator : ',';
+
 			//  format the number
 			input = +(('' + input).replace(/[,\.]+/, '.'));
+
 			//  round the last desired decimal
 			input = multiplier > 0 ? Math.round(input * multiplier) / multiplier : input;
+
 			//  split input into int value and decimal value
 			input = ('' + (!isFinite(input) ? 0 : +input)).split('.');
 

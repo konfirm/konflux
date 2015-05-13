@@ -71,15 +71,18 @@
 				if (date < (new Date()).getTime() && !konflux.isType('undefined', jar[key])) {
 					delete jar[key];
 				}
+
 				pairs.push('expires=' + date);
 			}
 
 			if (!konflux.isType('undefined', path) && path) {
 				pairs.push('path=' + path);
 			}
+
 			if (!konflux.isType('undefined', domain) && domain) {
 				pairs.push('domain=' + domain);
 			}
+
 			if (!konflux.isType('undefined', secure) && secure) {
 				pairs.push('secure');
 			}
@@ -101,7 +104,6 @@
 		function getCookie(key) {
 			return !konflux.isType('undefined', jar[key]) ? jar[key] : null;
 		}
-
 
 		//  expose
 		/**

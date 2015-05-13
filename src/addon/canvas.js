@@ -6,14 +6,14 @@
  *    \/_/     More information: http://konfirm.net/konflux
  */
 
-/*jshint 'undefined': true, newcap: false, forin: false, maxstatements: 10, maxparams: 4, browser: true */
 //@dep: array
-;(function(konflux){
+;(function(konflux) {
 	'use strict';
 
 	var version = '$DEV$';
 
 	/*global KonfluxCanvasContext*/
+
 	//= include canvas/context.js
 
 	/**

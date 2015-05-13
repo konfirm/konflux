@@ -1,4 +1,5 @@
 ;(function(konflux) {
+	'use strict';
 
 	/**
 	 *  Handle URL's/URI's
@@ -6,10 +7,6 @@
 	 *  @note    available as konflux.url / kx.url
 	 */
 	function KonfluxURL() {
-		'use strict';
-
-		/*global konflux, window*/
-
 		/*jshint validthis: true*/
 		var url = this;
 

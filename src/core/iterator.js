@@ -1,4 +1,5 @@
 ;(function(konflux) {
+	'use strict';
 
 	/**
 	 *  Iterator object, providing a uniform mechanism to traverse collections (Array, Object, DOMNodeList, etc)
@@ -8,10 +9,6 @@
 	 *  @note    available as konflux.iterator / kx.iterator
 	 */
 	function KonfluxIterator(collection) {
-		'use strict';
-
-		/*global konflux*/
-
 		/*jshint validthis: true*/
 		var iterator = this,
 			keys, current;
@@ -135,7 +132,6 @@
 			return false;
 		}
 
-
 		/**
 		 *  Create a function which implements a specific signature (which occurs repeatedly)
 		 *  @name    implement
@@ -214,7 +210,6 @@
 			return collection instanceof Array ? result : keys[result];
 		};
 
-
 		/**
 		 *  Obtain a member from the underlying collection
 		 *  @name    item
@@ -243,7 +238,7 @@
 				current = 0;
 			}
 
-			return 'undefined' !== typeof keys[current] ? iterator.item(keys[current]) : false;
+			return typeof keys[current] !== 'undefined' ? iterator.item(keys[current]) : false;
 		};
 
 		/**
@@ -311,7 +306,7 @@
 		 *  @return  mixed value
 		 */
 		iterator.previous = function() {
-			current = Math.max('undefined' !== typeof current ? current - 1 : 0, -1);
+			current = Math.max(typeof current !== 'undefined' ? current - 1 : 0, -1);
 
 			return iterator.current();
 		};
@@ -334,7 +329,7 @@
 		 *  @return  mixed value
 		 */
 		iterator.next = function() {
-			current = Math.min('undefined' !== typeof current ? current + 1 : 0, keys.length);
+			current = Math.min(typeof current !== 'undefined' ? current + 1 : 0, keys.length);
 
 			return iterator.current();
 		};

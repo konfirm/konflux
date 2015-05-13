@@ -3,10 +3,8 @@
   "private": true,
   "version": "1.0.0-alpha",
   "description": "Project template for gulp based development flows",
-  "private": true,
   "main": "index.js",
-  "scripts": {
-  },
+  "scripts": {},
   "keywords": [
     "konflux"
   ],
@@ -21,6 +19,8 @@
     "gulp": "^3.8.11",
     "gulp-concat": "^2.5.2",
     "gulp-include": "^1.1.1",
+    "gulp-jscs": "^1.6.0",
+    "gulp-jshint": "^1.10.0",
     "gulp-markdown": "^1.0.0",
     "gulp-plumber": "^1.0.0",
     "gulp-rename": "^1.2.2",

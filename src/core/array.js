@@ -1,4 +1,5 @@
 ;(function(konflux) {
+	'use strict';
 
 	/**
 	 *  Array utils
@@ -6,10 +7,6 @@
 	 *  @note    available as konflux.array / kx.array
 	 */
 	function KonfluxArray() {
-		'use strict';
-
-		/*global type*/
-
 		/*jshint validthis: true*/
 		var array = this;
 

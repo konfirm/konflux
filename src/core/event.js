@@ -1,4 +1,5 @@
 ;(function(konflux) {
+	'use strict';
 
 	/**
 	 *  Event attachment handler
@@ -6,14 +7,12 @@
 	 *  @note    available as konflux.event / Konflux.event
 	 */
 	function KonfluxEvent() {
-		'use strict';
-
-		/*global konflux, KonfluxEventDelegate, window, document, deprecate*/
-
 		/*jshint validthis: true*/
 		var event = this,
 			queue = {},
 			delegate, touch;
+
+		/*global KonfluxEventDelegate*/
 
 		//= include event/delegate.js
 
@@ -45,7 +44,6 @@
 				}
 			}
 		}
-
 
 		/**
 		 *  Get the event name for given event
@@ -719,7 +717,7 @@
 			}
 
 			//  we cannot use the event.listen method, as we need very different event listeners
-			if ('undefined' === typeof queue.ready) {
+			if (typeof queue.ready === 'undefined') {
 				queue.ready = [];
 
 				if (document.addEventListener) {

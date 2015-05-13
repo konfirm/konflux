@@ -1,4 +1,5 @@
 ;(function(konflux) {
+	'use strict';
 
 	/**
 	 *  Handle AJAX requests
@@ -6,14 +7,12 @@
 	 *  @note    available as konflux.ajax / kx.ajax
 	 */
 	function KonfluxAjax() {
-		'use strict';
-
-		/*global konflux, XMLHttpRequest, combine, type, File, Blob, FormData*/
-
 		/*jshint validthis: true*/
 		var ajax = this,
 			stat = {},
 			header = false;
+
+		/*global KonfluxFormData*/
 
 		//= include ajax/formdata.js
 
@@ -78,7 +77,7 @@
 				data = null;
 			}
 
-			xhr.onload = xhrComplete();
+			xhr.onload = xhrComplete(xhr, config, type);
 
 			if ('progress' in config && konflux.isType('function', config.progress)) {
 				konflux.event.add(xhr.upload, 'progress', config.progress);
@@ -110,9 +109,10 @@
 		 *  @access  internal
 		 *  @param   XMLHTTPRequest  xhr
 		 *  @param   object          config
+		 *  @param   string          type
 		 *  @return  function handler
 		 */
-		function xhrComplete(xhr, config) {
+		function xhrComplete(xhr, config, type) {
 			return function() {
 				var status = Math.floor(this.status * 0.01),
 					state = false;
@@ -179,16 +179,16 @@
 		 *  @return  FormData (or KonfluxFormData) object
 		 */
 		function prepareData(data, name, formData) {
-			var r = formData || ('undefined' !== typeof FormData ? new FormData() : new KonfluxFormData()),
+			var r = formData || (typeof FormData !== 'undefined' ? new FormData() : new KonfluxFormData()),
 				p;
 
-			if ('undefined' !== typeof File && data instanceof File) {
+			if (typeof File !== 'undefined' && data instanceof File) {
 				r.append(name, data, data.name);
 			}
-			else if ('undefined' !== typeof Blob && data instanceof Blob) {
+			else if (typeof Blob !== 'undefined' && data instanceof Blob) {
 				r.append(name, data, 'blob');
 			}
-			else if (data instanceof Array || ('undefined' !== FileList && data instanceof FileList)) {
+			else if (data instanceof Array || (FileList !== 'undefined' && data instanceof FileList)) {
 				for (p = 0; p < data.length; ++p) {
 					prepareData(data[p], (name || '') + '[' + p + ']', r);
 				}
@@ -214,29 +214,34 @@
 		 *  @return  function handler
 		 */
 		function requestType(t) {
-			var handler = function(config){
-				switch (konflux.type(config)) {
-					case 'object':
-						config.type = t;
-						break;
+			var handler = function(config) {
+					switch (konflux.type(config)) {
+						case 'object':
+							config.type = t;
+							break;
 
-					case 'string':
 						//  we assume an URL
-						config = {
-							url: config,
-							type: t
-						};
-						break;
+						case 'string':
+							config = {
+								url: config,
+								type: t
+							};
 
-					default:
-						config = {
-							type: t
-						};
-				}
-				return request(config);
-			};
+							break;
+
+						default:
+							config = {
+								type: t
+							};
+
+							break;
+					}
+
+					return request(config);
+				};
+
 			stat[t.toUpperCase()] = 0;
-			konflux.observer.subscribe('konflux.ajax.' + t.toLowerCase(), function(ob, config){
+			konflux.observer.subscribe('konflux.ajax.' + t.toLowerCase(), function(ob, config) {
 				handler(config);
 			});
 

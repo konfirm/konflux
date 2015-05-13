@@ -1,4 +1,5 @@
 ;(function(konflux) {
+	'use strict';
 
 	/**
 	 *  Browser/feature detection
@@ -6,10 +7,6 @@
 	 *  @note    available as konflux.browser / kx.browser
 	 */
 	function KonfluxBrowser() {
-		'use strict';
-
-		/*global konflux, window, document, navigator*/
-
 		/*jshint validthis: true*/
 		var browser = this,
 			support = {
@@ -71,6 +68,7 @@
 		 */
 		function getFeature(feature, scope) {
 			var vendor = vendorPrefix(),
+
 				//  the objects to search for the feature
 				object = scope ? scope : [
 					window,

@@ -6,13 +6,11 @@
  *    \/_/     More information: http://konfirm.net/konflux
  */
 
-/*jshint 'undefined': true, curly: false, browser: true, newcap: false*/
 //@dep: dom, browser, observer
 ;(function(konflux) {
 	'use strict';
 
 	var version = '$DEV$';
-
 
 	/**
 	 *  Breakpoint object, add/remove classes on specified object (or body) when specific browser dimensions are met

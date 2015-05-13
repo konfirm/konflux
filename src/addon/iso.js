@@ -6,9 +6,8 @@
  *    \/_/     More information: http://konfirm.net/konflux
  */
 
-/*jshint 'undefined': true, newcap: false, forin: false, maxstatements: 10, maxparams: 4, browser: true */
 //@dep: polygon
-;(function(konflux){
+;(function(konflux) {
 	'use strict';
 
 	var version = '$DEV$';
@@ -64,7 +63,8 @@
 		}
 
 		/**
-		 *  Sort an array of konflux.polygons to their most likely Z-axis (assumes the same Z-axis voor all polygons)
+		 *  Sort an array of konflux.polygons to their most likely Z-axis
+		 *  (assumes the same Z-axis for all polygons)
 		 *  @name    zOrder
 		 *  @type    function
 		 *  @access  internal
@@ -72,7 +72,7 @@
 		 *  @return  Array  konflux.polygon sorted
 		 */
 		function zOrder(polyList) {
-			polyList.sort(function(a, b){
+			polyList.sort(function(a, b) {
 				var pa = a.points()[0].min.apply(null, a),
 					pb = b.points()[0].min.apply(null, b);
 

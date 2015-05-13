@@ -1,4 +1,5 @@
 ;(function(konflux) {
+	'use strict';
 
 	/**
 	 *  Storage object, a simple wrapper for localStorage
@@ -6,10 +7,6 @@
 	 *  @note    available as konflux.storage / kx.storage
 	 */
 	function KonfluxStorage() {
-		'use strict';
-
-		/*global konflux, window*/
-
 		/*jshint validthis: true*/
 		var ls = this,
 			maxSize = 2048,

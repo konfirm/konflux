@@ -9,10 +9,10 @@
  *  @note    By default all methods available in the (browser own) canvas context are made available, the ones
  *           documented are merely the ones overrided/added.
  */
-function kxCanvasContext(canvas, defaults) {
+function KonfluxCanvasContext(canvas, defaults) {
 	'use strict';
 
-	/*global konflux, 'undefined'*/
+	/*global konflux*/
 
 	/*jshint validthis: true*/
 	var context = this;
@@ -83,6 +83,7 @@ function kxCanvasContext(canvas, defaults) {
 			if (konflux.isType('undefined', value)) {
 				return context.ctx2d.canvas[key];
 			}
+
 			if (!ro) {
 				context.ctx2d.canvas[key] = value;
 			}
@@ -106,6 +107,7 @@ function kxCanvasContext(canvas, defaults) {
 			if (konflux.isType('undefined', value)) {
 				return context.ctx2d[key];
 			}
+
 			if (!ro) {
 				context.ctx2d[key] = value;
 			}
@@ -167,7 +169,6 @@ function kxCanvasContext(canvas, defaults) {
 
 		return context;
 	}
-
 
 	/**
 	 *  Resize the current canvas into a new one

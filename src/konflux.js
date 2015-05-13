@@ -271,8 +271,7 @@
 
 				return callback.apply(scope || null, arguments);
 			};
-		}
-
+		};
 
 		/**
 		 *  Register a module or function onto the kx object
@@ -296,7 +295,7 @@
 		init();
 	}
 
-	(function(konflux){
+	(function(konflux) {
 		//  expose object instances
 
 		//= include core/observer.js

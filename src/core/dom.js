@@ -1,4 +1,5 @@
 ;(function(konflux) {
+	'use strict';
 
 	/**
 	 *  DOM Structure helper
@@ -6,10 +7,6 @@
 	 *  @note    available as konflux.dom / kx.dom
 	 */
 	function KonfluxDOM() {
-		'use strict';
-
-		/*global konflux, document, type, KonfluxIterator*/
-
 		/*jshint validthis: true*/
 		var dom = this;
 
@@ -319,7 +316,7 @@
 		dom.stackLevel = stackOrderIndex;
 	}
 
-	;(function(dom){
+	;(function(dom) {
 		konflux.register('dom', dom);
 
 		/**

@@ -1,4 +1,5 @@
 ;(function(konflux) {
+	'use strict';
 
 	/**
 	 *  String utils
@@ -6,10 +7,6 @@
 	 *  @note    available as konflux.string / kx.string
 	 */
 	function KonfluxString() {
-		'use strict';
-
-		/*global konflux*/
-
 		/*jshint validthis: true*/
 		var string = this;
 
@@ -22,7 +19,6 @@
 		string.TRIM_RIGHT  = 3;
 		string.CHUNK_START = 1;
 		string.CHUNK_END   = 2;
-
 
 		/**
 		 *  Javascript port of Java's String.hashCode()
@@ -251,7 +247,6 @@
 
 			return input.substring(f, t + 1);
 		};
-
 
 		/**
 		 *  Reverse given string

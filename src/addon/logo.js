@@ -6,14 +6,14 @@
  *    \/_/     More information: http://konfirm.net/konflux
  */
 
-/*jshint 'undefined': true, newcap: false, forin: false, maxstatements: 10, maxparams: 4, browser: true */
 //@dep: canvas, point
-;(function(konflux){
+;(function(konflux) {
 	'use strict';
 
 	var version = '$DEV$',
 		design = {
 			konflux: [
+
 				//  remove the outline
 				{
 					lineWidth:[0],
@@ -125,11 +125,13 @@
 				}
 			],
 			konfirm: [
+
 				//  remove the outline
 				{
 					lineWidth:[0],
 					strokeStyle:['transparent']
 				},
+
 				//  the dark base segment
 				{
 					line:[
@@ -144,6 +146,7 @@
 					fillStyle:['rgb(25,25,25)'],
 					fill:[]
 				},
+
 				//  the main color fill
 				{
 					line:[
@@ -160,6 +163,7 @@
 					fillStyle:[Math.round(Math.random()) === 1 ? 'rgb(10,220,250)' : 'rgb(200,250,10)'],
 					fill:[]
 				},
+
 				//  the opaque darker overlay
 				{
 					globalAlpha:[0.2],
@@ -177,7 +181,6 @@
 				}
 			]
 		};
-
 
 	/**
 	 *  Logo object, creates the konflux logo on canvas

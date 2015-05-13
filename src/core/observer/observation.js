@@ -11,7 +11,7 @@
 function KonfluxObservation(type, handle, reference) {
 	'use strict';
 
-	/*global time, elapsed, disable, active*/
+	/*global konflux, disable, active*/
 
 	/*jshint validthis: true*/
 	var observation = this;

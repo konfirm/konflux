@@ -1,4 +1,5 @@
 ;(function(konflux) {
+	'use strict';
 
 	/**
 	 *  Style(sheet) manipulation
@@ -6,10 +7,6 @@
 	 *  @note    available as konflux.style / kx.style
 	 */
 	function KonfluxStyle() {
-		'use strict';
-
-		/*global konflux, window, document*/
-
 		/*jshint validthis: true*/
 		var style = this;
 
@@ -119,6 +116,7 @@
 					if (list.length > 0) {
 						match = [list[0]];
 					}
+
 					break;
 
 				//  get the last stylesheet from the list of selected stylesheets
@@ -126,6 +124,7 @@
 					if (list.length > 0) {
 						match = [list[list.length - 1]];
 					}
+
 					break;
 
 				default:
@@ -137,6 +136,7 @@
 					else if (!name) {
 						match = false;
 					}
+
 					//  search for the stylesheet(s) whose href matches the given name
 					else if (list.length > 0) {
 						for (i = 0; i < list.length; ++i) {
@@ -254,11 +254,20 @@
 		 */
 		function normalizeValue(value) {
 			var pattern = {
-					' ': /\s+/g,               //  minimize whitespace
-					'"': /["']/g,              //  unify quotes
-					',': /\s*,\s*/g,           //  unify whitespace around separators
-					'.': /\b0+\./g,            //  remove leading 0 from decimals
-					'0': /0(?:px|em|%|pt)\b/g  //  remove units from 0 value
+					//  minimize whitespace
+					' ': /\s+/g,
+
+					//  unify quotes
+					'"': /["']/g,
+
+					//  unify whitespace around separators
+					',': /\s*,\s*/g,
+
+					//  remove leading 0 from decimals
+					'.': /\b0+\./g,
+
+					//  remove units from 0 value
+					0: /0(?:px|em|%|pt)\b/g
 				},
 				p;
 

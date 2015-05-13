@@ -21,11 +21,13 @@ var project = require('./gulp/project'),
 		script: {
 			watch: notkonflux.concat(['./src/**/*.js']),
 			build: notkonflux.concat(['./src/*/*.js'])
-		}
+		},
+
+		syntax: './src/**/*.js'
 	};
 
 Object.keys(config).forEach(function(task) {
 	project.task(task, config[task]);
 });
 
-project.start('konflux', 'script');
+project.start('konflux', 'script', 'syntax');

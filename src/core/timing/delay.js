@@ -1,19 +1,19 @@
 /**
  *  Delay object, instances of this are be provided for all KonfluxTimings
- *  @name    KonfluxDelay
+ *  @name    KonfluxTimingDelay
  *  @type    class
  *  @access  internal
  *  @param   function handle
  *  @param   Number   timeout
  *  @param   string   reference
- *  @return  KonfluxDelay  object
+ *  @return  KonfluxTimingDelay  object
  */
-function KonfluxDelay(handler, timeout, reference) {
+function KonfluxTimingDelay(handler, timeout, reference) {
 	'use strict';
 
 	/*jshint validthis: true*/
 	var delay = this,
-		timer = null;
+		timer, raf;
 
 	/**
 	 *  Cancel the timer
@@ -35,10 +35,12 @@ function KonfluxDelay(handler, timeout, reference) {
 	 */
 	function start() {
 		timer = setTimeout(function() {
-			if (!raf)
+			if (!raf) {
 				raf = konflux.browser.feature('requestAnimationFrame') || function(ready) {
 					setTimeout(ready, 16);
 				};
+			}
+
 			raf(cancel);
 
 			handler.call();

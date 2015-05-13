@@ -1,4 +1,5 @@
 ;(function(konflux) {
+	'use strict';
 
 	/**
 	 *  Observer object, handles subscriptions to messages
@@ -6,14 +7,12 @@
 	 *  @note    available as konflux.observer / kx.observer
 	 */
 	function KonfluxObserver() {
-		'use strict';
-
-		/*global konflux, KonfluxObservation*/
-
 		/*jshint validthis: true*/
 		var observer = this,
 			subscription = {},
 			active = {};
+
+		/*global KonfluxObservation*/
 
 		//= include observer/observation.js
 
@@ -129,8 +128,7 @@
 				wildcard = false,
 				name, i;
 
-			while (part.length >= 0)
-			{
+			while (part.length >= 0) {
 				active[ref] = true;
 				name = part.join('.') + (wildcard ? (part.length ? '.' : '') + '*' : '');
 				wildcard = true;

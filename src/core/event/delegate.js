@@ -169,7 +169,6 @@ function KonfluxEventDelegate(unifier) {
 		return result;
 	}
 
-
 	/**
 	 *  Find all delegates that match given arguments
 	 *  @name    find
