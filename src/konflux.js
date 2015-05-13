@@ -6,38 +6,10 @@
  *    \/_/     More information: http://konfirm.net/konflux
  */
 
-/*global File, FileList, FormData */
 ;(function(window, undefined) {
 	'use strict';
 
-	var version = '$DEV$ - $DATE$ - $COMMIT$',
-		document = window.document,
-		navigator = window.navigator,
-
-		//  Internal properties
-		konflux;
-
-	//  Internal functions
-
-	/**
-	 *  Provide feedback about deprecated features
-	 *  @name    deprecate
-	 *  @type    function
-	 *  @access  internal
-	 *  @param   string message
-	 *  @return  void
-	 */
-	function deprecate(message) {
-		var method = ['info', 'warn', 'log'],
-			i;
-
-		for (i = 0 ; i < method.length; ++i) {
-			if (konflux.isType('function', console[method[i]])) {
-				console[method[i]](konflux.elapsed() + ' DEPRECATED: ' + message);
-				break;
-			}
-		}
-	}
+	var version = '$DEV$ - $DATE$ - $COMMIT$';
 
 	/**
 	 *  The Konflux object itself
@@ -250,31 +222,6 @@
 		};
 
 		/**
-		 *  Convenience function bridging the event.ready method
-		 *  @name    ready
-		 *  @type    method
-		 *  @access  public
-		 *  @param   function handler
-		 *  @return  bool     is ready
-		 */
-		kx.ready = function(handler) {
-			return 'event' in konflux ? konflux.event.ready(handler) : false;
-		};
-
-		/**
-		 *  Select elements matching given CSS selector
-		 *  @name   select
-		 *  @type   method
-		 *  @access public
-		 *  @param  string     selector
-		 *  @param  DOMElement parent
-		 *  @return DOMNodeList (empty Array if the dom module is not available)
-		 */
-		kx.select = function(selector, parent) {
-			return 'dom' in konflux ? konflux.dom.select(selector, parent) : new KonfluxIterator([]);
-		};
-
-		/**
 		 *  Obtain the konflux version info
 		 *  @name   version
 		 *  @type   method
@@ -292,33 +239,6 @@
 			}
 
 			return info ? result : result.version;
-		};
-
-		/**
-		 *  Create a KonfluxPoint instance
-		 *  @name   point
-		 *  @type   method
-		 *  @access public
-		 *  @param  number x position
-		 *  @param  number y position
-		 *  @return KonfluxPoint point
-		 *  @note   As of konflux version > 0.3.1 the points are created without the new keyword
-		 *          ('new konflux.point(X, Y)' can now be 'konflux.point(X, Y)')
-		 */
-		kx.point = function(x, y) {
-			return new KonfluxPoint(x, y);
-		};
-
-		/**
-		 *  Create a KonfluxIterator instance
-		 *  @name   iterator
-		 *  @type   method
-		 *  @access public
-		 *  @param  mixed collection
-		 *  @return KonfluxIterator iterator
-		 */
-		kx.iterator = function(collection) {
-			return collection instanceof KonfluxIterator ? collection : new KonfluxIterator(collection);
 		};
 
 		/**
@@ -343,24 +263,26 @@
 		init();
 	}
 
-	konflux = new Konflux();
+	(function(konflux){
+		//  expose object instances
 
-	//= include core/*.js
+		//= include core/observer.js
+		//= include core/browser.js
+		//= include core/url.js
+		//= include core/ajax.js
+		//= include core/style.js
+		//= include core/number.js
+		//= include core/string.js
+		//= include core/array.js
+		//= include core/dom.js
+		//= include core/event.js
+		//= include core/timing.js
+		//= include core/storage.js
+		//= include core/point.js
+		//= include core/iterator.js
 
-	//  expose object instances
-	konflux.observer   = new KonfluxObserver();
-	konflux.browser    = new KonfluxBrowser();
-	konflux.url        = new KonfluxURL();
-	konflux.ajax       = new KonfluxAjax();
-	konflux.style      = new KonfluxStyle();
-	konflux.number     = new KonfluxNumber();
-	konflux.string     = new KonfluxString();
-	konflux.array      = new KonfluxArray();
-	konflux.dom        = new KonfluxDOM();
-	konflux.event      = new KonfluxEvent();
-	konflux.timing     = new KonfluxTiming();
-	konflux.storage    = new KonfluxStorage();
+		//  make konflux available on the global (window) scope both as 'konflux' and 'kx'
+		window.konflux = window.kx = konflux;
+	})(new Konflux());
 
-	//  make konflux available on the global (window) scope both as 'konflux' and 'kx'
-	window.konflux = window.kx = konflux;
 })(window);

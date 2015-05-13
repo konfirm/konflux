@@ -1,229 +1,235 @@
-/**
- *  Observer object, handles subscriptions to messages
- *  @module  observer
- *  @note    available as konflux.observer / kx.observer
- */
-function KonfluxObserver() {
-	'use strict';
-
-	/*global konflux, KonfluxObservation*/
-
-	/*jshint validthis: true*/
-	var observer = this,
-		subscription = {},
-		active = {};
-
-	//= include observer/observation.js
+;(function(konflux) {
 
 	/**
-	 *  Create the subscription stack if it does not exist
-	 *  @name    ensureSubscriptionStack
-	 *  @type    function
-	 *  @access  internal
-	 *  @param   string stack name
-	 *  @return  void
+	 *  Observer object, handles subscriptions to messages
+	 *  @module  observer
+	 *  @note    available as konflux.observer / kx.observer
 	 */
-	function ensureSubscriptionStack(stack) {
-		if (typeof subscription[stack] === 'undefined') {
-			subscription[stack] = [];
-		}
-	}
+	function KonfluxObserver() {
+		'use strict';
 
-	/**
-	 *  Add handler to specified stack
-	 *  @name    add
-	 *  @type    function
-	 *  @access  internal
-	 *  @param   string stack name
-	 *  @param   function handler
-	 *  @return  int total number of subscriptions in this stack
-	 */
-	function add(stack, handle) {
-		ensureSubscriptionStack(stack);
+		/*global konflux, KonfluxObservation*/
 
-		return subscription[stack].push(handle);
-	}
+		/*jshint validthis: true*/
+		var observer = this,
+			subscription = {},
+			active = {};
 
-	/**
-	 *  Disable a handler for specified stack
-	 *  @name    disable
-	 *  @type    function
-	 *  @access  internal
-	 *  @param   string stack name
-	 *  @param   function handler
-	 *  @return  void
-	 *  @note    this method is used from the Observation object, which would influence the number of
-	 *           subscriptions if the subscription itself was removed immediately
-	 */
-	function disable(stack, handle) {
-		var i;
+		//= include observer/observation.js
 
-		for (i = 0; i < subscription[stack].length; ++i) {
-			if (subscription[stack][i] === handle) {
-				subscription[stack][i] = false;
+		/**
+		 *  Create the subscription stack if it does not exist
+		 *  @name    ensureSubscriptionStack
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string stack name
+		 *  @return  void
+		 */
+		function ensureSubscriptionStack(stack) {
+			if (typeof subscription[stack] === 'undefined') {
+				subscription[stack] = [];
 			}
 		}
-	}
 
-	/**
-	 *  Remove specified handler (and all disabled handlers) from specified stack
-	 *  @name    remove
-	 *  @type    function
-	 *  @access  internal
-	 *  @param   string stack name
-	 *  @param   function handler [optional, default null - remove the entire stack]
-	 *  @return  array removed handlers
-	 */
-	function remove(stack, handle) {
-		var out = [],
-			keep = [],
-			i;
+		/**
+		 *  Add handler to specified stack
+		 *  @name    add
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string stack name
+		 *  @param   function handler
+		 *  @return  int total number of subscriptions in this stack
+		 */
+		function add(stack, handle) {
+			ensureSubscriptionStack(stack);
 
-		ensureSubscriptionStack(stack);
-
-		for (i = 0; i < subscription[stack].length; ++i) {
-			(!subscription[stack][i] || subscription[stack][i] === handle ? out : keep).push(subscription[stack][i]);
+			return subscription[stack].push(handle);
 		}
 
-		subscription[stack] = keep;
+		/**
+		 *  Disable a handler for specified stack
+		 *  @name    disable
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string stack name
+		 *  @param   function handler
+		 *  @return  void
+		 *  @note    this method is used from the Observation object, which would influence the number of
+		 *           subscriptions if the subscription itself was removed immediately
+		 */
+		function disable(stack, handle) {
+			var i;
 
-		return out;
-	}
-
-	/**
-	 *  Flush specified stack
-	 *  @name    flush
-	 *  @type    function
-	 *  @access  internal
-	 *  @param   string stack name
-	 *  @return  array removed handlers (false if the stack did not exist);
-	 */
-	function flush(stack) {
-		var out = false;
-
-		if (konflux.isType('undefined', subscription[stack])) {
-			out = subscription[stack];
-			delete subscription[stack];
+			for (i = 0; i < subscription[stack].length; ++i) {
+				if (subscription[stack][i] === handle) {
+					subscription[stack][i] = false;
+				}
+			}
 		}
 
-		return out;
-	}
+		/**
+		 *  Remove specified handler (and all disabled handlers) from specified stack
+		 *  @name    remove
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string stack name
+		 *  @param   function handler [optional, default null - remove the entire stack]
+		 *  @return  array removed handlers
+		 */
+		function remove(stack, handle) {
+			var out = [],
+				keep = [],
+				i;
 
-	/**
-	 *  Trigger the handlers in specified stack
-	 *  @name    trigger
-	 *  @type    function
-	 *  @access  internal
-	 *  @param   string stack name
-	 *  @param   mixed variable1
-	 *  @param   mixed ...
-	 *  @param   mixed variableN
-	 *  @return  void
-	 */
-	function trigger(stack) {
-		var arg = konflux.array.cast(arguments),
-			ref = konflux.unique(),
-			part = stack.split('.'),
-			wildcard = false,
-			name, i;
+			ensureSubscriptionStack(stack);
 
-		while (part.length >= 0)
-		{
-			active[ref] = true;
-			name = part.join('.') + (wildcard ? (part.length ? '.' : '') + '*' : '');
-			wildcard = true;
+			for (i = 0; i < subscription[stack].length; ++i) {
+				(!subscription[stack][i] || subscription[stack][i] === handle ? out : keep).push(subscription[stack][i]);
+			}
 
-			if (typeof subscription[name] !== 'undefined') {
-				for (i = 0; i < subscription[name].length; ++i) {
-					if (!active[ref]) {
-						break;
+			subscription[stack] = keep;
+
+			return out;
+		}
+
+		/**
+		 *  Flush specified stack
+		 *  @name    flush
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string stack name
+		 *  @return  array removed handlers (false if the stack did not exist);
+		 */
+		function flush(stack) {
+			var out = false;
+
+			if (konflux.isType('undefined', subscription[stack])) {
+				out = subscription[stack];
+				delete subscription[stack];
+			}
+
+			return out;
+		}
+
+		/**
+		 *  Trigger the handlers in specified stack
+		 *  @name    trigger
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   string stack name
+		 *  @param   mixed variable1
+		 *  @param   mixed ...
+		 *  @param   mixed variableN
+		 *  @return  void
+		 */
+		function trigger(stack) {
+			var arg = konflux.array.cast(arguments),
+				ref = konflux.unique(),
+				part = stack.split('.'),
+				wildcard = false,
+				name, i;
+
+			while (part.length >= 0)
+			{
+				active[ref] = true;
+				name = part.join('.') + (wildcard ? (part.length ? '.' : '') + '*' : '');
+				wildcard = true;
+
+				if (typeof subscription[name] !== 'undefined') {
+					for (i = 0; i < subscription[name].length; ++i) {
+						if (!active[ref]) {
+							break;
+						}
+
+						if (subscription[name][i]) {
+							arg[0] = new KonfluxObservation(stack, subscription[name][i], ref);
+							subscription[name][i].apply(subscription[name][i], arg);
+						}
 					}
+				}
 
-					if (subscription[name][i]) {
-						arg[0] = new KonfluxObservation(stack, subscription[name][i], ref);
-						subscription[name][i].apply(subscription[name][i], arg);
-					}
+				if (!part.pop()) {
+					break;
 				}
 			}
 
-			if (!part.pop()) {
-				break;
-			}
+			delete active[ref];
 		}
 
-		delete active[ref];
+		/**
+		 *  Subscribe a handler to an observer stack
+		 *  @name    subscribe
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string stack name
+		 *  @param   function handle
+		 *  @param   function callback [optional, default undefined]
+		 *  @return  KonfluxObserver reference
+		 */
+		observer.subscribe = function(stack, handle, callback) {
+			var list = stack.split(/[\s,]+/),
+				result = true,
+				i;
+
+			for (i = 0; i < list.length; ++i) {
+				result = (add(list[i], handle) ? true : false) && result;
+			}
+
+			if (callback) {
+				callback.apply(observer, [result]);
+			}
+
+			return observer;
+		};
+
+		/**
+		 *  Unsubscribe a handler from an observer stack
+		 *  @name    unsubscribe
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string stack name
+		 *  @param   function handle
+		 *  @param   function callback [optional, default undefined]
+		 *  @return  KonfluxObserver reference
+		 */
+		observer.unsubscribe = function(stack, handle, callback) {
+			var list = stack.split(/[\s,]+/),
+				result = [],
+				i;
+
+			for (i = 0; i < list.length; ++i) {
+				result = result.concat(handle ? remove(list[i], handle) : flush(list[i]));
+			}
+
+			if (callback) {
+				callback.apply(observer, [result]);
+			}
+
+			return observer;
+		};
+
+		/**
+		 *  Notify all subscribers to a stack
+		 *  @name    notify
+		 *  @type    method
+		 *  @access  public
+		 *  @param   string stack name
+		 *  @param   mixed  variable1
+		 *  @param   mixed  ...
+		 *  @param   mixed  variableN
+		 *  @return  void
+		 */
+		observer.notify = function() {
+			var arg = konflux.array.cast(arguments),
+				list = arg.shift().split(/[\s,]+/),
+				i;
+
+			for (i = 0; i < list.length; ++i) {
+				trigger.apply(observer, [list[i]].concat(arg));
+			}
+		};
 	}
 
-	/**
-	 *  Subscribe a handler to an observer stack
-	 *  @name    subscribe
-	 *  @type    method
-	 *  @access  public
-	 *  @param   string stack name
-	 *  @param   function handle
-	 *  @param   function callback [optional, default undefined]
-	 *  @return  KonfluxObserver reference
-	 */
-	observer.subscribe = function(stack, handle, callback) {
-		var list = stack.split(/[\s,]+/),
-			result = true,
-			i;
+	konflux.register('observer', new KonfluxObserver());
 
-		for (i = 0; i < list.length; ++i) {
-			result = (add(list[i], handle) ? true : false) && result;
-		}
-
-		if (callback) {
-			callback.apply(observer, [result]);
-		}
-
-		return observer;
-	};
-
-	/**
-	 *  Unsubscribe a handler from an observer stack
-	 *  @name    unsubscribe
-	 *  @type    method
-	 *  @access  public
-	 *  @param   string stack name
-	 *  @param   function handle
-	 *  @param   function callback [optional, default undefined]
-	 *  @return  KonfluxObserver reference
-	 */
-	observer.unsubscribe = function(stack, handle, callback) {
-		var list = stack.split(/[\s,]+/),
-			result = [],
-			i;
-
-		for (i = 0; i < list.length; ++i) {
-			result = result.concat(handle ? remove(list[i], handle) : flush(list[i]));
-		}
-
-		if (callback) {
-			callback.apply(observer, [result]);
-		}
-
-		return observer;
-	};
-
-	/**
-	 *  Notify all subscribers to a stack
-	 *  @name    notify
-	 *  @type    method
-	 *  @access  public
-	 *  @param   string stack name
-	 *  @param   mixed  variable1
-	 *  @param   mixed  ...
-	 *  @param   mixed  variableN
-	 *  @return  void
-	 */
-	observer.notify = function() {
-		var arg = konflux.array.cast(arguments),
-			list = arg.shift().split(/[\s,]+/),
-			i;
-
-		for (i = 0; i < list.length; ++i) {
-			trigger.apply(observer, [list[i]].concat(arg));
-		}
-	};
-}
+})(konflux);
