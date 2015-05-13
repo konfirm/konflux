@@ -10,8 +10,8 @@ function KonfluxObserver() {
 
 	/*jshint validthis: true*/
 	var observer = this,
-		subscription = konflux.buffer('observer.subscriptions'),
-		active = konflux.buffer('observer.active');
+		subscription = {},
+		active = {};
 
 	//= include observer/observation.js
 

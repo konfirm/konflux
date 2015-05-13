@@ -6,7 +6,6 @@
  *    \/_/     More information: http://konfirm.net/konflux
  */
 
-/*jshint browser: true, 'undefined': true, unused: true, curly: false, newcap: false, forin: false, devel: true */
 /*global File, FileList, FormData */
 ;(function(window, undefined) {
 	'use strict';
@@ -114,7 +113,7 @@
 		/*jshint validthis: true*/
 		var kx = this,
 			counter = 0,
-			timestamp, buffer;
+			timestamp;
 
 		function init() {
 			timestamp = kx.time();
@@ -163,26 +162,6 @@
 
 			return true;
 		}
-
-		/**
-		 *  Obtain a reference to a specific buffer object, creates one if it does not exist
-		 *  @name    buffer
-		 *  @type    function
-		 *  @access  internal
-		 *  @param   string object name
-		 *  @return  object buffer
-		 */
-		kx.buffer = function(name) {
-			if (!buffer) {
-				buffer = {};
-			}
-
-			if (typeof buffer[name] === 'undefined') {
-				buffer[name] = {};
-			}
-
-			return buffer[name];
-		};
 
 		/**
 		 *  Obtain the milliseconds since the UNIX Epoch (Jan 1, 1970 00:00:00.000)
@@ -244,12 +223,13 @@
 		 */
 		kx.combine = function() {
 			var obj = {},
+				arg = arguments,
 				i, p;
 
-			for (i = 0; i < arguments.length; ++i) {
-				if (kx.isType('object', arguments[i])) {
-					for (p in arguments[i]) {
-						obj[p] = p in obj && kx.isType('object', obj[p]) ? kx.combine(arguments[i][p], obj[p]) : arguments[i][p];
+			for (i = 0; i < arg.length; ++i) {
+				if (kx.isType('object', arg[i])) {
+					for (p in arg[i]) {
+						obj[p] = p in obj && kx.isType('object', obj[p]) ? kx.combine(arg[i][p], obj[p]) : arg[i][p];
 					}
 				}
 			}
@@ -322,7 +302,7 @@
 						break;
 
 					case 'number':
-						check = (parseInt(variable) === variable ? 'integer' : 'float').substr(0, type.length);
+						check = (parseInt(variable, 10) === variable ? 'integer' : 'float').substr(0, type.length);
 						break;
 				}
 			}
@@ -427,86 +407,7 @@
 
 	konflux = new Konflux();
 
-	//= include core/iterator.js
-	//= include core/browser.js
-	//= include core/number.js
-	//= include core/string.js
-	//= include core/array.js
-	//= include core/dom.js
-	//= include core/event.js
-	//= include core/point.js
-	//= include core/ajax.js
-
-	/**
-	 *  Handle URL's/URI's
-	 *  @module  url
-	 *  @note    available as konflux.url / kx.url
-	 */
-	function KonfluxURL() {
-		/*jshint validthis: true*/
-		var url = this;
-
-		/**
-		 *  Parse given URL into its URI components
-		 *  @name    parse
-		 *  @type    function
-		 *  @access  internal
-		 *  @param   string location
-		 *  @return  object result
-		 */
-		function parse(location) {
-			//  URL regex + key processing based on the work of Derek Watson's jsUri (http://code.google.com/p/jsuri/)
-			var match = /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/.exec(location),
-				prop = ['source', 'protocol', 'domain', 'userInfo', 'user', 'password', 'host', 'port', 'relative', 'path', 'directory', 'file', 'query', 'anchor'],
-				result = {};
-			while (prop.length)
-				result[prop.shift()] = match.length ? match.shift() : '';
-
-			if (result.query)
-				result.query.replace(/(?:^|&)([^&=]*)=?([^&]*)/g, function(a, b, c) {
-					if (konflux.isType('object', result.query))
-						result.query = {};
-					if (b)
-						result.query[b] = c;
-				});
-			return result;
-		}
-
-		/**
-		 *  The parsed url for the URL of the current page
-		 *  @name    current
-		 *  @type    object
-		 *  @access  public
-		 */
-		url.current = konflux.isType('undefined', window.location.href) ? parse(window.location.href) : false;
-
-		/**
-		 *  Parse given URL into its URI components
-		 *  @name    parse
-		 *  @type    method
-		 *  @access  public
-		 *  @param   string url
-		 *  @return  object result
-		 */
-		url.parse   = parse;
-
-		/**
-		 *  Determine whether given URL is on the same domain as the page itself
-		 *  @name    isLocal
-		 *  @type    method
-		 *  @access  public
-		 *  @param   string location
-		 *  @return  bool   local
-		 */
-		url.isLocal = function(location) {
-			return url.current.domain === url.parse(location).domain;
-		};
-	}
-
-	//= include core/style.js
-	//= include core/timing.js
-	//= include core/observer.js
-	//= include core/storage.js
+	//= include core/*.js
 
 	//  expose object instances
 	konflux.observer   = new KonfluxObserver();

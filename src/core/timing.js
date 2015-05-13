@@ -8,7 +8,7 @@ function KonfluxTiming() {
 
 	/*jshint validthis: true*/
 	var timing = this,
-		stack = konflux.buffer('timing.delay'),
+		stack = {},
 		raf;
 
 	//= include timing/delay.js

@@ -1,10 +1,10 @@
 /**
  *  Delegate manager object, keep track of all delegates created for DOMElement/Event combinations
- *  @name    kxEventDelegate
+ *  @name    KonfluxEventDelegate
  *  @type    module
  *  @access  internal
  */
-function kxEventDelegate(unifier) {
+function KonfluxEventDelegate(unifier) {
 	'use strict';
 
 	/*global konflux*/
@@ -12,7 +12,7 @@ function kxEventDelegate(unifier) {
 	/*jshint validthis: true*/
 	var delegation = this,
 		separator = '!',
-		store = konflux.buffer('event.store');
+		store = {};
 
 	/**
 	 *  Unify the event type into an object alway containing the name and the namespace

@@ -1,16 +1,16 @@
 /**
  *  Event attachment handler
  *  @module  event
- *  @note    available as konflux.event / kx.event
+ *  @note    available as konflux.event / Konflux.event
  */
 function KonfluxEvent() {
 	'use strict';
 
-	/*global konflux, kxEventDelegate, window, document, deprecate*/
+	/*global konflux, KonfluxEventDelegate, window, document, deprecate*/
 
 	/*jshint validthis: true*/
 	var event = this,
-		queue = konflux.buffer('event.queue'),
+		queue = {},
 		delegate, touch;
 
 	//= include event/delegate.js
@@ -278,7 +278,7 @@ function KonfluxEvent() {
 	 *  @return  string name
 	 */
 	function getEventProperty(target, type) {
-		return '__kxEvent_' + type + '_' + konflux.dom.reference(target);
+		return '__kxevt_' + type + '_' + konflux.dom.reference(target);
 	}
 
 	/**
@@ -316,8 +316,8 @@ function KonfluxEvent() {
 	 *  @name    prepareTargetIterator
 	 *  @type    function
 	 *  @access  internal
-	 *  @param   mixed target [one of: string CSSSelector, DOMElement, DOMNodeList, Array DOMElement, kxIterator DOMElement, window]
-	 *  @return  kxIterator target
+	 *  @param   mixed target [one of: string CSSSelector, DOMElement, DOMNodeList, Array DOMElement, KonfluxIterator DOMElement, window]
+	 *  @return  KonfluxIterator target
 	 */
 	function prepareTargetIterator(targets) {
 		if (!targets) {
@@ -344,8 +344,8 @@ function KonfluxEvent() {
 	 *  @name    prepareEventIterator
 	 *  @type    function
 	 *  @access  internal
-	 *  @param   mixed event [one of: string events, Array events, kxIterator events]
-	 *  @return  kxIterator events
+	 *  @param   mixed event [one of: string events, Array events, KonfluxIterator events]
+	 *  @return  KonfluxIterator events
 	 */
 	function prepareEventIterator(events) {
 		if (konflux.isType('string', events)) {
@@ -363,8 +363,8 @@ function KonfluxEvent() {
 	 *  @name    listen
 	 *  @type    function
 	 *  @access  internal
-	 *  @param   mixed target [one of: string CSSSelector, DOMElement, DOMNodeList, Array DOMElement, kxIterator DOMElement, window]
-	 *  @param   mixed event [one of: string events, Array events, kxIterator events]
+	 *  @param   mixed target [one of: string CSSSelector, DOMElement, DOMNodeList, Array DOMElement, KonfluxIterator DOMElement, window]
+	 *  @param   mixed event [one of: string events, Array events, KonfluxIterator events]
 	 *  @param   mixed [one of: function handler or string CSSSelector]
 	 *  @param   mixed [one of: function handler or bool capture]
 	 *  @param   mixed [one of: bool capture or null]
@@ -372,7 +372,7 @@ function KonfluxEvent() {
 	 */
 	function listen(targets, events, filter, handler, capture) {
 		if (!delegate) {
-			delegate = new kxEventDelegate(unifyEvent);
+			delegate = new KonfluxEventDelegate(unifyEvent);
 		}
 
 		events = prepareEventIterator(events);
@@ -390,8 +390,8 @@ function KonfluxEvent() {
 	 *  @name    remove
 	 *  @type    function
 	 *  @access  internal
-	 *  @param   mixed [one of: string CSSSelector, DOMElement, DOMNodeList, Array DOMElement, kxIterator DOMElement, function handler, window]
-	 *  @param   mixed [one of: string events, Array events, kxIterator events, function handler, null]
+	 *  @param   mixed [one of: string CSSSelector, DOMElement, DOMNodeList, Array DOMElement, KonfluxIterator DOMElement, function handler, window]
+	 *  @param   mixed [one of: string events, Array events, KonfluxIterator events, function handler, null]
 	 *  @param   mixed [one of: string CSSSelector, function handler, null]
 	 *  @param   mixed [one of: function handler, null]
 	 *  @return  void
@@ -539,21 +539,21 @@ function KonfluxEvent() {
 	 *  @name    dispatch
 	 *  @type    function
 	 *  @access  internal
-	 *  @param   mixed  target [one of: string CSSSelector, DOMElement, DOMNodeList, Array DOMElement, kxIterator DOMElement]
+	 *  @param   mixed  target [one of: string CSSSelector, DOMElement, DOMNodeList, Array DOMElement, KonfluxIterator DOMElement]
 	 *  @param   string type
 	 *  @param   object option
 	 *  @return  void
 	 */
 	function dispatch(targets, name, option) {
 		var type = getEventType(name) || 'CustomEvent',
-			support = konflux.browser.feature(type),
+			Support = konflux.browser.feature(type),
 			detail  = option || {},
 			trigger = false,
 			p;
 
 		//  IE11 actually has the CustomEvent (and the likes), but one cannot construct those directly as they are objects
-		if (support && konflux.isType('function', support)) {
-			trigger = new support(name, {
+		if (Support && konflux.isType('function', Support)) {
+			trigger = new Support(name, {
 				detail: detail,
 				cancelable: true
 			});
@@ -607,8 +607,8 @@ function KonfluxEvent() {
 	 *  @name    add
 	 *  @type    method
 	 *  @access  public
-	 *  @param   mixed target [one of: string CSSSelector, DOMElement, DOMNodeList, Array DOMElement, kxIterator DOMElement]
-	 *  @param   mixed event [one of: string events, Array events, kxIterator events]
+	 *  @param   mixed target [one of: string CSSSelector, DOMElement, DOMNodeList, Array DOMElement, KonfluxIterator DOMElement]
+	 *  @param   mixed event [one of: string events, Array events, KonfluxIterator events]
 	 *  @param   mixed [one of: function handler or string CSSSelector]
 	 *  @param   mixed [one of: function handler or bool capture]
 	 *  @param   mixed [one of: bool capture or null]
@@ -632,8 +632,8 @@ function KonfluxEvent() {
 	 *  @name    remove
 	 *  @type    method
 	 *  @access  public
-	 *  @param   mixed [one of: string CSSSelector, DOMElement, DOMNodeList, Array DOMElement, kxIterator DOMElement, function handler]
-	 *  @param   mixed [one of: string events, Array events, kxIterator events, function handler, null]
+	 *  @param   mixed [one of: string CSSSelector, DOMElement, DOMNodeList, Array DOMElement, KonfluxIterator DOMElement, function handler]
+	 *  @param   mixed [one of: string events, Array events, KonfluxIterator events, function handler, null]
 	 *  @param   mixed [one of: string CSSSelector, function handler, null]
 	 *  @param   mixed [one of: function handler, null]
 	 *  @return  KonfluxEvent reference
