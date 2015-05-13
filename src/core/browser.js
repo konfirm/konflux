@@ -6,12 +6,12 @@
 function KonfluxBrowser() {
 	'use strict';
 
-	/*global konflux, window, document, navigator, hasProperty*/
+	/*global konflux, window, document, navigator*/
 
 	/*jshint validthis: true*/
 	var browser = this,
 		support = {
-			touch: hasProperty(window, 'ontouchstart') || hasProperty(navigator, 'msMaxTouchPoints')
+			touch: 'ontouchstart' in window || 'msMaxTouchPoints' in navigator
 		},
 		prefix,
 		ieVersion;
@@ -55,7 +55,7 @@ function KonfluxBrowser() {
 	 *  @return  boolean  has feature
 	 */
 	function hasFeature(feature) {
-		return !konflux.isType('undefined', support[feature]) ? support[feature] : hasProperty(window, feature) || hasProperty(document, feature);
+		return !konflux.isType('undefined', support[feature]) ? support[feature] : feature in window || feature in document;
 	}
 
 	/**
@@ -95,7 +95,7 @@ function KonfluxBrowser() {
 			feature = search.shift();
 
 			for (i = 0; i < object.length; ++i) {
-				if (hasProperty(object[i], feature)) {
+				if (feature in object[i]) {
 					return object[i][feature];
 				}
 			}
@@ -128,7 +128,7 @@ function KonfluxBrowser() {
 		//  as a last resort, try to see if the <pre>Opacity property exists
 		while (!prefix && vendor.length) {
 			p = vendor.pop();
-			if (hasProperty(script.style, p + 'Opacity')) {
+			if (p + 'Opacity' in script.style) {
 				prefix = p;
 			}
 		}
@@ -232,8 +232,8 @@ function KonfluxBrowser() {
 		}
 
 		for (i = 0, method = null; i < check.length, method === null; ++i) {
-			method = hasProperty(document, check[i]) ? check[i] : vendor + konflux.string.ucFirst(check[i]);
-			if (!hasProperty(document, method)) {
+			method = check[i] in document ? check[i] : vendor + konflux.string.ucFirst(check[i]);
+			if (!(method in document)) {
 				method = null;
 			}
 		}

@@ -69,19 +69,6 @@
 	}
 
 	/**
-	 *  Does given object have given property
-	 *  @name    hasProperty
-	 *  @type    function
-	 *  @access  internal
-	 *  @param   object haystack
-	 *  @param   string property
-	 *  @return  bool   available
-	 */
-	function hasProperty(haystack, needle) {
-		return !!(needle in haystack);
-	}
-
-	/**
 	 *  Provide feedback about deprecated features
 	 *  @name    deprecate
 	 *  @type    function

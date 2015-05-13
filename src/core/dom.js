@@ -6,7 +6,7 @@
 function KonfluxDOM() {
 	'use strict';
 
-	/*global konflux, document, type, hasProperty, KonfluxIterator, elementReference*/
+	/*global konflux, document, type, KonfluxIterator, elementReference*/
 
 	/*jshint validthis: true*/
 	var dom = this;
@@ -60,7 +60,7 @@ function KonfluxDOM() {
 	 */
 	function contains(ancestor, element) {
 		//  use the contains method if it exists
-		if (hasProperty(ancestor, 'contains')) {
+		if ('contains' in ancestor) {
 			return ancestor.contains(element);
 		}
 

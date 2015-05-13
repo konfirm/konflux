@@ -27,20 +27,6 @@
 			tick = false,
 			pixelRatio, timeout;
 
-
-		/**
-		 *  Does given object have given property
-		 *  @name    hasProperty
-		 *  @type    function
-		 *  @access  internal
-		 *  @param   object haystack
-		 *  @param   string property
-		 *  @return  bool   available
-		 */
-		function hasProperty(haystack, needle) {
-			return needle in haystack;
-		}
-
 		/**
 		 *  Simple monitor function which calls the update function at a convenient interval
 		 *  @name    monitor
@@ -90,7 +76,7 @@
 						className = null;
 
 						className = stack[p].config[matched].join(' ');
-						if (matched && parseInt(matched, 10) <= stack[p].width && hasProperty(stack[p].config, matched)) {
+						if (matched && parseInt(matched, 10) <= stack[p].width && matched in stack[p].config) {
 							stack[p].match = matched;
 						}
 					}
@@ -122,7 +108,7 @@
 		function getStack(target) {
 			var ref = konflux.dom.reference(target);
 
-			if (!hasProperty(stack, ref)) {
+			if (!(ref in stack)) {
 				stack[ref] = {
 					match: null,
 					width: null,
@@ -147,7 +133,7 @@
 		function match(refStack, width) {
 			var found, delta, min, p;
 
-			if (hasProperty(refStack, 'config')) {
+			if ('config' in refStack) {
 				width = Math.round(width);
 				for (p in refStack.config) {
 					p = parseInt(p, 10);
@@ -178,7 +164,7 @@
 
 			clearTimeout(timeout);
 
-			if (!hasProperty(refStack.config, width)) {
+			if (!(width in refStack.config)) {
 				refStack.config[width] = [];
 			}
 
