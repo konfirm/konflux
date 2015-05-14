@@ -16,7 +16,10 @@
   },
   "devDependencies": {
     "del": "^1.1.1",
+    "glob": "^5.0.6",
     "gulp": "^3.8.11",
+    "gulp-changed": "^1.2.1",
+    "gulp-clone": "^1.0.0",
     "gulp-concat": "^2.5.2",
     "gulp-filesize": "0.0.6",
     "gulp-include": "^1.1.1",

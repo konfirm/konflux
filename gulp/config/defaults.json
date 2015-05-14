@@ -1,7 +1,7 @@
 {
 	"copyright": "Konfirm ⓒ 2015",
-	"output": "build",
-	"sauce": [
+	"output": "./build",
+	"defaults": [
 		"plumber"
 	]
 }
