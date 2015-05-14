@@ -12,7 +12,7 @@
 	var version = '$DEV$ - $DATE$ - $COMMIT$';
 
 	/**
-	 *  The Konflux object itself
+	 *  The Konflux object
 	 *  @name    Konflux
 	 *  @type    constructor function
 	 *  @access  internal
@@ -66,11 +66,39 @@
 				},
 				t = kx.type(p);
 
-			if (konflux.isType('function', types[t]) && types[t](p)) {
+			if (isType('function', types[t]) && types[t](p)) {
 				return false;
 			}
 
 			return true;
+		}
+
+		/**
+		 *  Test the type of given variable
+		 *  @name    isType
+		 *  @type    method
+		 *  @access  internal
+		 *  @param   string type
+		 *  @param   mixed  variable
+		 *  @return  bool   is type
+		 */
+		function isType(type, variable) {
+			var full = kx.type(variable),
+				check = type && type.length ? full.substr(0, type.length) : null;
+
+			if (check !== type) {
+				switch (full) {
+					case 'object':
+						check = kx.type(variable, true).substr(0, type.length);
+						break;
+
+					case 'number':
+						check = (parseInt(variable, 10) === variable ? 'integer' : 'float').substr(0, type.length);
+						break;
+				}
+			}
+
+			return check === type;
 		}
 
 		/**
@@ -118,7 +146,7 @@
 		 *  @return  string key
 		 */
 		kx.unique = function() {
-			return (++counter + konflux.time() % 86400000).toString(36);
+			return (++counter + kx.time() % 86400000).toString(36);
 		};
 
 		/**
@@ -145,7 +173,7 @@
 			}
 
 			return obj;
-		}
+		};
 
 		/**
 		 *  Verify whether given arguments are empty
@@ -158,7 +186,8 @@
 		 *  @return  bool  variables are empty
 		 */
 		kx.empty = function() {
-			var arg = konflux.array.cast(arguments);
+			var arg = Array.prototype.slice.call(arguments);
+
 			while (arg.length) {
 				if (!empty(arg.shift())) {
 					return false;
@@ -190,7 +219,7 @@
 			}
 
 			return result;
-		}
+		};
 
 		/**
 		 *  Test the type of given variable
@@ -199,27 +228,9 @@
 		 *  @access  public
 		 *  @param   string type
 		 *  @param   mixed  variable
-		 *  @return  bool  is type
+		 *  @return  bool   is type
 		 */
-		kx.isType = function(type, variable) {
-			var full = kx.type(variable),
-				check = type && type.length ? full.substr(0, type.length) : null;
-
-			if (check !== type) {
-				switch (full) {
-					case 'object':
-						check = kx.type(variable, true).substr(0, type.length);
-						break;
-
-					case 'number':
-						check = (parseInt(variable, 10) === variable ? 'integer' : 'float').substr(0, type.length);
-						break;
-				}
-			}
-
-			return check === type;
-
-		};
+		kx.isType = isType;
 
 		/**
 		 *  Obtain the konflux version info
@@ -262,6 +273,7 @@
 					shown = true;
 
 					for (i = 0 ; i < method.length; ++i) {
+						/*global console*/
 						if (kx.isType('function', console[method[i]])) {
 							console[method[i]](kx.elapsed() + ' DEPRECATED: ' + message);
 							break;
