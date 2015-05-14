@@ -12,10 +12,6 @@
 
 	var version = '$DEV$';
 
-	/*global KonfluxCanvasContext*/
-
-	//= include canvas/context.js
-
 	/**
 	 *  Canvas object, allowing for chainable access to canvas methods
 	 *  @module  canvas
@@ -24,6 +20,10 @@
 	function KonfluxCanvas() {
 		/*jshint validthis: true*/
 		var canvas = this;
+
+		/*global KonfluxCanvasContext*/
+
+		//= include canvas/context.js
 
 		/**
 		 *  Create a new canvas
