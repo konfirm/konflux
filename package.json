@@ -17,6 +17,7 @@
   "devDependencies": {
     "del": "^1.1.1",
     "duplexer2": "0.0.2",
+    "git-revision": "0.0.1",
     "glob": "^5.0.6",
     "gulp": "^3.8.11",
     "gulp-changed": "^1.2.1",

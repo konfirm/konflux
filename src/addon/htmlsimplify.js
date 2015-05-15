@@ -12,7 +12,7 @@
 
 	/*global window, document*/
 
-	var version = '$DEV$';
+	var version = '$DEV$ - $DATE$ - $COMMIT$';
 
 	/**
 	 *  HTMLSimplify object, designed to rewrite (small) portions of HTML to a configurable format

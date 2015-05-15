@@ -10,7 +10,7 @@
 ;(function(konflux) {
 	'use strict';
 
-	var version = '$DEV$';
+	var version = '$DEV$ - $DATE$ - $COMMIT$';
 
 	/**
 	 *  Canvas object, allowing for chainable access to canvas methods

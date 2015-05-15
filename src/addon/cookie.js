@@ -10,7 +10,7 @@
 ;(function(konflux) {
 	'use strict';
 
-	var version = '$DEV$';
+	var version = '$DEV$ - $DATE$ - $COMMIT$';
 
 	/**
 	 *  Cookie object, making working with cookies a wee bit easier

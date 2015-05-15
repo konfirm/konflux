@@ -13,6 +13,9 @@ module.exports = function(project, stream) {
 			}
 		}))
 
+		//  replace the placeholders
+		.pipe(project.pipe('placeholder'))
+
 		//  only process changed files
 		.pipe(project.pipe('changed'))
 
