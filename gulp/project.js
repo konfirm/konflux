@@ -10,6 +10,7 @@ function Project(settings) {
 		glob = require('glob'),
 		through = require('through2'),
 		submerge = require('submerge'),
+		chalk = require('chalk'),
 		definitions = {},
 		path = process.cwd(),
 		config = submerge(settings, {
@@ -42,11 +43,14 @@ function Project(settings) {
 			);
 		});
 
-		console.log([
-			'Project initialized',
-			'- available pipes: ' + ('pipe' in definitions ? Object.keys(definitions.pipe).join(', ') : '/'),
-			'- available tasks: ' + ('task' in definitions ? Object.keys(definitions.task).join(', ') : '/')
-		].join('\n  '));
+		console.log(chalk.cyan('Project initialized'));
+		['task', 'pipe'].forEach(function(what) {
+			console.log([
+				'  - available ' + what + 's: ',
+				what in definitions ? chalk.green(Object.keys(definitions[what]).join(', ')) : chalk.yellow('none')
+			].join(''));
+		});
+		console.log('');
 	}
 
 	function register(type, name, callback) {
@@ -93,8 +97,8 @@ function Project(settings) {
 		//  this should create a stream
 		stream = scope.apply(null, Array.prototype.slice.call(arguments, 1));
 		//  always register an error listener
-		stream.on('error', function() {
-			console.log('ERROR', name, arguments);
+		stream.on('error', function(error) {
+			console.error('Error from plugin %s: %s', chalk.red(name), error);
 		});
 
 		return stream;
@@ -146,7 +150,7 @@ function Project(settings) {
 			return combiner(definitions.pipe[name]);
 		}
 
-		throw new Error('Pipe not found: ' + name);
+		throw new Error('Named pipe not found: ' + name);
 	};
 
 	project.config = function(value, otherwise) {
@@ -159,10 +163,10 @@ function Project(settings) {
 
 	project.task = function(name, build, watch) {
 		console.log(
-			'preparing task %s\n  - build pattern: %s\n  - watch pattern: %s',
-			name,
-			build.join(', '),
-			watch !== false ? (watch || build).join(', ') : '(none, not watching)'
+			'Task %s activated\n  - build files: %s\n  - watch files: %s',
+			chalk.cyan(name),
+			chalk.green(build.join(chalk.white(', '))),
+			watch !== false ? chalk.green((watch || build).join(chalk.white(', '))) : chalk.yellow('(none, not watching)')
 		);
 
 		gulp.task(name, function() {
@@ -179,6 +183,8 @@ function Project(settings) {
 
 	project.start = function() {
 		gulp.task('default', active);
+
+		console.log(chalk.yellow('\nGulp started\n'));
 	};
 
 	init();
