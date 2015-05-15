@@ -2,14 +2,13 @@
 'use strict';
 
 /**
- *  Convenience layer around the gulp build system to provide an even more modulair build system
+ *  Convenience layer around the gulp build system to provide an even more modulair/reusable build system
  */
 function Project(settings) {
 	var project = this,
 		gulp = require('gulp'),
 		glob = require('glob'),
 		through = require('through2'),
-		combiner = require('stream-combiner2'),
 		submerge = require('submerge'),
 		definitions = {},
 		path = process.cwd(),
@@ -101,6 +100,21 @@ function Project(settings) {
 		return stream;
 	}
 
+	function combiner(pipe) {
+		var writer = through.obj(),
+			piped  = pipe(project, writer),
+			wrap = through.obj(function(chunk, enc, done) {
+					writer.push(chunk);
+					done();
+				});
+
+			piped.on('data', function(chunk) {
+				wrap.push(chunk);
+			});
+
+		return wrap;
+	}
+
 	/**
 	 *  Create a plugin and initialize it
 	 *  @name    plugin
@@ -128,12 +142,8 @@ function Project(settings) {
 	};
 
 	project.pipe = function(name) {
-		var writer;
-
 		if ('pipe' in definitions && name in definitions.pipe) {
-			writer = through.obj();
-
-			return combiner(writer, definitions.pipe[name](project, writer));
+			return combiner(definitions.pipe[name]);
 		}
 
 		throw new Error('Pipe not found: ' + name);
