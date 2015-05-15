@@ -1,62 +1,60 @@
+/*jshint node:true*/
 'use strict';
 
 /**
  *  Convenience layer around the gulp build system to provide an even more modulair build system
  */
-function Project() {
+function Project(settings) {
 	var project = this,
-		fs = require('fs'),
 		gulp = require('gulp'),
+		glob = require('glob'),
+		through = require('through2'),
+		combiner = require('stream-combiner2'),
 		submerge = require('submerge'),
-		defaults = {
-			output: './dist',
-			sauce: []
-		},
-		config, prepared, tasks;
+		definitions = {},
+		path = process.cwd(),
+		config = submerge(settings, {
+			gulpFiles: path + '/gulp',
+			output: './dist'
+		}),
+		active = [];
 
 	function init() {
-		config   = submerge(require('./config/defaults.json'), defaults);
-		prepared = {};
-		tasks    = [];
-
-		if ('tasks' in config && config.tasks instanceof Array) {
-			config.tasks.forEach(function(task) {
-				project.task.apply(project, [task].concat(config.tasks[task]));
-			});
-		}
-	}
-
-	function requireTaskFile(list, callback) {
-		var file = list.length ? list.shift() : null;
-
-		if (file) {
-			if (fs.existsSync(file)) {
-				return callback(null, require(file));
+		register('pipe', 'defaults', function(project, stream) {
+			if ('defaults' in config) {
+				config.defaults.forEach(function(name) {
+					stream = stream.pipe(project.plugin(name));
+				});
 			}
 
-			return requireTaskFile(list, callback);
-		}
-
-		callback(new Error('not found'));
-	}
-
-	function register(name, module, watch, build) {
-		console.log('register task: %s', name);
-
-		prepared[name] = module;
-
-		gulp.task(name, function() {
-			if (build) {
-				return module(project, sauce(build));
-			}
-
-			return module(project, null);
+			return stream;
 		});
 
-		if (watch) {
-			tasks.push(name);
-			gulp.watch(watch, [name]);
+		glob.sync(config.gulpFiles + '/*/*.js').map(function(file) {
+			return file.replace(config.gulpFiles, '').split('/').filter(function(split) {
+				return !!split;
+			});
+		}).forEach(function(file) {
+			register(
+				file[0],
+				file[file.length - 1].replace(/\.js$/, ''),
+				require(config.gulpFiles + '/' + file.join('/'))
+			);
+		});
+
+		console.log([
+			'Project initialized',
+			'- available pipes: ' + ('pipe' in definitions ? Object.keys(definitions.pipe).join(', ') : '/'),
+			'- available tasks: ' + ('task' in definitions ? Object.keys(definitions.task).join(', ') : '/')
+		].join('\n  '));
+	}
+
+	function register(type, name, callback) {
+		if (!(type in definitions)) {
+			definitions[type] = {};
 		}
+
+		definitions[type][name] = callback;
 	}
 
 	/**
@@ -67,24 +65,33 @@ function Project() {
 	 *  @return  stream  initialized plugin
 	 */
 	function plug(name) {
-		var stream;
+		var part, scope, stream;
 
 		if (!('buffer' in plug.prototype)) {
 			plug.prototype.buffer = {};
 		}
 
-		if (!(name in plug.prototype.buffer)) {
-			plug.prototype.buffer[name] = require('gulp-' + name);
+		part  = name.split('.');
+		scope = part.shift();
+
+		if (!(scope in plug.prototype.buffer)) {
+			plug.prototype.buffer[scope] = require('gulp-' + scope);
 		}
+		scope = plug.prototype.buffer[scope];
+
+		part.forEach(function(p) {
+			scope = scope[p];
+		});
 
 		//  this may be an a-typical gulp plugin (e.g. sourcemaps) which provides no stream, the implementer probably
 		//  knows what to do with this
-		if (typeof plug.prototype.buffer[name] !== 'function') {
-			return plug.prototype.buffer[name];
+		if (typeof scope !== 'function') {
+			return scope;
 		}
 
-		stream = plug.prototype.buffer[name].apply(null, Array.prototype.slice.call(arguments, 1));
-
+		//  invoke the function in the scope with the arguments after the name
+		//  this should create a stream
+		stream = scope.apply(null, Array.prototype.slice.call(arguments, 1));
 		//  always register an error listener
 		stream.on('error', function() {
 			console.log('ERROR', name, arguments);
@@ -93,37 +100,6 @@ function Project() {
 		return stream;
 	}
 
-	function sauce() {
-		var stream = gulp.src.apply(null, arguments);
-
-		config.sauce.forEach(function(plugin) {
-			stream = stream.pipe(plug(plugin));
-		});
-
-		return stream;
-	}
-
-	project.config = function(key) {
-		return key ? config[key] || null : config;
-	};
-
-	project.task = function(name, watch, build) {
-		var file = __dirname + '/task/' + name + '/index.js';
-
-		requireTaskFile([file, file.replace(/\/index/, '')], function(error, task) {
-			if (error) {
-				return console.log('Task not found: %s', name);
-			}
-
-			if (typeof watch === 'object' && !(watch instanceof Array)) {
-				build = 'build' in watch ? watch.build : watch.watch;
-				watch = watch.watch;
-			}
-
-			register(name, task, watch, build || watch);
-		});
-	};
-
 	/**
 	 *  Create a plugin and initialize it
 	 *  @name    plugin
@@ -131,35 +107,10 @@ function Project() {
 	 *  @param   mixed   arguments
 	 *  @return  stream
 	 */
-	project.plugin = function() {
-		return plug.apply(null, arguments);
-	};
+	project.plugin = plug;
 
 	/**
-	 *  Create a write steam (gulp.dest) and optionally set up a next stream
-	 *  @name    output
-	 *  @access  public
-	 *  @param   string    next [optional, default undefined - no next]
-	 *  @return  stream
-	 */
-	project.output = function(next) {
-		var output = gulp.dest(config.output, {read: true});
-
-		if (typeof next === 'string') {
-			project.next(next, output);
-		}
-
-		return output;
-	};
-
-	project.next = function(task, stream, done) {
-		stream.pipe(prepared[task](project, stream, done));
-
-		return stream;
-	};
-
-	/**
-	 *  Remove min or prep from given file basename and append .min to it
+	 *  Cleanup file basename and append .min to it
 	 *  @name    min
 	 *  @access  public
 	 *  @param   object  file
@@ -169,13 +120,57 @@ function Project() {
 		file.basename = file.basename.replace(/\.(?:min|prep)/, '') + '.min';
 	};
 
-	project.start = function() {
-		var arg = Array.prototype.slice.call(arguments);
+	project.source = function() {
+		return gulp.src.apply(gulp, arguments)
+			.pipe(project.pipe('defaults'))
+		;
+	};
 
-		gulp.task('default', arg.length ? arg : tasks);
+	project.pipe = function(name) {
+		var writer;
+
+		if ('pipe' in definitions && name in definitions.pipe) {
+			writer = through.obj();
+
+			return combiner(writer, definitions.pipe[name](project, writer));
+		}
+
+		throw new Error('Pipe not found: ' + name);
+	};
+
+	project.config = function(value, otherwise) {
+		return arguments.length ? config[value] || otherwise : config;
+	};
+
+	project.write = function(relative, options) {
+		return gulp.dest(config.output + '/' + (relative || ''), options || {read:true});
+	};
+
+	project.task = function(name, build, watch) {
+		console.log(
+			'preparing task %s\n  - build pattern: %s\n  - watch pattern: %s',
+			name,
+			build.join(', '),
+			watch !== false ? (watch || build).join(', ') : '(none, not watching)'
+		);
+
+		gulp.task(name, function() {
+			return definitions.task[name](project, project.source(build));
+		});
+
+		if (watch !== false) {
+			active.push(name);
+			gulp.watch(watch || build, [name]);
+		}
+
+		return project;
+	};
+
+	project.start = function() {
+		gulp.task('default', active);
 	};
 
 	init();
 }
 
-module.exports = new Project();
+module.exports = Project;

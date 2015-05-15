@@ -16,10 +16,10 @@
   },
   "devDependencies": {
     "del": "^1.1.1",
+    "duplexer2": "0.0.2",
     "glob": "^5.0.6",
     "gulp": "^3.8.11",
     "gulp-changed": "^1.2.1",
-    "gulp-clone": "^1.0.0",
     "gulp-concat": "^2.5.2",
     "gulp-filesize": "0.0.6",
     "gulp-include": "^1.1.1",
@@ -31,7 +31,10 @@
     "gulp-replace": "^0.5.3",
     "gulp-sourcemaps": "^1.5.2",
     "gulp-uglify": "^1.2.0",
+    "jshint-stylish": "^1.0.2",
     "polymorphic": "^1.2.3",
-    "submerge": "^1.0.3"
+    "stream-combiner2": "^1.0.2",
+    "submerge": "^1.0.3",
+    "through2": "^0.6.5"
   }
 }

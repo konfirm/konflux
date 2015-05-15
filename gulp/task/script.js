@@ -1,7 +1,10 @@
+/*jshint node:true*/
 'use strict';
 
 module.exports = function(project, stream) {
-	stream
+	return stream
+		//  resolve inclusion
+		.pipe(project.plugin('include'))
 
 		//  rename the file to konflux.<filename>.<ext>
 		.pipe(project.plugin('rename', function(file) {
@@ -10,13 +13,13 @@ module.exports = function(project, stream) {
 			}
 		}))
 
-		//  resolve script inclusion
-		.pipe(project.plugin('include'))
+		//  only process changed files
+		.pipe(project.pipe('changed'))
 
-		//  write the full file
-		.pipe(project.output())
+		//  write the full source to the output directory
+		.pipe(project.write())
 
-		//  uglify the file
-		.pipe(project.output('uglify'))
+		//  call the 'minify' pipe
+		.pipe(project.pipe('minify'))
 	;
 };
