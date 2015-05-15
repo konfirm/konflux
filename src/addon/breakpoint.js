@@ -191,7 +191,7 @@
 		};
 
 		breakpoint.remove = function() {
-			//  TODO: implemented
+			//  TODO: implement the removal of breakpoints
 		};
 
 		/**
@@ -220,6 +220,6 @@
 	}
 
 	//  Append the module to konflux
-	konflux.register('breakpoint', new KonfluxBreakPoint());
+	konflux.register('breakpoint', new KonfluxBreakpoint());
 
 })(window.konflux);

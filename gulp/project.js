@@ -14,6 +14,7 @@ function Project(settings) {
 		definitions = {},
 		path = process.cwd(),
 		config = submerge(settings, {
+			debounce: 100,
 			gulpFiles: path + '/gulp',
 			output: './dist'
 		}),
@@ -160,7 +161,7 @@ function Project(settings) {
 
 		if (watch !== false) {
 			active.push(name);
-			gulp.watch(watch || build, [name]);
+			gulp.watch(watch || build, {debounceDelay: config.debounce}, [name]);
 		}
 
 		return project;
