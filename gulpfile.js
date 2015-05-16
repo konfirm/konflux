@@ -2,10 +2,10 @@
 
 /*jshint browser:false, node:true*/
 
-var	Project = require('./gulp/project'),
-	project = new Project(require('./gulp/config/defaults.json'));
+var	Devour = require('devour'),
+	devour = new Devour(require('./gulp/config/defaults.json'));
 
-project
+devour
 	.task(
 		'konflux',
 		//  the build pattern

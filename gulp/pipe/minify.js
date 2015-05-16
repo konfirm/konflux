@@ -1,25 +1,25 @@
 /*jshint node:true*/
 'use strict';
 
-module.exports = function(project, stream) {
+module.exports = function(stream, devour) {
 	return stream
 		//  initialize the sourcemap creator
-		.pipe(project.plugin('sourcemaps').init())
+		.pipe(devour.plugin('sourcemaps').init())
 
 		//  uglify the source and rename it to <filename>.min.<extenstion>
-		.pipe(project.plugin('uglify'))
-		.pipe(project.plugin('rename', project.min))
+		.pipe(devour.plugin('uglify'))
+		.pipe(devour.plugin('rename', devour.min))
 
 		//  remove anything that is should go out (the now excessive use of 'use strict')
-		.pipe(project.plugin('replace', /([\'\"])use strict\1;?/g, ''))
+		.pipe(devour.plugin('replace', /([\'\"])use strict\1;?/g, ''))
 
 		//  write the sourcemap
-		.pipe(project.plugin('sourcemaps').write('./', {sourceRoot: './'}))
+		.pipe(devour.plugin('sourcemaps').write('./', {sourceRoot: './'}))
 
 		//  report the new filesize
-		.pipe(project.plugin('filesize'))
+		.pipe(devour.plugin('filesize'))
 
 		//  write the (now) minified sources to the output directory
-		.pipe(project.write())
+		.pipe(devour.write())
 	;
 };

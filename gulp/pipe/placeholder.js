@@ -17,15 +17,15 @@ function date() {
 	}).join('-');
 }
 
-module.exports = function(project, stream) {
+module.exports = function(stream, devour) {
 	return stream
 		//  replace '$DATE$' with the current date
-		.pipe(project.plugin('replace', /\$DATE\$/g, date()))
+		.pipe(devour.plugin('replace', /\$DATE\$/g, date()))
 
 		//  replace '$DEV$' with the version defined in package.json
-		.pipe(project.plugin('replace', /\$DEV\$/g, version()))
+		.pipe(devour.plugin('replace', /\$DEV\$/g, version()))
 
 		//  replace '$COMMIT$' with the current git revision
-		.pipe(project.plugin('replace', /\$COMMIT\$/g, rev('short')))
+		.pipe(devour.plugin('replace', /\$COMMIT\$/g, rev('short')))
 	;
 };
