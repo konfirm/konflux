@@ -3,9 +3,6 @@
 
 module.exports = function(stream, devour) {
 	return stream
-		//  resolve inclusion
-		.pipe(devour.plugin('include'))
-
 		//  rename the file to konflux.<filename>.<ext>
 		.pipe(devour.plugin('rename', function(file) {
 			if (file.basename.indexOf('konflux') < 0) {
@@ -13,8 +10,8 @@ module.exports = function(stream, devour) {
 			}
 		}))
 
-		//  replace the placeholders
-		.pipe(devour.pipe('placeholder'))
+		//  'compile' the full files and check for changes
+		.pipe(devour.pipe('compile'))
 
 		//  write the full source to the output directory
 		.pipe(devour.write())
