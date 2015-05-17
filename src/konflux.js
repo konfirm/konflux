@@ -6,7 +6,7 @@
  *    \/_/     More information: http://konfirm.net/konflux
  */
 
-;(function(window, undefined) {
+;(function(window, register, undefined) {
 	'use strict';
 
 	var version = '$DEV$ - $DATE$ - $COMMIT$';
@@ -308,25 +308,28 @@
 	}
 
 	(function(konflux) {
-		//  expose object instances
-
-		//= include core/observer.js
-		//= include core/browser.js
-		//= include core/url.js
-		//= include core/ajax.js
-		//= include core/style.js
-		//= include core/number.js
-		//= include core/string.js
-		//= include core/array.js
-		//= include core/dom.js
-		//= include core/event.js
-		//= include core/timing.js
-		//= include core/storage.js
-		//= include core/point.js
-		//= include core/iterator.js
+		//  register object instances
+		if (register) {
+			register(konflux);
+		}
 
 		//  make konflux available on the global (window) scope both as 'konflux' and 'kx'
 		window.konflux = window.kx = konflux;
 	})(new Konflux());
 
-})(window);
+})(window, function(konflux) {
+	//@embed core/observer
+	//@embed core/browser
+	//@embed core/url
+	//@embed core/ajax
+	//@embed core/style
+	//@embed core/number
+	//@embed core/string
+	//@embed core/array
+	//@embed core/dom
+	//@embed core/event
+	//@embed core/timing
+	//@embed core/storage
+	//@embed core/point
+	//@embed core/iterator
+});

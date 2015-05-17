@@ -13,8 +13,7 @@
 			active = {};
 
 		/*global KonfluxObservation*/
-
-		//= include observer/observation.js
+		//@embed observer/observation
 
 		/**
 		 *  Create the subscription stack if it does not exist

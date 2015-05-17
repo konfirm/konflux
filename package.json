@@ -17,7 +17,7 @@
   "devDependencies": {
     "chalk": "^1.0.0",
     "del": "^1.1.1",
-    "devour": "^1.1.0",
+    "devour": "^1.2.0",
     "esprima": "^2.2.0",
     "esprima-ast-utils": "0.0.6",
     "git-revision": "0.0.1",
@@ -25,7 +25,6 @@
     "gulp-changed": "^1.2.1",
     "gulp-concat": "^2.5.2",
     "gulp-filesize": "0.0.6",
-    "gulp-include": "^1.1.1",
     "gulp-jscs": "^1.6.0",
     "gulp-jshint": "^1.10.0",
     "gulp-plumber": "^1.0.0",

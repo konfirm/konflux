@@ -16,6 +16,9 @@ module.exports = function(stream, devour) {
 		//  write the full source to the output directory
 		.pipe(devour.write())
 
+		//  check the syntax
+		.pipe(devour.plugin('jscs'))
+
 		//  call the 'minify' pipe
 		.pipe(devour.pipe('minify'))
 	;

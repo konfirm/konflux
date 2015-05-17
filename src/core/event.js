@@ -13,8 +13,7 @@
 			delegate, touch;
 
 		/*global KonfluxEventDelegate*/
-
-		//= include event/delegate.js
+		//@embed event/delegate
 
 		/**
 		 *  Ready state handler, removes all relevant triggers and executes any handler that is set
