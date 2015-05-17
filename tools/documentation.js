@@ -117,45 +117,45 @@ function walker(tree, output) {
 	}
 }
 
-function markup(structure) {
+function markup(struct) {
 	var output = [];
 
-	if (structure instanceof Array) {
-		structure.forEach(function(item) {
-			output.push(markup(item));
-		});
+	if (struct instanceof Array) {
+		output.push(struct.map(markup).join(''));
 	}
 	else {
-		if ('file' in structure) {
-			if ('tree' in structure && structure.tree.length) {
+		if ('file' in struct) {
+			if ('tree' in struct && struct.tree.length) {
 				output.push(
-					'<ul>',
-					'<li data-file="', structure.file, '">',
-					markup(structure.tree),
-					'</li>',
-					'</ul>'
+					'<div data-file="', struct.file, '">',
+					markup(struct.tree),
+					'</div>'
 				);
 			}
 		}
 		else {
-			output.push('<section', 'access' in structure ? ' data-access="' + structure.access + '"' : '', '>');
+			output.push('<section data-access="', 'access' in struct ? struct.access : ('module' in struct ? 'public' : 'internal'), '>');
+			output.push('<header>');
 
-			if ('module' in structure) {
-				output.push('<h1 data-type=module>', structure.module, '</h1>');
+			if ('module' in struct) {
+				output.push('<h1 data-type=module>', struct.module, '</h1>');
 			}
-			else if ('name' in structure) {
-				output.push('<h2 data-type=name>', structure.name, '</h2>');
+			else if ('name' in struct) {
+				output.push('<h2 data-type=name>', struct.name, '</h2>');
 			}
+			output.push('</header>');
 
-			Object.keys(structure).map(function(key) {
+			output.push('<main>');
+
+			Object.keys(struct).map(function(key) {
 				switch (key) {
 					case 'param':
-						if (!(structure[key] instanceof Array)) {
-							structure[key] = [structure[key]];
+						if (!(struct[key] instanceof Array)) {
+							struct[key] = [struct[key]];
 						}
 
 						output.push('<ul data-', key, '>');
-						structure[key].forEach(function(param) {
+						struct[key].forEach(function(param) {
 							output.push(
 								'<li>',
 								'<code data-type=', param.type || 'unknown', '>',
@@ -171,28 +171,26 @@ function markup(structure) {
 
 					case 'return':
 						output.push(
-							'<code data-type=', 'type' in structure[key] ? structure[key].type : 'unknown', '>',
-							'value' in structure[key] ? structure[key].value : '',
+							'<code data-type=', 'type' in struct[key] ? struct[key].type : 'unknown', '>',
+							'value' in struct[key] ? struct[key].value : '',
 							'</code>'
 						);
 						break;
 
 					case 'description':
 					case 'note':
-						output.push('<div data-type=', key, '>', structure[key], '</div>');
+						output.push('<div data-type=', key, '>', struct[key], '</div>');
 						break;
 				}
 			});
 
-			if ('tree' in structure && structure.tree.length) {
-				output.push(
-					'<ul>',
-					markup(structure.tree),
-					'</ul>'
-				);
+			if ('tree' in struct && struct.tree.length) {
+				output.push(markup(struct.tree));
 			}
 
+			output.push('</main>');
 			output.push('</section>');
+
 		}
 	}
 
