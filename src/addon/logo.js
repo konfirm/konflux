@@ -11,6 +11,7 @@
 	'use strict';
 
 	var version = '$DEV$ - $DATE$ - $COMMIT$',
+		point = konflux.point,
 		design = {
 			konflux: [
 
@@ -23,13 +24,13 @@
 				//  'white' main color fill
 				{
 					line: [
-						konflux.point(72, 0),
-						konflux.point(45, 25),
-						konflux.point(0, 117),
-						konflux.point(39, 147),
-						konflux.point(70, 124),
-						konflux.point(97, 59),
-						konflux.point(121, 39)
+						point(72, 0),
+						point(45, 25),
+						point(0, 117),
+						point(39, 147),
+						point(70, 124),
+						point(97, 59),
+						point(121, 39)
 					],
 					fillStyle: ['rgb(242,242,242)'],
 					fill:[]
@@ -38,15 +39,15 @@
 				//  blue main color fill
 				{
 					line:[
-						konflux.point(155, 30),
-						konflux.point(148, 50),
-						konflux.point(128, 33),
-						konflux.point(97, 59),
-						konflux.point(84, 90),
-						konflux.point(159, 150),
-						konflux.point(192, 127),
-						konflux.point(220, 35),
-						konflux.point(185, 7)
+						point(155, 30),
+						point(148, 50),
+						point(128, 33),
+						point(97, 59),
+						point(84, 90),
+						point(159, 150),
+						point(192, 127),
+						point(220, 35),
+						point(185, 7)
 					],
 					fillStyle: ['rgb(10,220,250)'],
 					fill: []
@@ -55,34 +56,34 @@
 				//  the opaque darker overlays
 				{
 					line: [
-						konflux.point(72, 0),
-						konflux.point(29, 92),
-						konflux.point(70, 124),
-						konflux.point(39, 147),
-						konflux.point(0, 117),
-						konflux.point(45, 25)
+						point(72, 0),
+						point(29, 92),
+						point(70, 124),
+						point(39, 147),
+						point(0, 117),
+						point(45, 25)
 					],
 					fillStyle: ['rgba(0,0,0,.2)'],
 					fill:[]
 				},
 				{
 					line: [
-						konflux.point(185, 7),
-						konflux.point(165, 64),
-						konflux.point(148, 50),
-						konflux.point(155, 30)
+						point(185, 7),
+						point(165, 64),
+						point(148, 50),
+						point(155, 30)
 					],
 					fillStyle: ['rgba(0,0,0,.2)'],
 					fill:[]
 				},
 				{
 					line: [
-						konflux.point(115, 65),
-						konflux.point(192, 127),
-						konflux.point(159, 150),
-						konflux.point(84, 90),
-						konflux.point(97, 59),
-						konflux.point(128, 34)
+						point(115, 65),
+						point(192, 127),
+						point(159, 150),
+						point(84, 90),
+						point(97, 59),
+						point(128, 34)
 					],
 					fillStyle: ['rgba(0,0,0,.2)'],
 					fill:[]
@@ -91,34 +92,34 @@
 				//  the dark base segment
 				{
 					line:[
-						konflux.point(45, 25),
-						konflux.point(0, 117),
-						konflux.point(39, 147),
-						konflux.point(54, 136),
-						konflux.point(14, 105),
-						konflux.point(59, 12)
+						point(45, 25),
+						point(0, 117),
+						point(39, 147),
+						point(54, 136),
+						point(14, 105),
+						point(59, 12)
 					],
 					fillStyle: ['rgb(50,50,50)'],
 					fill: []
 				},
 				{
 					line: [
-						konflux.point(97, 59),
-						konflux.point(84, 90),
-						konflux.point(159, 150),
-						konflux.point(175, 139),
-						konflux.point(99, 78),
-						konflux.point(112, 47)
+						point(97, 59),
+						point(84, 90),
+						point(159, 150),
+						point(175, 139),
+						point(99, 78),
+						point(112, 47)
 					],
 					fillStyle: ['rgb(50,50,50)'],
 					fill:[]
 				},
 				{
 					line: [
-						konflux.point(155, 30),
-						konflux.point(170, 18.4),
-						konflux.point(156, 56.8),
-						konflux.point(148, 50)
+						point(155, 30),
+						point(170, 18.4),
+						point(156, 56.8),
+						point(148, 50)
 					],
 					fillStyle: ['rgb(50,50,50)'],
 					fill:[]
@@ -135,13 +136,13 @@
 				//  the dark base segment
 				{
 					line:[
-						konflux.point(6, 88),
-						konflux.point(4, 70),
-						konflux.point(82, 132),
-						konflux.point(192, 44),
-						konflux.point(188, 62),
-						konflux.point(82, 150),
-						konflux.point(6, 88)
+						point(6, 88),
+						point(4, 70),
+						point(82, 132),
+						point(192, 44),
+						point(188, 62),
+						point(82, 150),
+						point(6, 88)
 					],
 					fillStyle:['rgb(25,25,25)'],
 					fill:[]
@@ -150,15 +151,15 @@
 				//  the main color fill
 				{
 					line:[
-						konflux.point(154, 0),
-						konflux.point(82, 50),
-						konflux.point(42, 24),
-						konflux.point(0, 50),
-						konflux.point(4, 70),
-						konflux.point(82, 132),
-						konflux.point(192, 44),
-						konflux.point(198, 24),
-						konflux.point(154, 0)
+						point(154, 0),
+						point(82, 50),
+						point(42, 24),
+						point(0, 50),
+						point(4, 70),
+						point(82, 132),
+						point(192, 44),
+						point(198, 24),
+						point(154, 0)
 					],
 					fillStyle:[Math.round(Math.random()) === 1 ? 'rgb(10,220,250)' : 'rgb(200,250,10)'],
 					fill:[]
@@ -168,13 +169,13 @@
 				{
 					globalAlpha:[0.2],
 					line:[
-						konflux.point(0, 50),
-						konflux.point(4, 70),
-						konflux.point(82, 132),
-						konflux.point(192, 44),
-						konflux.point(198, 24),
-						konflux.point(82, 112),
-						konflux.point(0, 50)
+						point(0, 50),
+						point(4, 70),
+						point(82, 132),
+						point(192, 44),
+						point(198, 24),
+						point(82, 112),
+						point(0, 50)
 					],
 					fillStyle:['rgb(0, 0, 0)'],
 					fill:[]
@@ -200,6 +201,7 @@
 		 */
 		function first() {
 			var p;
+
 			for (p in design) {
 				return p;
 			}

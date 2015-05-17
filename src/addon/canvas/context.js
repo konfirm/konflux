@@ -9,6 +9,8 @@
  *  @note    By default all methods available in the (browser own) canvas context are made available, the ones
  *           documented are merely the ones overrided/added.
  */
+
+//@dep: array
 function KonfluxCanvasContext(canvas, defaults) {
 	'use strict';
 

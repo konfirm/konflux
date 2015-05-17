@@ -16,7 +16,8 @@
 	 *  Isometric shapes based on konflux.polygon
 	 *  @module  iso
 	 *  @note    available as konflux.iso / kx.iso
-	 *  @note    All public methods from konflux.polygon are inherited by konflux.iso (allowing konflux.iso to move, snap, scale, etc (all in 2d space!))
+	 *  @note    All public methods from konflux.polygon are inherited by konflux.iso
+	 *           (allowing konflux.iso to move, snap, scale, etc (all in 2d space!))
 	 */
 	function KonfluxISO() {
 		/*jshint validthis: true*/

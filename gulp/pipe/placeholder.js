@@ -17,6 +17,27 @@ function date() {
 	}).join('-');
 }
 
+function contributors(match, prefix) {
+	var credits = fs.readFileSync(process.cwd() + '/AUTHORS')
+		.toString()
+		.split('\n')
+		.filter(function(line) {
+			return !!line && !/@konfirm/.test(line);
+		})
+	;
+
+	if (credits.length) {
+		credits.unshift('Contributors:');
+	}
+
+	return credits
+		.map(function(line, index) {
+			return prefix + (index ? '- ' : '') + line;
+		})
+		.join('\n')
+	;
+}
+
 module.exports = function(stream, devour) {
 	return stream
 		//  replace '$DATE$' with the current date
@@ -27,5 +48,8 @@ module.exports = function(stream, devour) {
 
 		//  replace '$COMMIT$' with the current git revision
 		.pipe(devour.plugin('replace', /\$COMMIT\$/g, rev('short')))
+
+		//  replace '$CONTRIBUTORS$' with the contents of the AUTHORS file, filtering anyone @konfirm
+		.pipe(devour.plugin('replace', /([\t \*]+)\$CONTRIBUTORS\$/g, contributors))
 	;
 };

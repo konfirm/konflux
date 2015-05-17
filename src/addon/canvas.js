@@ -5,8 +5,6 @@
  *   \  / /    Releases under the MIT license
  *    \/_/     More information: http://konfirm.net/konflux
  */
-
-//@dep: array
 ;(function(konflux) {
 	'use strict';
 

@@ -4,6 +4,8 @@
  *   /\/ / /   Copyright 2012-2015, Konfirm (Rogier Spieker)
  *   \  / /    Released under the MIT license
  *    \/_/     More information: http://konfirm.net/konflux
+ *
+ *  $CONTRIBUTORS$
  */
 
 ;(function(window, register, undefined) {

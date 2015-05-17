@@ -8,3 +8,9 @@ credits:
 
 authors:
 	@$(MAKE) credits > AUTHORS;
+
+clean:
+	@rm -rf ./build
+
+build:
+	@devour konflux script;

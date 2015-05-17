@@ -1,6 +1,5 @@
-'use strict';
-
 /*jshint browser:false, node:true*/
+'use strict';
 
 var	Devour = require('devour'),
 	devour = new Devour(require('./gulp/config/defaults.json'));
