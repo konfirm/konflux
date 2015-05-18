@@ -20,7 +20,7 @@
 		var canvas = this;
 
 		/*global KonfluxCanvasContext*/
-		//@embed canvas/context
+		//@include canvas/context
 
 		/**
 		 *  Create a new canvas

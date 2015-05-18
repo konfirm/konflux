@@ -12,7 +12,7 @@
 			stack = {};
 
 		/*global KonfluxTimingDelay*/
-		//@embed timing/delay
+		//@include timing/delay
 
 		/**
 		 *  Remove timer object by their reference

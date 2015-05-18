@@ -320,18 +320,19 @@
 	})(new Konflux());
 
 })(window, function(konflux) {
-	//@embed core/observer
-	//@embed core/browser
-	//@embed core/url
-	//@embed core/ajax
-	//@embed core/style
-	//@embed core/number
-	//@embed core/string
-	//@embed core/array
-	//@embed core/dom
-	//@embed core/event
-	//@embed core/timing
-	//@embed core/storage
-	//@embed core/point
-	//@embed core/iterator
+	//@register core/observer
+	//@register core/browser
+	//@register core/url
+	//@register core/ajax
+	//@register core/style
+	//@register core/number
+	//@register core/string
+	//@register core/array
+	//@register core/dom
+	//@register core/event
+	//@register core/timing
+	//@register core/storage
+	//@register core/point
+	//@register core/iterator
+	//@modules
 });

@@ -14,7 +14,7 @@
 			active = {};
 
 		/*global KonfluxObservation*/
-		//@embed observer/observation
+		//@include observer/observation
 
 		/**
 		 *  Create the subscription stack if it does not exist

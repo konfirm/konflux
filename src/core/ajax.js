@@ -14,7 +14,7 @@
 			header = false;
 
 		/*global KonfluxFormData*/
-		//@embed ajax/formdata
+		//@include ajax/formdata
 
 		/**
 		 *  Obtain the default headers
