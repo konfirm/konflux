@@ -11,17 +11,20 @@ new Wanted()
 		console.log('wanted %s: %s (%s)', module.state, module.name, module.version);
 	})
 	.on('ready', function(stat) {
-
-		new Devour(require('./gulp/config/defaults.json'))
-			.task(
-				'konflux',
-				//  the build pattern
-				[
+		var devour = new Devour(require('./gulp/config/defaults.json')),
+			build = {
+				konflux: [
 					//  do not build anything other than konflux.js
 					'!./src/*/**/*.js',
 					//  konflux.js
 					'./src/konflux.js',
-				],
+				]};
+
+		devour
+			.task(
+				'konflux',
+				//  the build pattern
+				build.konflux,
 				//  the watch pattern (we watch more than we build, thanks to the include plugin)
 				[
 					//  watch konflux.js
@@ -29,19 +32,6 @@ new Wanted()
 					//  watch core (and children)
 					'./src/core/**/*.js'
 				]
-			)
-
-			.task(
-				'konflux:event',
-				//  the build pattern
-				[
-					//  do not build anything other than konflux.js
-					'!./src/*/**/*.js',
-					//  konflux.js
-					'./src/konflux.js',
-				],
-				//  we don't want to build it by default
-				false
 			)
 
 			.task(
@@ -69,7 +59,13 @@ new Wanted()
 				//  update the prerelease version on every change
 				['./src/**/*.js']
 			)
+		;
 
+		['ajax', 'browser', 'dom', 'event', 'observer', 'style'].forEach(function(special) {
+			devour.task('konflux:' + special, build.konflux, false);
+		});
+
+		devour
 			.start()
 		;
 

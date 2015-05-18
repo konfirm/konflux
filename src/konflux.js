@@ -11,6 +11,8 @@
 ;(function(window, register, undefined) {
 	'use strict';
 
+	//@buildinfo
+
 	var version = '$DEV$ - $DATE$ - $COMMIT$';
 
 	/**

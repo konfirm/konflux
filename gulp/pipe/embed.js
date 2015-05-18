@@ -10,6 +10,7 @@ function Embed(devour, build) {
 			include: /([\t ]*)\/\/@(include|register):?\s*([a-z0-9_\-\.\/]+)\n/g,
 			depend: /@depend:?\s(.*)/g,
 			modules: /([\t ]*)\/\/@modules/,
+			info: /([\t ]*)\/\/@buildinfo/,
 
 			//  sanitation
 			header: /^;?\(function\([^\)]*\)\s*\{(?:\s*\/\/.*)?\s*(['"])use strict\1;?\n+/,
@@ -24,24 +25,67 @@ function Embed(devour, build) {
 
 	function processBuffer(buffer) {
 		var content = buffer.contents.toString(),
+			start = process.hrtime(),
 			dependencies;
 
 		content = resolve(buffer.contents.toString(), buffer.path);
-		dependencies = getDependencies(build, build && build.length > 0);
+		dependencies = getDependencies(build);
 
 		if (dependencies.length) {
 			content = content.replace(pattern.modules, function() {
-				return dependencies.map(function(dep) {
-
+				return dependencies.sort(function(a, b) {
+					return b.name < a.name;
+				}).map(function(dep) {
 					return dep.content;
 				}).join('\n');
 			});
 		}
 
+		content = buildInfo(content, start, dependencies);
+
 		buffer.contents = new Buffer(content);
 	}
 
-	function getDependencies(requires, announce) {
+	function buildInfo(content, start, dependencies) {
+		return content.replace(pattern.info, function(match, indentation) {
+			var result = [
+				'/**',
+				'BUILD INFO',
+				new Array(70).join('-'),
+				'  date: ' + new Date()
+			];
+
+			report(start, content.length).split(/[,\s]+/).forEach(function(unit, index) {
+				result.push((index === 0 ? '  time: ' : '  size: ') + unit);
+			});
+
+			if (build && build.length) {
+				result.push(
+					' build: ' + build.join(', ')
+				);
+			}
+
+			if (dependencies.length) {
+				result.push(
+					new Array(70).join('-'),
+					' files: included ' + dependencies.length + ' files'
+				);
+
+				result = result.concat(dependencies.map(function(dep) {
+					var size = unit(dep.content.length, 1024, ['bytes', 'KB', 'MB']);
+					return new Array(10 - size.length).join(' ') + '+' + size + ' ' + dep.name;
+				}));
+			}
+
+			result.push(' */');
+
+			return result.map(function(line, index, all) {
+				return indentation + (index > 0 && index < all.length - 1? ' *  ' : '') + line;
+			}).join('\n');
+		});
+	}
+
+	function getDependencies(requires) {
 		var changes = true,
 			keys = Object.keys(list),
 			deps = keys.filter(function(key) {
@@ -59,10 +103,6 @@ function Embed(devour, build) {
 					return 'dependant' in list[key].type && list[key].type.dependant.indexOf(dep) >= 0 && deps.indexOf(key) < 0;
 				}).forEach(function(key) {
 					if (append.indexOf(key) < 0) {
-						if (announce) {
-							console.log('%s ++ dependency: %s', new Array(iteration + 1).join(''), key);
-						}
-
 						append.push(key);
 					}
 				});
@@ -74,7 +114,9 @@ function Embed(devour, build) {
 			}
 		}
 
-		return deps.map(function(dep) {
+		return deps.sort(function(a, b) {
+			return b < a;
+		}).map(function(dep) {
 			return list[dep];
 		});
 	}
