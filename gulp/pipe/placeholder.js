@@ -38,6 +38,10 @@ function contributors(match, prefix) {
 	;
 }
 
+function year(match, preserve) {
+	return preserve + (new Date().getFullYear());
+}
+
 module.exports = function(stream, devour) {
 	return stream
 		//  replace '$DATE$' with the current date
@@ -51,5 +55,8 @@ module.exports = function(stream, devour) {
 
 		//  replace '$CONTRIBUTORS$' with the contents of the AUTHORS file, filtering anyone @konfirm
 		.pipe(devour.plugin('replace', /([\t \*]+)\$CONTRIBUTORS\$/g, contributors))
+
+		//  update the year in the copyright notice 'Copyright 2012-20xx'
+		.pipe(devour.plugin('replace', /(Copyright 20[1-9][0-9]\-)([0-9]{4})/, year))
 	;
 };

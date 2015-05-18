@@ -11,6 +11,7 @@ new Wanted()
 		console.log('wanted %s: %s (%s)', module.state, module.name, module.version);
 	})
 	.on('ready', function(stat) {
+
 		new Devour(require('./gulp/config/defaults.json'))
 			.task(
 				'konflux',
@@ -28,6 +29,19 @@ new Wanted()
 					//  watch core (and children)
 					'./src/core/**/*.js'
 				]
+			)
+
+			.task(
+				'konflux:event',
+				//  the build pattern
+				[
+					//  do not build anything other than konflux.js
+					'!./src/*/**/*.js',
+					//  konflux.js
+					'./src/konflux.js',
+				],
+				//  we don't want to build it by default
+				false
 			)
 
 			.task(

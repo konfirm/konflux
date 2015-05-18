@@ -1,7 +1,7 @@
 /*jshint node:true*/
 'use strict';
 
-module.exports = function(stream, devour, type) {
+module.exports = function(stream, devour, name, type) {
 	return stream
 		//  bump the prerelease version on each change
 		.pipe(devour.plugin('bump', {type:type || 'prerelease'}))
