@@ -1,4 +1,5 @@
 ;(function(konflux) {
+	//@depend: string
 	'use strict';
 
 	/**

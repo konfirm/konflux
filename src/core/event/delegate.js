@@ -5,6 +5,7 @@
  *  @access  internal
  */
 function KonfluxEventDelegate(unifier) {
+	//@depend: dom, string
 	'use strict';
 
 	/*global konflux*/

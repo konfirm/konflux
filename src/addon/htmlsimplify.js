@@ -6,7 +6,7 @@
  *    \/_/     More information: http://konfirm.net/konflux
  */
 
-//@dep: array, browser, iterator, style
+//@depends: array, browser, iterator, style
 ;(function(konflux) {
 	'use strict';
 

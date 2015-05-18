@@ -1,4 +1,5 @@
 ;(function(konflux) {
+	//@depend: browser, dom, iterator, point, string, style
 	'use strict';
 
 	/**

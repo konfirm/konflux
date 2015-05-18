@@ -1,4 +1,5 @@
 ;(function(konflux) {
+	//@depend: iterator, style
 	'use strict';
 
 	/**

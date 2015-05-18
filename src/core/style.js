@@ -1,4 +1,5 @@
 ;(function(konflux) {
+	//@depend: array, browser, event, string, url
 	'use strict';
 
 	/**

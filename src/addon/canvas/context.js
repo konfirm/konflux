@@ -10,7 +10,7 @@
  *           documented are merely the ones overrided/added.
  */
 
-//@dep: array
+//@depends: array
 function KonfluxCanvasContext(canvas, defaults) {
 	'use strict';
 

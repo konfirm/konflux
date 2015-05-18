@@ -6,7 +6,7 @@
  *    \/_/     More information: http://konfirm.net/konflux
  */
 
-//@dep: polygon
+//@depends: polygon
 ;(function(konflux) {
 	'use strict';
 

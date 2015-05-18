@@ -9,6 +9,7 @@
  *  @return  KonfluxTimingDelay  object
  */
 function KonfluxTimingDelay(handler, timeout, reference) {
+	//@depend: browser
 	'use strict';
 
 	/*jshint validthis: true*/
