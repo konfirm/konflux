@@ -30,13 +30,15 @@ function Embed(devour, build) {
 		dependencies = getDependencies(build, build && build.length > 0);
 
 		if (dependencies.length) {
-			buffer.contents = new Buffer(content.replace(pattern.modules, function() {
+			content = content.replace(pattern.modules, function() {
 				return dependencies.map(function(dep) {
 
 					return dep.content;
 				}).join('\n');
-			}));
+			});
 		}
+
+		buffer.contents = new Buffer(content);
 	}
 
 	function getDependencies(requires, announce) {
