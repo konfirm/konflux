@@ -1,7 +1,7 @@
 {
   "name": "konflux",
   "private": true,
-  "version": "1.0.0-alpha.6",
+  "version": "1.0.0-alpha.11",
   "description": "Project template for gulp based development flows",
   "main": "index.js",
   "scripts": {},
