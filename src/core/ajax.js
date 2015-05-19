@@ -241,11 +241,9 @@
 				};
 
 			stat[t.toUpperCase()] = 0;
-			/*
 			konflux.observer.subscribe('konflux.ajax.' + t.toLowerCase(), function(ob, config) {
 				handler(config);
 			});
-			*/
 
 			return handler;
 		}
