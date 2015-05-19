@@ -55,11 +55,12 @@ new Wanted()
 			.task(
 				'bump',
 				//  the build pattern
-				['./package.json'],
+				'./package.json',
 				//  update the prerelease version on every change
-				['./src/**/*.js']
+				'./src/**/*.js'
 			)
 		;
+
 
 		['ajax', 'browser', 'dom', 'event', 'observer', 'style'].forEach(function(special) {
 			devour.task('konflux:' + special, build.konflux, false);

@@ -5,6 +5,7 @@ function Embed(devour, build) {
 	var embed = this,
 		fs = require('fs'),
 		through = require('through2'),
+		topsort = require('topsort'),
 		pattern = {
 			//  declarative
 			include: /([\t ]*)\/\/@(include|register):?\s*([a-z0-9_\-\.\/]+)\n/g,
@@ -33,11 +34,11 @@ function Embed(devour, build) {
 
 		if (dependencies.length) {
 			content = content.replace(pattern.modules, function() {
-				return dependencies.sort(function(a, b) {
-					return b.name < a.name;
-				}).map(function(dep) {
-					return dep.content;
-				}).join('\n');
+				return dependencies
+					.map(function(dep) {
+						return dep.content;
+					}).join('\n')
+				;
 			});
 		}
 
@@ -72,8 +73,11 @@ function Embed(devour, build) {
 				);
 
 				result = result.concat(dependencies.map(function(dep) {
-					var size = unit(dep.content.length, 1024, ['bytes', 'KB', 'MB']);
-					return new Array(10 - size.length).join(' ') + '+' + size + ' ' + dep.name;
+					var size = unit(dep.content.length, 1024, ['bytes', 'KB', 'MB']),
+						dependant = dependsOn(dep, dependencies);
+
+					return new Array(10 - size.length).join(' ') + '+' + size + ' ' + dep.name +
+						(dependant.length ? ' [uses: ' + dependant.join(', ') + ']' : '');
 				}));
 			}
 
@@ -85,40 +89,75 @@ function Embed(devour, build) {
 		});
 	}
 
+	function dependsOn(module, dependencies) {
+		var deps;
+
+		if (!('type' in module && 'dependency' in module.type)) {
+			return [];
+		}
+
+		deps = dependencies.map(function(dep) {
+			return dep.name;
+		});
+
+		return module.type.dependency
+			.filter(function(dep) {
+				return deps.indexOf(dep) >= 0;
+			})
+			.map(function(dep) {
+				return dep.replace(/(?:src|core)\/?/g, '');
+			})
+		;
+	}
+
 	function getDependencies(requires) {
-		var changes = true,
-			keys = Object.keys(list),
+		var keys = Object.keys(list),
 			deps = keys.filter(function(key) {
 				return !list[key].included && (requires.length <= 0 || requires.indexOf(key) >= 0);
 			}),
-			iteration = 0,
-			append;
+			changes = true,
+			result;
 
+		//  resolve dependencies of dependencies
 		while (changes) {
-			append = [];
-			++iteration;
+			result = [];
 
 			deps.forEach(function(dep) {
-				keys.filter(function(key) {
-					return 'dependant' in list[key].type && list[key].type.dependant.indexOf(dep) >= 0 && deps.indexOf(key) < 0;
-				}).forEach(function(key) {
-					if (append.indexOf(key) < 0) {
-						append.push(key);
-					}
-				});
+				if ('type' in list[dep] && 'dependency' in list[dep].type) {
+					result = result.concat(list[dep].type.dependency.filter(function(name) {
+						return result.indexOf(name) < 0 && deps.indexOf(name) < 0;
+					}));
+				}
 			});
 
-			changes = append.length;
+			changes = result.length;
 			if (changes) {
-				deps = deps.concat(append);
+				deps = deps.concat(result);
 			}
 		}
 
-		return deps.sort(function(a, b) {
-			return b < a;
-		}).map(function(dep) {
-			return list[dep];
+		deps.forEach(function(name) {
+			var deps = (list[name].type.dependency || []);
+
+			if (deps.length) {
+				result = result.concat(deps.map(function(dep) {
+					return [name, dep];
+				}));
+			}
+			else {
+				result.push([name]);
+			}
 		});
+
+		return topsort(result, {continueOnCircularDependency:true})
+			.reverse()
+			.filter(function(name) {
+				return !!name;
+			})
+			.map(function(name) {
+				return list[name];
+			})
+		;
 	}
 
 	function resolve(content, origin, indent) {
@@ -166,7 +205,7 @@ function Embed(devour, build) {
 		//  extract dependencies
 		content = content.replace(pattern.depend, function(match, files) {
 			files.split(pattern.separator).forEach(function(file) {
-				include(getProjectOffset('src/core/' + file), origin, 'dependant');
+				include(origin, getProjectOffset('src/core/' + file), 'dependency');
 			});
 
 			//  remove them from the output

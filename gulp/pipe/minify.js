@@ -17,7 +17,7 @@ module.exports = function(stream, devour) {
 		.pipe(devour.plugin('sourcemaps').write('./', {sourceRoot: './'}))
 
 		//  report the new filesize
-		.pipe(devour.plugin('filesize'))
+		.pipe(devour.pipe('size'))
 
 		//  write the (now) minified sources to the output directory
 		.pipe(devour.write())

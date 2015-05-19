@@ -8,5 +8,8 @@ module.exports = function(stream, devour, list) {
 
 		//  replace the placeholders
 		.pipe(devour.pipe('placeholder'))
+
+		//  report the new filesize
+		.pipe(devour.pipe('size'))
 	;
 };
