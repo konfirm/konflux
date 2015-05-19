@@ -35,7 +35,7 @@ new Wanted()
 			)
 
 			.task(
-				'script',
+				'addon',
 				//  the build pattern
 				[
 					//  we want averything in the subdirectories, except for core stuff
