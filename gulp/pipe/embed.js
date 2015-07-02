@@ -50,7 +50,7 @@ function Embed(devour, build) {
 	function buildInfo(content, start, dependencies) {
 		return content.replace(pattern.info, function(match, indentation) {
 			var result = [
-				'/**',
+				'/*',
 				'BUILD INFO',
 				new Array(70).join('-'),
 				'  date: ' + new Date()

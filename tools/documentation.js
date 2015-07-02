@@ -236,13 +236,13 @@ glob('../build/**/*.js', function(error, files) {
 				if (!workers.length) {
 					clearTimeout(timer);
 					timer = setTimeout(function() {
-//						process.stderr.write(JSON.stringify(collect, null, 2));
-						process.stdout.write(markup(collect.sort(function(a, b) {
-							var pathA = a.file.split('/'),
-								pathB = b.file.split('/');
-
-							return pathB.length < pathA.length || b.file - a.file;
-						})));
+						process.stdout.write(JSON.stringify(collect, null, 2));
+// 						process.stdout.write(markup(collect.sort(function(a, b) {
+// 							var pathA = a.file.split('/'),
+// 								pathB = b.file.split('/');
+//
+// 							return pathB.length < pathA.length || b.file - a.file;
+// 						})));
 					}, 100);
 				}
 			});
