@@ -534,7 +534,7 @@
 			}
 
 			//  if rules isn't an object, we exit right here
-			if (konflux.isType('object', rules)) {
+			if (!konflux.isType('object', rules)) {
 				return false;
 			}
 
