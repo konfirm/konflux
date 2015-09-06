@@ -1,6 +1,6 @@
 {
 	"copyright": "Konfirm ⓒ 2015",
-	"output": "./build/konflux",
+	"output": "./build",
 	"defaults": [
 		"plumber"
 	]

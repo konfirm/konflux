@@ -4,6 +4,7 @@
 module.exports = function(stream, devour, name) {
 	var match = name.match(/([a-z]+)(?::(.*))?/),
 		list = [],
+		special = false,
 		suffix;
 
 	if (match) {
@@ -11,7 +12,8 @@ module.exports = function(stream, devour, name) {
 			list = match[2].split(/[,\s]+/).map(function(key) {
 				return 'src/core/' + key;
 			});
-			suffix = match[2].replace(/[^a-z]+/i, '-');
+			name = match[0].replace(/[^a-z]+/i, '-');
+			special = true;
 		}
 	}
 
@@ -21,19 +23,19 @@ module.exports = function(stream, devour, name) {
 
 		//  rename the file if we are dealing with a special compilation
 		.pipe(devour.plugin('rename', function(file) {
-			if (suffix) {
-				file.basename += '-' + suffix;
+			if (special) {
+				file.basename = name;
 				console.log('Building special "%s" version, saved as %s', match[2], file.basename + file.extname);
 			}
 		}))
 
 		//  write the full source to the output directory
-		.pipe(devour.write())
+		.pipe(devour.write(name))
 
 		//  check the syntax
 		.pipe(devour.plugin('jscs'))
 
 		//  call the 'minify' pipe
-		.pipe(devour.pipe('minify'))
+		.pipe(devour.pipe('minify', name))
 	;
 };

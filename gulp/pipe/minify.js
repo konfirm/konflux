@@ -1,7 +1,7 @@
 /*jshint node:true*/
 'use strict';
 
-module.exports = function(stream, devour) {
+module.exports = function(stream, devour, suffix) {
 	return stream
 		//  initialize the sourcemap creator
 		.pipe(devour.plugin('sourcemaps').init())
@@ -20,6 +20,6 @@ module.exports = function(stream, devour) {
 		.pipe(devour.pipe('size'))
 
 		//  write the (now) minified sources to the output directory
-		.pipe(devour.write())
+		.pipe(devour.write(suffix))
 	;
 };
