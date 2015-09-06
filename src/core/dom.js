@@ -230,17 +230,19 @@
 				return false;
 			}
 			else {
-				return hidden ? (name in element ? element[name] : null) : element.getAttribute('data-' + name);
+				reference = hidden ? (name in element ? element[name] : null) : element.getAttribute('data-' + name);
 			}
 
 			//  if no reference was set yet, do so now
-			reference = konflux.unique();
+			if (!reference) {
+				reference = konflux.unique();
 
-			if (hidden) {
-				element[name] = reference;
-			}
-			else {
-				element.setAttribute('data-' + name, reference);
+				if (hidden) {
+					element[name] = reference;
+				}
+				else {
+					element.setAttribute('data-' + name, reference);
+				}
 			}
 
 			return reference;
