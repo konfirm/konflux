@@ -64,6 +64,7 @@ new Wanted()
 
 		['ajax', 'browser', 'dom', 'event', 'observer', 'style'].forEach(function(special) {
 			devour.task('konflux:' + special, build.konflux, false);
+			console.log('To build the special ' + special + ' packages, run:\n\tdevour konflux:' + special + '\n');
 		});
 
 		devour

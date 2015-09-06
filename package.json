@@ -1,14 +1,16 @@
 {
   "name": "konflux",
   "private": true,
-  "version": "1.0.0-alpha.49",
-  "description": "Project template for gulp based development flows",
+  "version": "1.0.0-alpha.55",
+  "description": "Konflux javascript library",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "specials": "devour konflux:ajax konflux:browser konflux:dom konflux:event konflux:observer konflux:style"
+  },
   "keywords": [
     "konflux"
   ],
-  "author": "Rogier Spieker",
+  "author": "Rogier Spieker <rogier+konflux@konfirm.io>",
   "homepage": "https://github.com/konfirm/konflux",
   "license": "MIT",
   "bugs": {

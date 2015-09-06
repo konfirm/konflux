@@ -1,6 +1,7 @@
 {
 	"copyright": "Konfirm ⓒ 2015",
 	"output": "./build",
+	"verbose": 2,
 	"defaults": [
 		"plumber"
 	]
