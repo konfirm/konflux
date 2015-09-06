@@ -1,11 +1,11 @@
 /**
  *  Context wrapper, this is the actual 'canvas' which gets returned
- *  @name    kxCanvasContext
+ *  @name    KonfluxCanvasContext
  *  @type    module
  *  @access  internal
  *  @param   DOMElement canvas
  *  @param   object default properties
- *  @return  kxCanvasContext instance
+ *  @return  KonfluxCanvasContext instance
  *  @note    By default all methods available in the (browser own) canvas context are made available, the ones
  *           documented are merely the ones overrided/added.
  */
@@ -20,7 +20,7 @@ function KonfluxCanvasContext(canvas, defaults) {
 	var context = this;
 
 	/**
-	 *  kxCanvasContext initializer function
+	 *  KonfluxCanvasContext initializer function
 	 *  @name    init
 	 *  @type    function
 	 *  @access  internal
@@ -36,7 +36,7 @@ function KonfluxCanvasContext(canvas, defaults) {
 
 		//  relay all methods
 		for (p in context.ctx2d) {
-			if (typeof context[p] === 'function') {
+			if (!konflux.isType('function', context[p])) {
 				if (konflux.isType('function', context.ctx2d[p])) {
 					context[p] = relayMethod(context.ctx2d[p]);
 				}
@@ -55,7 +55,7 @@ function KonfluxCanvasContext(canvas, defaults) {
 	}
 
 	/**
-	 *  Create a delegation function which call a context method and returns the kxCanvasContext
+	 *  Create a delegation function which call a context method and returns the KonfluxCanvasContext
 	 *  instance (providing chainability)
 	 *  @name    relayMethod
 	 *  @type    function
@@ -71,7 +71,7 @@ function KonfluxCanvasContext(canvas, defaults) {
 	}
 
 	/**
-	 *  Create a delegation function which gets/sets a canvas value and returns the kxCanvasContext
+	 *  Create a delegation function which gets/sets a canvas value and returns the KonfluxCanvasContext
 	 *  instance (providing chainability)
 	 *  @name    relayCanvasProperty
 	 *  @type    function
@@ -95,7 +95,7 @@ function KonfluxCanvasContext(canvas, defaults) {
 	}
 
 	/**
-	 *  Create a delegation function which gets/sets a context value and returns the kxCanvasContext
+	 *  Create a delegation function which gets/sets a context value and returns the KonfluxCanvasContext
 	 *  instance (providing chainability)
 	 *  @name    relayProperty
 	 *  @type    function
@@ -125,7 +125,7 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 *  @access  internal
 	 *  @param   object gradient
 	 *  @param   object color ({<position>:<color>})
-	 *  @return  object kxCanvasContext
+	 *  @return  object KonfluxCanvasContext
 	 */
 	function gradientFill(gradient, color) {
 		var p;
@@ -148,7 +148,7 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 *  @param   mixed point (one of: kxPoint or Array of points)
 	 *  @param   mixed ...
 	 *  @param   mixed pointN
-	 *  @return  object kxCanvasContext
+	 *  @return  object KonfluxCanvasContext
 	 */
 	function path() {
 		var arg = konflux.array.cast(arguments),
@@ -222,7 +222,7 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 *  @access  public
 	 *  @param   string data (one of: the full data url to apply, or the mime type to obtain)
 	 *  @param   number quality (only used when obtaining the dataURL)
-	 *  @return  mixed  result (string dataURL when obtaining, object kxCanvasContext when providing)
+	 *  @return  mixed  result (string dataURL when obtaining, object KonfluxCanvasContext when providing)
 	 */
 	context.data = function(data, quality) {
 		var image;
@@ -239,12 +239,12 @@ function KonfluxCanvasContext(canvas, defaults) {
 	};
 
 	/**
-	 *  Append the canvas object associtated with the current kxCanvasContext to given DOM target
+	 *  Append the canvas object associtated with the current KonfluxCanvasContext to given DOM target
 	 *  @name    append
 	 *  @type    method
 	 *  @access  public
 	 *  @param   mixed target (one of: DOMElement or string id)
-	 *  @return  mixed result (kxCanvasContext on success, bool false otherwise)
+	 *  @return  mixed result (KonfluxCanvasContext on success, bool false otherwise)
 	 */
 	context.append = function(target) {
 		if (konflux.isType('string', target)) {
@@ -267,7 +267,7 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 *  @param   number offsetY (skipped if not a number)
 	 *  @param   number blur (skipped if not a number)
 	 *  @param   mixed color (applied as provided, if provided)
-	 *  @return  object kxCanvasContext
+	 *  @return  object KonfluxCanvasContext
 	 */
 	context.shadow = function(x, y, blur, color) {
 		if (konflux.isType('number', x)) {
@@ -303,15 +303,15 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 *  @param   number     targetY
 	 *  @param   number     targetWidth [optional, default null - sourceWidth]
 	 *  @param   number     targetHeight [optional, default null - sourceHeight]
-	 *  @return  object     kxCanvasContext
+	 *  @return  object     KonfluxCanvasContext
 	 *  @note    This method is fully compatible with the native drawImage method:
 	 *           https://developer.mozilla.org/en/docs/Web/API/CanvasRenderingContext2D#drawImage()
 	 */
 	context.drawImage = function() {
 		var arg = konflux.array.cast(arguments);
 
-		//  if we have a request to draw a kxCanvasContext, we honorate it by fetching its canvas
-		if (arg[0] instanceof kxCanvasContext) {
+		//  if we have a request to draw a KonfluxCanvasContext, we honorate it by fetching its canvas
+		if (arg[0] instanceof KonfluxCanvasContext) {
 			arg[0] = arg[0].ctx2d.canvas;
 		}
 
@@ -342,7 +342,7 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 *  @type    method
 	 *  @access  public
 	 *  @param   mixed color (applied as provided, if provided, using the default fillStyle otherwise)
-	 *  @return  object kxCanvasContext
+	 *  @return  object KonfluxCanvasContext
 	 */
 	context.colorFill = function(color) {
 		if (color) {
@@ -362,7 +362,7 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 *  @param   mixed color
 	 *  @param   number width (line thickness)
 	 *  @param   string lineCap (one of: 'butt','round','square')
-	 *  @return  object kxCanvasContext
+	 *  @return  object KonfluxCanvasContext
 	 */
 	context.strokeStyle = function(color, width, cap) {
 		if (color) {
@@ -390,7 +390,7 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 *  @param   kxPoint centerB (instead of a kxPoint, an object {x:<num>, y:<num>} will suffice)
 	 *  @param   number radiusB
 	 *  @param   mixed color
-	 *  @return  object kxCanvasContext
+	 *  @return  object KonfluxCanvasContext
 	 */
 	context.radialGradientFill = function(a, ar, b, br, color) {
 		return gradientFill(context.ctx2d.createRadialGradient(a.x, a.y, ar, b.x, b.y, br), color);
@@ -404,7 +404,7 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 *  @param   kxPoint from (instead of a kxPoint, an object {x:<num>, y:<num>} will suffice)
 	 *  @param   kxPoint to (instead of a kxPoint, an object {x:<num>, y:<num>} will suffice)
 	 *  @param   mixed color
-	 *  @return  object kxCanvasContext
+	 *  @return  object KonfluxCanvasContext
 	 */
 	context.linearGradientFill = function(a, b, color) {
 		return gradientFill(context.ctx2d.createLinearGradient(a.x, a.y, b.x, b.y), color);
@@ -417,7 +417,7 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 *  @access  public
 	 *  @param   kxPoint center (instead of a kxPoint, an object {x:<num>, y:<num>} will suffice)
 	 *  @param   number  radius
-	 *  @return  object kxCanvasContext
+	 *  @return  object KonfluxCanvasContext
 	 */
 	context.circle = function(p, radius) {
 		return context
@@ -436,7 +436,7 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 *  @param   mixed point (one of: kxPoint or Array of points)
 	 *  @param   mixed ...
 	 *  @param   mixed pointN
-	 *  @return  object kxCanvasContext
+	 *  @return  object KonfluxCanvasContext
 	 */
 	context.path = path;
 
@@ -461,7 +461,7 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 *  @param   object kxPoint (top left corner)
 	 *  @param   object kxPoint (bottom right corner)
 	 *  @param   number radius
-	 *  @return  object kxCanvasContext
+	 *  @return  object KonfluxCanvasContext
 	 */
 	context.roundedRect = function(a, b, radius) {
 		return context
@@ -487,7 +487,7 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 *  @param   mixed point (one of: kxPoint or Array of points)
 	 *  @param   mixed ...
 	 *  @param   mixed pointN
-	 *  @return  object kxCanvasContext
+	 *  @return  object KonfluxCanvasContext
 	 */
 	context.line = function() {
 		return context
