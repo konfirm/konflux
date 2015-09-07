@@ -636,11 +636,11 @@
 
 			property = hasProperty(property);
 			if (property) {
-				if (element.currentStyle) {
-					value = element.currentStyle(scriptProperty(property));
-				}
-				else if (window.getComputedStyle) {
+				if (window.getComputedStyle) {
 					value = document.defaultView.getComputedStyle(element, pseudo || null).getPropertyValue(cssProperty(property));
+				}
+				else if (element.currentStyle) {
+					value = element.currentStyle(scriptProperty(property));
 				}
 			}
 
