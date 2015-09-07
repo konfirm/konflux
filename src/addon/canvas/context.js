@@ -14,8 +14,6 @@
 function KonfluxCanvasContext(canvas, defaults) {
 	'use strict';
 
-	/*global konflux*/
-
 	/*jshint validthis: true*/
 	var context = this;
 
@@ -27,17 +25,18 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 *  @return  void
 	 */
 	function init() {
-		var property = konflux.combine(defaults || {}, {
+		var property = combine(defaults || {}, {
 				height: null,
 				width: null
 			}),
 			p;
+
 		context.ctx2d = canvas.getContext('2d');
 
 		//  relay all methods
 		for (p in context.ctx2d) {
-			if (!konflux.isType('function', context[p])) {
-				if (konflux.isType('function', context.ctx2d[p])) {
+			if (typeof context[p] !== 'function') {
+				if (typeof context.ctx2d[p] === 'function') {
 					context[p] = relayMethod(context.ctx2d[p]);
 				}
 				else if (p in context.ctx2d.canvas) {
@@ -53,6 +52,29 @@ function KonfluxCanvasContext(canvas, defaults) {
 			}
 		}
 	}
+
+	/**
+	 *  Shallow object cloner
+	 *  @name    combine
+	 *  @access  internal
+	 *  @param   Object a...
+	 *  @return  Object combined
+	 */
+	function combine() {
+		var obj = {},
+			arg = arguments,
+			i, p;
+
+		for (i = 0; i < arg.length; ++i) {
+			if (kx.isType('object', arg[i])) {
+				for (p in arg[i]) {
+					obj[p] = p in obj && kx.isType('object', obj[p]) ? combine(arg[i][p], obj[p]) : arg[i][p];
+				}
+			}
+		}
+
+		return obj;
+	};
 
 	/**
 	 *  Create a delegation function which call a context method and returns the KonfluxCanvasContext
@@ -82,7 +104,7 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 */
 	function relayCanvasProperty(key, ro) {
 		return function(value) {
-			if (konflux.isType('undefined', value)) {
+			if (typeof value === 'undefined') {
 				return context.ctx2d.canvas[key];
 			}
 
@@ -106,7 +128,7 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 */
 	function relayProperty(key, ro) {
 		return function(value) {
-			if (konflux.isType('undefined', value)) {
+			if (typeof value === 'undefined') {
 				return context.ctx2d[key];
 			}
 
@@ -151,7 +173,7 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 *  @return  object KonfluxCanvasContext
 	 */
 	function path() {
-		var arg = konflux.array.cast(arguments),
+		var arg = Array.prototype.slice.call(arguments),
 			len = arguments.length,
 			i;
 
@@ -188,14 +210,14 @@ function KonfluxCanvasContext(canvas, defaults) {
 		if (width > 0 && width < 1) {
 			width = Math.round(canvas.width * width);
 		}
-		else if (konflux.isType('string', width) && percentage.test(width)) {
+		else if (typeof width === 'string' && percentage.test(width)) {
 			width = Math.round(canvas.width * (parseInt(width, 10) / 100));
 		}
 
 		if (height > 0 && height < 1) {
 			height = Math.round(canvas.height * height);
 		}
-		else if (konflux.isType('string', height) && percentage.test(height)) {
+		else if (typeof height === 'string' && percentage.test(height)) {
 			height = Math.round(canvas.height * (parseInt(height, 10) / 100));
 		}
 
@@ -207,7 +229,7 @@ function KonfluxCanvasContext(canvas, defaults) {
 		}
 
 		if (width && height) {
-			cnvs = konflux.canvas.create(width, height);
+			cnvs = canvas.create(width, height);
 			cnvs.drawImage(context, 0, 0, canvas.width, canvas.height, 0, 0, width, height);
 			return cnvs;
 		}
@@ -232,6 +254,7 @@ function KonfluxCanvasContext(canvas, defaults) {
 			image.src = data;
 			context.ctx2d.clearRect(0, 0, canvas.width, canvas.height);
 			context.drawImage(image, 0, 0);
+
 			return context;
 		}
 
@@ -247,11 +270,11 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 *  @return  mixed result (KonfluxCanvasContext on success, bool false otherwise)
 	 */
 	context.append = function(target) {
-		if (konflux.isType('string', target)) {
+		if (typeof target === 'string') {
 			target = document.getElementById(target);
 		}
 
-		if (konflux.isType('object', target)) {
+		if (typeof target === 'object' && !(target instanceof Array)) {
 			return target.appendChild(canvas) ? context : false;
 		}
 
@@ -270,19 +293,19 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 *  @return  object KonfluxCanvasContext
 	 */
 	context.shadow = function(x, y, blur, color) {
-		if (konflux.isType('number', x)) {
+		if (typeof x === 'number') {
 			context.shadowOffsetX(x);
 		}
 
-		if (konflux.isType('number', y)) {
+		if (typeof y === 'number') {
 			context.shadowOffsetY(y);
 		}
 
-		if (konflux.isType('number', blur)) {
+		if (typeof blur === 'number') {
 			context.shadowBlur(blur);
 		}
 
-		if (!konflux.isType('undefined', color)) {
+		if (typeof color !== 'undefined') {
 			context.shadowColor(color);
 		}
 
@@ -308,7 +331,7 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 *           https://developer.mozilla.org/en/docs/Web/API/CanvasRenderingContext2D#drawImage()
 	 */
 	context.drawImage = function() {
-		var arg = konflux.array.cast(arguments);
+		var arg = Array.prototype.slice.call(arguments);
 
 		//  if we have a request to draw a KonfluxCanvasContext, we honorate it by fetching its canvas
 		if (arg[0] instanceof KonfluxCanvasContext) {
@@ -331,7 +354,7 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 *  @return  ImageData data
 	 */
 	context.getImageData = function() {
-		var arg = konflux.array.cast(arguments);
+		var arg = Array.prototype.slice.call(arguments);
 
 		return context.ctx2d.getImageData.apply(context.ctx2d, arg);
 	};

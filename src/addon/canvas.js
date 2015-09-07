@@ -64,7 +64,7 @@
 		 *  @return  object KonfluxCanvasContext (bool false if the mixed source did not lead to an KonfluxCanvasContext instance)
 		 */
 		canvas.append = function(target, mixed) {
-			if (konflux.isType('number', mixed)) {
+			if (typeof mixed === 'number') {
 				mixed = canvas.create(mixed, arguments.length > 2 ? arguments[2] : mixed);
 			}
 
@@ -77,6 +77,11 @@
 	}
 
 	//  Append the module to konflux
-	konflux.register('canvas', new KonfluxCanvas());
+	if (konflux && typeof konflux.register === 'function') {
+		konflux.register('canvas', new KonfluxCanvas());
+	}
+	else {
+		window.kxCanvas = new KonfluxCanvas();
+	}
 
-})(window.konflux);
+})('konflux' in window ? window.konflux : false);
