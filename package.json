@@ -1,7 +1,7 @@
 {
   "name": "konflux",
   "private": true,
-  "version": "1.0.0-alpha.59",
+  "version": "1.0.0-alpha.62",
   "description": "Konflux javascript library",
   "main": "index.js",
   "scripts": {
@@ -22,6 +22,7 @@
     "esprima": "^2.6.0",
     "esprima-ast-utils": "0.0.6",
     "git-revision": "0.0.1",
+    "git-state": "^2.4.0",
     "glob": "^5.0.14",
     "gulp-bump": "^0.3.1",
     "gulp-concat": "^2.6.0",
@@ -35,6 +36,7 @@
     "gulp-uglify": "^1.4.0",
     "gulp-util": "3.0.6",
     "jshint-stylish": "^2.0.1",
+    "request": "^2.62.0",
     "submerge": "^1.0.9",
     "through2": "^2.0.0",
     "topsort": "0.0.2",

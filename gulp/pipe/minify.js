@@ -2,6 +2,8 @@
 'use strict';
 
 module.exports = function(stream, devour, suffix) {
+	console.log(suffix);
+
 	return stream
 		//  initialize the sourcemap creator
 		.pipe(devour.plugin('sourcemaps').init())
@@ -21,5 +23,8 @@ module.exports = function(stream, devour, suffix) {
 
 		//  write the (now) minified sources to the output directory
 		.pipe(devour.write(suffix))
+
+		//  push the file to an upstream location (if configured)
+		.pipe(devour.pipe('push'))
 	;
 };

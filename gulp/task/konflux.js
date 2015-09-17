@@ -4,8 +4,7 @@
 module.exports = function(stream, devour, name) {
 	var match = name.match(/([a-z]+)(?::(.*))?/),
 		list = [],
-		special = false,
-		suffix;
+		special = false;
 
 	if (match) {
 		if (match[2]) {
@@ -31,6 +30,9 @@ module.exports = function(stream, devour, name) {
 
 		//  write the full source to the output directory
 		.pipe(devour.write(name))
+
+		//  push the file to an upstream location (if configured)
+		.pipe(devour.pipe('push'))
 
 		//  check the syntax
 		.pipe(devour.plugin('jscs'))

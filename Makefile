@@ -19,16 +19,19 @@ clean:
 build:
 	@devour konflux script;
 
+build-all:
+	@devour konflux konflux:{ajax,browser,dom,event,iterator,observer,style};
+
 #  create a package for the minified sources
 release-min:
 	@find ./build/konflux/* -iname "*.map" -o -iname "*.min.js" | \
-		xargs tar zcf ./build/konflux-`node -pe "require('./package.json').version"`-min-map.tgz
+		xargs tar zcf ./build/konflux-`node -pe "require('./package.json').version"`-min-map.tgz;
 
 #  create a package for the full (compiled) sources
 release-full:
 	@find ./build/konflux/* -name "*.js" | \
 		grep -v "min.js" | grep -v "min.js.map" | \
-		xargs tar zcf ./build/konflux-`node -pe "require('./package.json').version"`.tgz
+		xargs tar zcf ./build/konflux-`node -pe "require('./package.json').version"`.tgz;
 
 #  create both the full and the minified packages
 release:
