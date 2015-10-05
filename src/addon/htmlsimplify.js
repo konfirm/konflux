@@ -76,9 +76,9 @@
 
 			//  if option is an array, we call this function for each value
 			if (option instanceof Array) {
-				konflux.iterator(option).each(function() {
+				konflux.iterator(option).each(function(item) {
 					if (!result) {
-						result = styleMatch(value, this);
+						result = styleMatch(value, item);
 					}
 				});
 
@@ -111,13 +111,13 @@
 		 *  @return  DOMNode  scope
 		 */
 		function unifyStyle(source, scope) {
-			konflux.iterator(settings.style).each(function() {
-				var value = konflux.style.get(source, this.property),
-					differ = value !== konflux.style.get(scope, this.property),
-					allow = 'allow' in this && konflux.array.contains(this.allow, source.nodeName.toLowerCase());
+			konflux.iterator(settings.style).each(function(object) {
+				var value = konflux.style.get(source, object.property),
+					differ = value !== konflux.style.get(scope, object.property),
+					allow = 'allow' in object && konflux.array.contains(object.allow, source.nodeName.toLowerCase());
 
-				if (differ && styleMatch(value, this.value) && !allow) {
-					scope = scope.appendChild(document.createElement(settings.replace[this.replace]));
+				if (differ && styleMatch(value, object.value) && !allow) {
+					scope = scope.appendChild(document.createElement(settings.replace[object.replace]));
 				}
 			});
 
@@ -140,11 +140,11 @@
 
 			//  triage, determine if the source element matches any of the allowed ones
 			if (match && match.apply(source, [settings.selector.join(',')])) {
-				konflux.iterator(settings.selector).each(function() {
+				konflux.iterator(settings.selector).each(function(selector) {
 					//  determine which selector matches (could be multiple)
-					if (match.apply(source, [this])) {
+					if (match.apply(source, [selector])) {
 						//  if the selector matches a node name, we shift the scope to this node
-						if ((result = this.match(/^([a-z]+)/i)) && !match.apply(scope, [result[1]])) {
+						if ((result = selector.match(/^([a-z]+)/i)) && !match.apply(scope, [result[1]])) {
 							scope = scope.appendChild(document.createElement(source.nodeName.toLowerCase()));
 						}
 
