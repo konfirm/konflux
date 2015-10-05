@@ -147,7 +147,7 @@
 						scope = scope.appendChild(document.createElement(source.nodeName.toLowerCase()));
 
 						//  if the selector matches one or more attributes, we copy the attributes' full values
-						while ((result = attr.exec(this))) {
+						while ((result = attr.exec(selector))) {
 							scope.setAttribute(result[1], source.getAttribute(result[1]));
 						}
 					}
