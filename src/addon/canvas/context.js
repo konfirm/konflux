@@ -15,6 +15,7 @@ function KonfluxCanvasContext(canvas, defaults) {
 	'use strict';
 
 	/*jshint validthis: true*/
+	/*global kx*/
 	var context = this;
 
 	/**
@@ -74,7 +75,7 @@ function KonfluxCanvasContext(canvas, defaults) {
 		}
 
 		return obj;
-	};
+	}
 
 	/**
 	 *  Create a delegation function which call a context method and returns the KonfluxCanvasContext
@@ -235,6 +236,24 @@ function KonfluxCanvasContext(canvas, defaults) {
 		}
 
 		return false;
+	};
+
+	/**
+	 *  Clear the entire or a specified portion of the canvas
+	 *  @name    clear
+	 *  @type    method
+	 *  @access  public
+	 *  @param   mixed  from  [optional, default point(0, 0)]
+	 *  @param   mixed  to    [optional, default point(width, height)]
+	 *  @return  KonfluxCanvasContext
+	 */
+	context.clear = function(a, b) {
+		var pA = a || kx.point(0, 0),
+			pB = b || kx.point(canvas.width, canvas.height),
+			mA = pA.min(pB),
+			mB = pA.max(pB);
+
+		return context.clearRect(mA.x, mA.y, mB.x, mB.y);
 	};
 
 	/**
