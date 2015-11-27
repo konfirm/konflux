@@ -76,7 +76,7 @@
 		};
 	}
 
-	//  Append the module to konflux
+	//  Append the module to konflux or register it globally as `kxCanvas`
 	if (konflux && typeof konflux.register === 'function') {
 		konflux.register('canvas', new KonfluxCanvas());
 	}

@@ -15,7 +15,6 @@ function KonfluxCanvasContext(canvas, defaults) {
 	'use strict';
 
 	/*jshint validthis: true*/
-	/*global kx*/
 	var context = this;
 
 	/**
@@ -30,28 +29,100 @@ function KonfluxCanvasContext(canvas, defaults) {
 				height: null,
 				width: null
 			}),
-			p;
+			key;
 
 		context.ctx2d = canvas.getContext('2d');
 
 		//  relay all methods
-		for (p in context.ctx2d) {
-			if (typeof context[p] !== 'function') {
-				if (typeof context.ctx2d[p] === 'function') {
-					context[p] = relayMethod(context.ctx2d[p]);
-				}
-				else if (p in context.ctx2d.canvas) {
-					context[p] = relayCanvasProperty(p, p in property && property[p] === null);
-				}
-				else {
-					context[p] = relayProperty(p, p in property && property[p] === null);
-				}
+		for (key in context.ctx2d) {
+			if (typeof context[key] !== 'function') {
+				context[key] = relay(key, property);
 
-				if (p in property && property[p] !== null) {
-					context[p](property[p]);
+				//  if the key is present in the configuration (e.g. provided as default value)
+				//  the (now created) relay method is invoked with this value
+				if (key in property && property[key] !== null) {
+					context[key](property[key]);
 				}
 			}
 		}
+	}
+
+	/**
+	 *  Find the most appropriate way to relay given key
+	 *  @name    relay
+	 *  @access  internal
+	 *  @param   string  key
+	 *  @param   Object  config
+	 *  @return  void
+	 */
+	function relay(key, config) {
+		var scope = context.ctx2d;
+
+		if (typeof scope[key] === 'function') {
+			return relayMethod(scope[key]);
+		}
+
+		return relayProperty(
+			key,
+			key in scope.canvas ? scope.canvas : scope,
+			key in config && config[key] === null
+		);
+	}
+
+	/**
+	 *  Cast the provided variable to an array
+	 *  @name    castToArray
+	 *  @access  internal
+	 *  @param   mixed  array-like
+	 *  @return  Array
+	 */
+	function castToArray(variable) {
+		return Array.prototype.slice.call(variable);
+	}
+
+	/**
+	 *  Test whether provided variable is an object
+	 *  @name    isObject
+	 *  @access  internal
+	 *  @param   mixed    test
+	 *  @return  boolean  isObject
+	 */
+	function isObject(test) {
+		return test && typeof test === 'object' && !(test instanceof Array);
+	}
+
+	/**
+	 *  Obtain the coordinates of a region as used often by the Canvas API
+	 *  @name    region
+	 *  @access  internal
+	 *  @param   mixed   x1  [number or point, optional, default undefined - 0]
+	 *  @param   mixed   y1  [number or point, optional, default undefined - 0]
+	 *  @param   number  x2  [optional, default undefined - canvas.width - x1]
+	 *  @param   number  y2  [optional, default undefined - canvas.height - y1]
+	 *  @return  Array  [x1, y1, x2, y2]
+	 *  @note    Usage: region()                  =>  [0, 0, width, height]
+	 *                  region(100, 100)          =>  [100, 100, width - 100, height - 100]
+	 *                  region({x:100}, {x:200})  =>  [100, 0, 200, height]
+	 *                  region(100, 100, 200)     =>  [100, 100, 200, height - 100]
+	 *                  region({x:100, y: 100})   =>  [100, 100, width - 100, height - 100]
+	 */
+	function region(a, b, c, d) {
+		var result = [
+				(isObject(a) ? a.x : a) || 0,
+				(isObject(a) ? a.y : b) || 0,
+				(isObject(b) ? b.x : c) || canvas.width,
+				(isObject(b) ? b.y : d) || canvas.height
+			];
+
+		if (!c) {
+			result[2] = result[2] - result[0];
+		}
+
+		if (!d) {
+			result[3] = result[3] - result[1];
+		}
+
+		return result;
 	}
 
 	/**
@@ -62,19 +133,19 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 *  @return  Object combined
 	 */
 	function combine() {
-		var obj = {},
+		var result = {},
 			arg = arguments,
 			i, p;
 
 		for (i = 0; i < arg.length; ++i) {
-			if (kx.isType('object', arg[i])) {
+			if (isObject(arg[i])) {
 				for (p in arg[i]) {
-					obj[p] = p in obj && kx.isType('object', obj[p]) ? combine(arg[i][p], obj[p]) : arg[i][p];
+					result[p] = p in result && isObject(result[p]) ? combine(arg[i][p], result[p]) : arg[i][p];
 				}
 			}
 		}
 
-		return obj;
+		return result;
 	}
 
 	/**
@@ -86,59 +157,56 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 *  @param   function context method
 	 *  @return  function delegate
 	 */
-	function relayMethod(f) {
+	function relayMethod(fn) {
 		return function() {
-			f.apply(context.ctx2d, arguments);
-			return context;
-		};
-	}
-
-	/**
-	 *  Create a delegation function which gets/sets a canvas value and returns the KonfluxCanvasContext
-	 *  instance (providing chainability)
-	 *  @name    relayCanvasProperty
-	 *  @type    function
-	 *  @access  internal
-	 *  @param   string   canvas property
-	 *  @param   bool     read only
-	 *  @return  function delegate
-	 */
-	function relayCanvasProperty(key, ro) {
-		return function(value) {
-			if (typeof value === 'undefined') {
-				return context.ctx2d.canvas[key];
-			}
-
-			if (!ro) {
-				context.ctx2d.canvas[key] = value;
-			}
+			fn.apply(context.ctx2d, arguments);
 
 			return context;
 		};
 	}
 
 	/**
-	 *  Create a delegation function which gets/sets a context value and returns the KonfluxCanvasContext
-	 *  instance (providing chainability)
+	 *  Create a delegation function which gets/sets a context value and returns
+	 *  the KonfluxCanvasContext instance (providing chainability)
 	 *  @name    relayProperty
 	 *  @type    function
 	 *  @access  internal
 	 *  @param   string  context property
+	 *  @param   object  scope   [one of context2d or canvas]
 	 *  @param   bool    read only
 	 *  @return  function delegate
 	 */
-	function relayProperty(key, ro) {
+	function relayProperty(key, scope, ro) {
 		return function(value) {
 			if (typeof value === 'undefined') {
-				return context.ctx2d[key];
+				return scope[key];
 			}
 
 			if (!ro) {
-				context.ctx2d[key] = value;
+				scope[key] = value;
 			}
 
 			return context;
 		};
+	}
+
+	/**
+	 *  Update all properties from the list, if a value was provided
+	 *  @name    updateContextProperty
+	 *  @access  internal
+	 *  @param   Array   propertyList
+	 *  @param   Array   arguments  [does accept the function arguments array-like object]
+	 *  @return  object  KonfluxCanvasContext
+	 */
+	function updateContextProperty(keys, arg) {
+		var length = Math.min(keys.length, arg.length),
+			i;
+
+		for (i = 0; i < length; ++i) {
+			context.ctx2d[keys[i]] = arg[i];
+		}
+
+		return context;
 	}
 
 	/**
@@ -151,48 +219,28 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 *  @return  object KonfluxCanvasContext
 	 */
 	function gradientFill(gradient, color) {
-		var p;
-		for (p in color) {
-			gradient.addColorStop(p, color[p]);
+		var key;
+
+		for (key in color) {
+			gradient.addColorStop(key, color[key]);
 		}
 
-		context.fillStyle(gradient);
-		context.fill();
-
-		return context;
+		return context
+			.fillStyle(gradient)
+			.fill()
+		;
 	}
 
 	/**
-	 *  Draw a multitude of line segments from a list of kx.point instances (or {x:N, y:N}) in
-	 *  a fully enclosed path
-	 *  @name    path
-	 *  @type    function
+	 *  Compare two points, without requiring the kxPoint.equals method
+	 *  @name    isEqualPoint
 	 *  @access  internal
-	 *  @param   mixed point (one of: kxPoint or Array of points)
-	 *  @param   mixed ...
-	 *  @param   mixed pointN
-	 *  @return  object KonfluxCanvasContext
+	 *  @param   point a  [one of kxPoint or Object containing x/y properties]
+	 *  @param   point b  [one of kxPoint or Object containing x/y properties]
+	 *  @return  bool  equals
 	 */
-	function path() {
-		var arg = Array.prototype.slice.call(arguments),
-			len = arguments.length,
-			i;
-
-		if (len === 1 && arg[0] instanceof Array) {
-			return context.line.apply(context.line, arg[0]);
-		}
-
-		context.beginPath();
-		for (i = 0; i < len; ++i) {
-			if (i === len - 1 && arguments[i].equal(arguments[0])) {
-				context.closePath();
-			}
-			else {
-				context[i === 0 ? 'moveTo' : 'lineTo'](arguments[i].x, arguments[i].y);
-			}
-		}
-
-		return context;
+	function isEqualPoint(a, b) {
+		return a.x === b.x && a.y === b.y;
 	}
 
 	/**
@@ -205,8 +253,7 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 *  @return  object kxCanvas
 	 */
 	context.resize = function(width, height) {
-		var percentage = /([0-9]+)%/,
-			cnvs;
+		var percentage = /([0-9]+)%/;
 
 		if (width > 0 && width < 1) {
 			width = Math.round(canvas.width * width);
@@ -230,9 +277,9 @@ function KonfluxCanvasContext(canvas, defaults) {
 		}
 
 		if (width && height) {
-			cnvs = canvas.create(width, height);
-			cnvs.drawImage(context, 0, 0, canvas.width, canvas.height, 0, 0, width, height);
-			return cnvs;
+			return canvas.create(width, height)
+				.drawImage.apply(null, [context].concat(region(), [0, 0, width, height]))
+			;
 		}
 
 		return false;
@@ -243,17 +290,12 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 *  @name    clear
 	 *  @type    method
 	 *  @access  public
-	 *  @param   mixed  from  [optional, default point(0, 0)]
-	 *  @param   mixed  to    [optional, default point(width, height)]
+	 *  @param   kxPoint  from  [optional, default (0, 0)]
+	 *  @param   kxPoint  to    [optional, default (width, height)]
 	 *  @return  KonfluxCanvasContext
 	 */
 	context.clear = function(a, b) {
-		var pA = a || kx.point(0, 0),
-			pB = b || kx.point(canvas.width, canvas.height),
-			mA = pA.min(pB),
-			mB = pA.max(pB);
-
-		return context.clearRect(mA.x, mA.y, mB.x, mB.y);
+		return context.clearRect.apply(context, region(a, b));
 	};
 
 	/**
@@ -263,7 +305,7 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 *  @access  public
 	 *  @param   string data (one of: the full data url to apply, or the mime type to obtain)
 	 *  @param   number quality (only used when obtaining the dataURL)
-	 *  @return  mixed  result (string dataURL when obtaining, object KonfluxCanvasContext when providing)
+	 *  @return  mixed  result (string dataURL if obtaining, object KonfluxCanvasContext if providing)
 	 */
 	context.data = function(data, quality) {
 		var image;
@@ -271,10 +313,11 @@ function KonfluxCanvasContext(canvas, defaults) {
 		if (data && !/^[a-z]+\/[a-z0-9\-\+\.]+/.test(data)) {
 			image     = new Image();
 			image.src = data;
-			context.ctx2d.clearRect(0, 0, canvas.width, canvas.height);
-			context.drawImage(image, 0, 0);
 
-			return context;
+			return context
+				.clear()
+				.drawImage(image, 0, 0)
+			;
 		}
 
 		return canvas.toDataURL(data, quality || 0.8);
@@ -311,24 +354,28 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 *  @param   mixed color (applied as provided, if provided)
 	 *  @return  object KonfluxCanvasContext
 	 */
-	context.shadow = function(x, y, blur, color) {
-		if (typeof x === 'number') {
-			context.shadowOffsetX(x);
-		}
+	context.shadow = function() {
+		return updateContextProperty(
+			['shadowOffsetX', 'shadowOffsetY', 'shadowBlur', 'shadowColor'],
+			arguments
+		);
+	};
 
-		if (typeof y === 'number') {
-			context.shadowOffsetY(y);
-		}
-
-		if (typeof blur === 'number') {
-			context.shadowBlur(blur);
-		}
-
-		if (typeof color !== 'undefined') {
-			context.shadowColor(color);
-		}
-
-		return context;
+	/**
+	 *  Set the stroke style
+	 *  @name    strokeStyle
+	 *  @type    method
+	 *  @access  public
+	 *  @param   mixed   strokeStyle (color)
+	 *  @param   number  lineWidth
+	 *  @param   string  lineCap     [one of: 'butt','round','square']
+	 *  @return  object  KonfluxCanvasContext
+	 */
+	context.strokeStyle = function() {
+		return updateContextProperty(
+			['strokeStyle', 'lineWidth', 'lineCap'],
+			arguments
+		);
 	};
 
 	/**
@@ -350,7 +397,7 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 *           https://developer.mozilla.org/en/docs/Web/API/CanvasRenderingContext2D#drawImage()
 	 */
 	context.drawImage = function() {
-		var arg = Array.prototype.slice.call(arguments);
+		var arg = castToArray(arguments);
 
 		//  if we have a request to draw a KonfluxCanvasContext, we honorate it by fetching its canvas
 		if (arg[0] instanceof KonfluxCanvasContext) {
@@ -358,6 +405,7 @@ function KonfluxCanvasContext(canvas, defaults) {
 		}
 
 		context.ctx2d.drawImage.apply(context.ctx2d, arg);
+
 		return context;
 	};
 
@@ -373,9 +421,10 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 *  @return  ImageData data
 	 */
 	context.getImageData = function() {
-		var arg = Array.prototype.slice.call(arguments);
-
-		return context.ctx2d.getImageData.apply(context.ctx2d, arg);
+		return context.ctx2d.getImageData.apply(
+			context.ctx2d,
+			region.apply(null, arguments)
+		);
 	};
 
 	/**
@@ -391,35 +440,9 @@ function KonfluxCanvasContext(canvas, defaults) {
 			context.fillStyle(color);
 		}
 
-		context.fill();
-
-		return context;
-	};
-
-	/**
-	 *  Set the stroke style
-	 *  @name    strokeStyle
-	 *  @type    method
-	 *  @access  public
-	 *  @param   mixed color
-	 *  @param   number width (line thickness)
-	 *  @param   string lineCap (one of: 'butt','round','square')
-	 *  @return  object KonfluxCanvasContext
-	 */
-	context.strokeStyle = function(color, width, cap) {
-		if (color) {
-			context.ctx2d.strokeStyle = color;
-		}
-
-		if (width) {
-			context.ctx2d.lineWidth = width;
-		}
-
-		if (cap) {
-			context.ctx2d.lineCap = cap;
-		}
-
-		return context;
+		return context
+			.fill()
+		;
 	};
 
 	/**
@@ -480,7 +503,27 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 *  @param   mixed pointN
 	 *  @return  object KonfluxCanvasContext
 	 */
-	context.path = path;
+	context.path = function() {
+		var arg = castToArray(arguments),
+			length = arg.length - 1,
+			i;
+
+		if (length === 1 && arg[0] instanceof Array) {
+			return context.line.apply(context.line, arg[0]);
+		}
+
+		context.beginPath();
+		for (i = 0; i <= length; ++i) {
+			if (i === length && isEqualPoint(arg[i], arg[0])) {
+				context.closePath();
+			}
+			else {
+				context[i === 0 ? 'moveTo' : 'lineTo'](arg[i].x, arg[i].y);
+			}
+		}
+
+		return context;
+	};
 
 	/**
 	 *  Create a pattern from an image, canvas or video
@@ -533,10 +576,11 @@ function KonfluxCanvasContext(canvas, defaults) {
 	 */
 	context.line = function() {
 		return context
-			.path.apply(context.path, arguments)
+			.path.apply(context, arguments)
 			.stroke()
 		;
 	};
 
+	//  initialise the Context
 	init();
 }
