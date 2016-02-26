@@ -17,10 +17,10 @@ clean:
 
 #  build the konflux and script targets
 build:
-	@devour konflux script;
+	@devour konflux addon;
 
 build-all:
-	@devour konflux konflux:{ajax,browser,dom,event,iterator,observer,style};
+	@devour konflux addon konflux:{ajax,browser,dom,event,iterator,observer,style};
 
 #  create a package for the minified sources
 release-min:
@@ -35,7 +35,7 @@ release-full:
 
 #  create both the full and the minified packages
 release:
-	@$(MAKE) build && $(MAKE) release-min && $(MAKE) release-full;
+	@$(MAKE) clean build-all release-min release-full;
 
 #  work around name clashes (where make-tasks conflict with directories)
 .PHONY: build
