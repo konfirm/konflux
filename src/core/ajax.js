@@ -56,51 +56,40 @@
 		}
 
 		/**
-		 *  Request a resource using XHR
-		 *  @name    request
+		 *  Determine if JSON is to be used as content-type,
+		 *  explicitly using config.json = true-ish, or
+		 *  implicitly using the content-type: application/json header
+		 *  @name    isJSON
 		 *  @type    function
 		 *  @access  internal
-		 *  @param   object config
-		 *  @return  object XMLHttpRequest
+		 *  @param   object  config
+		 *  @param   object  headers
+		 *  @return  bool    json
+		 *  @note    This function will set the content-type header if json is
+		 *           requested via the config option
 		 */
-		function request(config) {
-			var url     = 'url' in config ? config.url : (konflux.url ? konflux.url.path : null),
-				type    = 'type' in config ? config.type.toUpperCase() : 'GET',
-				data    = 'data' in config ? prepareData(config.data) : '',
-				async   = 'async' in config ? config.async : true,
-				headers = 'header' in config ? combine(config.header, getHeader(url)) : getHeader(url),
-				xhr     = getXMLHTTPRequest(),
-				p;
+		function isJSON(config, headers) {
+			var name = 'content-type',
+				value = 'application/json',
+				json = config.json || false,
+				match, type, p;
 
-			if (!/^(POST|PUT)$/.test(type)) {
-				url += 'data' in config && config.data !== '' ? '?' + (typeof config.data === 'string' ? config.data : data) : '';
-				data = null;
-			}
-
-			xhr.onload = xhrComplete(xhr, config, type);
-
-			if ('progress' in config && konflux.isType('function', config.progress)) {
-				konflux.event.add(xhr.upload, 'progress', config.progress);
-			}
-
-			if ('error' in config && konflux.isType('function', config.error)) {
-				konflux.event.add(xhr, 'error', config.error);
-			}
-
-			if ('abort' in config && konflux.isType('function', config.abort)) {
-				konflux.event.add(xhr, 'abort', config.abort);
-			}
-
-			xhr.open(type, url, async);
-			if (headers) {
-				for (p in headers) {
-					xhr.setRequestHeader(p, headers[p]);
+			for (p in headers) {
+				if (p.toLowerCase() === name) {
+					type = p;
+					break;
 				}
 			}
 
-			xhr.send(data);
+			match = type && headers[type].toLowerCase().substr(0, value.length) === value;
+			if (json && !match) {
+				headers[type || name] = value;
+			}
+			else {
+				json = match;
+			}
 
-			return xhr;
+			return json;
 		}
 
 		/**
@@ -169,8 +158,27 @@
 		}
 
 		/**
-		 *  Prepare data to be send
+		 *  Prepare the data to be transfered
 		 *  @name    prepareData
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   mixed  data
+		 *  @param   bool   json
+		 *  @return  mixed  data  [one of: string JSON encoded or (Konflux)FormData]
+		 *  @note    if json is requested and `JSON.stringify` is not a function an Error is thrown
+		 *           this allows for polyfills without bloating konflux too much
+		 */
+		function prepareData(data, json) {
+			if (json && typeof JSON.stringify !== 'function') {
+				throw new Error('konflux.ajax missing JSON.stringify');
+			}
+
+			return json ? JSON.stringify(data) : prepareFormData(data);
+		}
+
+		/**
+		 *  Prepare form data to be trasfered
+		 *  @name    prepareFormData
 		 *  @type    function
 		 *  @access  internal
 		 *  @param   mixed  data
@@ -178,7 +186,7 @@
 		 *  @param   FormData (or KonfluxFormData) object
 		 *  @return  FormData (or KonfluxFormData) object
 		 */
-		function prepareData(data, name, formData) {
+		function prepareFormData(data, name, formData) {
 			var r = formData || (typeof FormData !== 'undefined' ? new FormData() : new KonfluxFormData()),
 				p;
 
@@ -190,12 +198,12 @@
 			}
 			else if (data instanceof Array || (FileList !== 'undefined' && data instanceof FileList)) {
 				for (p = 0; p < data.length; ++p) {
-					prepareData(data[p], (name || '') + '[' + p + ']', r);
+					prepareFormData(data[p], (name || '') + '[' + p + ']', r);
 				}
 			}
 			else if (konflux.isType('object', data)) {
 				for (p in data) {
-					prepareData(data[p], name ? name + '[' + encodeURIComponent(p) + ']' : encodeURIComponent(p), r);
+					prepareFormData(data[p], name ? name + '[' + encodeURIComponent(p) + ']' : encodeURIComponent(p), r);
 				}
 			}
 			else {
@@ -246,6 +254,55 @@
 			});
 
 			return handler;
+		}
+
+		/**
+		 *  Request a resource using XHR
+		 *  @name    request
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   object config
+		 *  @return  object XMLHttpRequest
+		 */
+		function request(config) {
+			var url     = 'url' in config ? config.url : (konflux.url ? konflux.url.path : null),
+				headers = konflux.combine(config.header || {}, getHeader(url)),
+				json    = isJSON(config, headers),
+				type    = 'type' in config ? config.type.toUpperCase() : 'GET',
+				data    = 'data' in config ? prepareData(config.data, json) : '',
+				async   = 'async' in config ? config.async : true,
+				xhr     = getXMLHTTPRequest(),
+				p;
+
+			if (!/^(POST|PUT)$/.test(type)) {
+				url += 'data' in config && config.data !== '' ? '?' + (typeof config.data === 'string' ? config.data : data) : '';
+				data = null;
+			}
+
+			xhr.onload = xhrComplete(xhr, config, type);
+
+			if ('progress' in config && konflux.isType('function', config.progress)) {
+				konflux.event.add(xhr.upload, 'progress', config.progress);
+			}
+
+			if ('error' in config && konflux.isType('function', config.error)) {
+				konflux.event.add(xhr, 'error', config.error);
+			}
+
+			if ('abort' in config && konflux.isType('function', config.abort)) {
+				konflux.event.add(xhr, 'abort', config.abort);
+			}
+
+			xhr.open(type, url, async);
+			if (headers) {
+				for (p in headers) {
+					xhr.setRequestHeader(p, headers[p]);
+				}
+			}
+
+			xhr.send(data);
+
+			return xhr;
 		}
 
 		/**

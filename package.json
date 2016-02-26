@@ -1,7 +1,7 @@
 {
   "name": "konflux",
   "private": true,
-  "version": "1.0.0-alpha.135",
+  "version": "1.0.0-alpha.136",
   "description": "Konflux javascript library",
   "main": "index.js",
   "scripts": {
