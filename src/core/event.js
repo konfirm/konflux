@@ -1,5 +1,5 @@
 ;(function(konflux) {
-	//@depend: browser, dom, iterator, point, string, style
+	//@depend: browser, dom, iterator, string, style
 	'use strict';
 
 	/**
@@ -282,6 +282,20 @@
 		}
 
 		/**
+		 *  Obtain a point object, at the very least an object with an x and y value
+		 *  If available a konflux.point instance
+		 *  @name    point
+		 *  @type    function
+		 *  @access  internal
+		 *  @param   Number  x
+		 *  @param   Number  y
+		 *  @return  Object x/y   [konflux.point if available]
+		 */
+		function point(x, y) {
+			return typeof konflux.point === 'function' ? konflux.point(x, y) : {x: x, y: y};
+		}
+
+		/**
 		 *  Unify the event object, which makes event more consistent across browsers
 		 *  @name    unifyEvent
 		 *  @type    function
@@ -302,7 +316,7 @@
 			evt.family = getEventType(evt.type);
 
 			if (/^(mouse[a-z]+|drag(?:[a-z]+)?|drop|(?:dbl)?click)$/i.test(evt.type)) {
-				evt.mouse = konflux.point(
+				evt.mouse = point(
 					evt.pageX ? evt.pageX : (evt.clientX ? evt.clientX + document.body.scrollLeft + document.documentElement.scrollLeft : 0),
 					evt.pageY ? evt.pageY : (evt.clientY ? evt.clientY + document.body.scrollTop + document.documentElement.scrollTop : 0)
 				);
