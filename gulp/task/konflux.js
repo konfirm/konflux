@@ -8,10 +8,10 @@ module.exports = function(stream, devour, name) {
 
 	if (match) {
 		if (match[2]) {
-			list = match[2].split(/[,\s]+/).map(function(key) {
+			list = match[2].split(/[,\s-]+/).map(function(key) {
 				return 'src/core/' + key;
 			});
-			name = match[0].replace(/[^a-z]+/i, '-');
+			name = match[0].replace(/[^a-z]+/ig, '-');
 			special = true;
 		}
 	}
